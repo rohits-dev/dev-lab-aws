@@ -1,5 +1,6 @@
 # Local .terraform directories
 **/.terraform/*
+.DS_STORE
 
 # .tfstate files
 *.tfstate
@@ -7,6 +8,7 @@
 .terraform.*
 # Crash log files
 crash.log
+*.ovpn
 
 # Ignore any .tfvars files that are generated automatically for each Terraform run. Most
 # .tfvars files are managed as part of configuration and so should be included in

@@ -5,3 +5,11 @@ variable "AWS_REGION" {
 variable "RESOURCE_PREFIX" {
   default = "lazy"
 }
+
+variable "ROOT_CA_ARN" {
+  default = ""
+}
+
+variable "OPENVPN_CONFIG_S3_URL" {
+  default = ""
+}
