@@ -5,19 +5,19 @@ resource "aws_security_group" "client_vpn" {
   ingress {
     from_port = 0
     to_port   = 0
-    protocol  = "-1"
+    protocol  = "all"
 
     cidr_blocks = [
-      "10.1.0.0/16",
+      "10.0.0.0/8",
     ]
   }
   egress {
     from_port = 0
     to_port   = 0
-    protocol  = "tcp"
+    protocol  = "all"
 
     cidr_blocks = [
-      "10.1.0.0/16",
+      "10.0.0.0/8",
     ]
   }
 }

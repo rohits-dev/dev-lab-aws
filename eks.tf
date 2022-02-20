@@ -7,6 +7,7 @@ module "eks" {
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = false
 
+  cluster_additional_security_group_ids = [aws_security_group.client_vpn.id]
   vpc_id = module.vpc.vpc_id
 
   cluster_addons = {

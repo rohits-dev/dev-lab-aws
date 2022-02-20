@@ -12,3 +12,6 @@ of course this needs improvements.
 # install openvpn
 brew install --cask openvpn-connect
 
+# setup kubeconfig
+aws eks update-kubeconfig --region eu-west-2 --name rohit-eks-1
+
