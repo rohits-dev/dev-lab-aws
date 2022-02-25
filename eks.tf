@@ -24,7 +24,7 @@ module "eks" {
   eks_managed_node_group_defaults = {
     ami_type       = "AL2_x86_64"
     disk_size      = 50
-    instance_types = ["t3.2xlarge", "t3.large", "t3.xlarge"]
+    instance_types = ["t3.large", "t3.xlarge","t3.2xlarge", ]
     #vpc_security_group_ids = [aws_security_group.additional.id]
   }
 
@@ -32,28 +32,27 @@ module "eks" {
     blue = {}
     green = {
       min_size     = 1
-      max_size     = 3
+      max_size     = 6
       desired_size = 1
 
-      instance_types = ["t3.2xlarge"]
+      instance_types = ["t3.large"]
       capacity_type  = "SPOT"
       labels = {
         Environment = "DEV"
         GithubRepo  = "terraform-aws-eks"
         GithubOrg   = "terraform-aws-modules"
       }
-      taints = {
-        dedicated = {
-          key    = "dedicated"
-          value  = "gpuGroup"
-          effect = "NO_SCHEDULE"
-        }
-      }
+      # taints = {
+      #   dedicated = {
+      #     key    = "dedicated"
+      #     value  = "gpuGroup"
+      #     effect = "NO_SCHEDULE"
+      #   }
+      # }
       tags = {
         ExtraTag = "example"
         "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
         "k8s.io/cluster-autoscaler/enabled" = "TRUE"
-
       }
     }
   }
