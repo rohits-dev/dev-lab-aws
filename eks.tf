@@ -24,7 +24,7 @@ module "eks" {
   eks_managed_node_group_defaults = {
     ami_type       = "AL2_x86_64"
     disk_size      = 50
-    instance_types = ["t3.small", "t3.large", "m5.large"]
+    instance_types = ["t3.2xlarge", "t3.large", "t3.xlarge"]
     #vpc_security_group_ids = [aws_security_group.additional.id]
   }
 
@@ -35,7 +35,7 @@ module "eks" {
       max_size     = 3
       desired_size = 1
 
-      instance_types = ["t3.large"]
+      instance_types = ["t3.2xlarge"]
       capacity_type  = "SPOT"
       labels = {
         Environment = "DEV"
@@ -51,6 +51,9 @@ module "eks" {
       }
       tags = {
         ExtraTag = "example"
+        "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
+        "k8s.io/cluster-autoscaler/enabled" = "TRUE"
+
       }
     }
   }
