@@ -51,12 +51,12 @@ resource "aws_ec2_client_vpn_endpoint" "client_vpn" {
 }
 
 
-resource "aws_ec2_client_vpn_network_association" "example" {
+resource "aws_ec2_client_vpn_network_association" "subnet_association" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.client_vpn.id
   subnet_id              = module.vpc.public_subnets[0]
 }
 
-resource "aws_ec2_client_vpn_authorization_rule" "example" {
+resource "aws_ec2_client_vpn_authorization_rule" "auth_rule" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.client_vpn.id
   target_network_cidr    = module.vpc.vpc_cidr_block
   authorize_all_groups   = true
