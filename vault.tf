@@ -37,12 +37,18 @@ resource "aws_iam_policy" "vault" {
                 "Effect": "Allow"
             },
             {
-              
-                "Action" : [
-                    "*"
-                ],
-                "Resource" : "${aws_s3_bucket.vault.arn}",
-                "Effect": "Allow"
+              "Effect": "Allow",
+              "Action": ["s3:ListBucket"],
+              "Resource": ["${aws_s3_bucket.vault.arn}"]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject"
+              ],
+              "Resource": ["${aws_s3_bucket.vault.arn}/*"]
             }
         ]
     })
