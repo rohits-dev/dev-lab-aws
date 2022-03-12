@@ -1,3 +1,10 @@
+GITHUB_OWNER = "rohits-dev"
+GITHUB_TOKEN = ""
+REPOSITORY_NAME = "dev-lab-k8s-aws"
+REPOSITORY_VISIBILITY = "private"
+BRANCH = "tf-test"
+TARGET_PATH = ""
+
 AWS_REGION      = "eu-west-2"
 RESOURCE_PREFIX = "rohit"
 ROOT_CA_ARN     = "arn:aws:acm:eu-west-2:492737776546:certificate/85e05d23-a761-4f6e-9d93-129421a48679"
