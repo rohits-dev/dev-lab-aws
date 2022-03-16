@@ -9,10 +9,6 @@ spec:
       containers:
         - name: vault-init
           env:
-            - name: AWS_ACCESS_KEY_ID
-              value: AKIAXFOLVZORMZHJY4EF
-            - name: AWS_SECRET_ACCESS_KEY
-              value: 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
             - name: AWS_REGION
               value: ${aws_region}
             - name: S3_BUCKET
