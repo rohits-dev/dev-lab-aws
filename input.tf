@@ -6,13 +6,6 @@ variable "RESOURCE_PREFIX" {
   default = ""
 }
 
-variable "ROOT_CA_ARN" {
-  default = ""
-}
-
-variable "OPENVPN_CONFIG_S3_URL" {
-  default = ""
-}
 
 #### GITHUB ######
 
@@ -60,4 +53,10 @@ variable "TARGET_PATH" {
   type        = string
   default     = ""
   description = "flux sync target path"
+}
+
+variable "ADD_FLUXCD" {
+  type = bool
+  default = false
+  description = "Should add fluxcd to new EKS?"
 }

@@ -1,7 +1,6 @@
 #Generate Root CA
 resource "tls_private_key" "root_ca" {
-  algorithm   = "ECDSA"
-  ecdsa_curve = "P384"
+  algorithm   = "RSA"
 }
 
 resource "local_file" "root_ca_key" {
@@ -10,7 +9,7 @@ resource "local_file" "root_ca_key" {
 }
 
 resource "tls_self_signed_cert" "root_ca" {
-  key_algorithm   = "ECDSA"
+  key_algorithm   = "RSA"
   private_key_pem = tls_private_key.root_ca.private_key_pem
 
   subject {
@@ -31,3 +30,8 @@ resource "local_file" "root_ca_crt" {
     filename = "generated_certs/root_ca.crt"
 }
 
+resource "aws_acm_certificate" "root_certificate" {
+  private_key      = tls_private_key.root_ca.private_key_pem
+  certificate_body = tls_self_signed_cert.root_ca.cert_pem
+  
+}

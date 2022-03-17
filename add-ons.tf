@@ -1,9 +1,10 @@
 
 module fluxcd{
     source = "./fluxcd"
-    depends_on = [module.eks, aws_ec2_client_vpn_endpoint.client_vpn,
-    aws_ec2_client_vpn_authorization_rule.auth_rule,
-    aws_ec2_client_vpn_network_association.subnet_association]
+    count = var.ADD_FLUXCD ? 1: 0
+    depends_on = [
+        module.eks,
+        module.vpn]
     github_owner = var.GITHUB_OWNER
     repository_name = var.REPOSITORY_NAME
     repository_visibility = "private"
@@ -14,11 +15,10 @@ module fluxcd{
 
 module vault{
     source = "./vault"
-    depends_on = [module.eks, module.fluxcd, 
-    aws_ec2_client_vpn_endpoint.client_vpn, 
-    
-    aws_ec2_client_vpn_authorization_rule.auth_rule,
-    aws_ec2_client_vpn_network_association.subnet_association]
+    depends_on = [
+        module.eks, 
+        module.fluxcd, 
+        module.vpn]
     aws_region = var.AWS_REGION
     resource_prefix = var.RESOURCE_PREFIX
     root_ca_crt = tls_self_signed_cert.root_ca.cert_pem

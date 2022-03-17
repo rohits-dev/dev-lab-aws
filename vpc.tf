@@ -32,3 +32,13 @@ module "vpc" {
     "kubernetes.io/role/internal-elb"             = "1"
   }
 }
+
+module "vpn"{
+  source = "./vpn"
+  vpc_id = module.vpc.vpc_id
+  a_subnet_id = module.vpc.public_subnets[0]
+  vpc_cidr_block = module.vpc.vpc_cidr_block
+  root_ca_crt = tls_self_signed_cert.root_ca.cert_pem
+  root_ca_key = tls_private_key.root_ca.private_key_pem
+  root_ca_acm_arn = aws_acm_certificate.root_certificate.arn
+}

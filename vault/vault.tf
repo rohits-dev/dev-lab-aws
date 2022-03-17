@@ -86,12 +86,11 @@ resource "aws_iam_role_policy_attachment" "vault" {
 # Generate Client Certificate
 
 resource "tls_private_key" "vault_certificate" {
-  algorithm   = "ECDSA"
-  ecdsa_curve = "P384"
+  algorithm   = "RSA"
 }
 
 resource "tls_cert_request" "vault_certificate" {
-  key_algorithm   = "ECDSA"
+  key_algorithm   = "RSA"
   private_key_pem = tls_private_key.vault_certificate.private_key_pem
 
   subject {
@@ -103,22 +102,30 @@ resource "tls_cert_request" "vault_certificate" {
     "vault-internal", 
     "vault-0",
     "vault-1",
-    
+    "vault-2",
+    "vault-3",
+    "vault-4",
+
     "vault-0.vault-internal",
     "vault-1.vault-internal", 
+    "vault-2.vault-internal", 
+    "vault-3.vault-internal", 
+    "vault-4.vault-internal", 
     
     
     "vault-0.vault-internal.vault.svc.cluster.local",
     "vault-1.vault-internal.vault.svc.cluster.local",
+    "vault-2.vault-internal.vault.svc.cluster.local",
+    "vault-3.vault-internal.vault.svc.cluster.local",
+    "vault-4.vault-internal.vault.svc.cluster.local",
 
     "vault-ui",
     "vault-ui.vault.svc.cluster.local"
-
   ]
 }
 resource "tls_locally_signed_cert" "vault_certificate" {
   cert_request_pem   = tls_cert_request.vault_certificate.cert_request_pem
-  ca_key_algorithm   = "ECDSA"
+  ca_key_algorithm   = "RSA"
   ca_private_key_pem = var.root_ca_key
   ca_cert_pem        = var.root_ca_crt
   validity_period_hours = 8760 #1 year
