@@ -1,9 +1,9 @@
 
 
 resource "aws_iam_policy" "external_dns" {
-  name        = "${var.RESOURCE_PREFIX}-external-dns"
+  name        = "${var.resource_prefix}-external-dns"
   path        = "/"
-  description = "Policy allows to manage hosted zone ${aws_route53_zone.main.zone_id}"
+  description = "Policy allows to manage hosted zone ${var.route_53_zone_id}"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -16,7 +16,7 @@ resource "aws_iam_policy" "external_dns" {
                 "route53:ChangeResourceRecordSets"
             ],
             "Resource": [
-                "${aws_route53_zone.main.arn}"
+                "${var.route_53_zone_arn}"
             ]
         },
         {
@@ -34,7 +34,7 @@ resource "aws_iam_policy" "external_dns" {
 }
 
 resource "aws_iam_role" "external_dns" {
-  name = "${var.RESOURCE_PREFIX}-external-dns"
+  name = "${var.resource_prefix}-external-dns"
   assume_role_policy = jsonencode({
         "Version": "2012-10-17",
         "Statement": [
@@ -42,12 +42,12 @@ resource "aws_iam_role" "external_dns" {
                 "Sid": "",
                 "Effect": "Allow",
                 "Principal": {
-                    "Federated": "${module.eks.oidc_provider_arn}"
+                    "Federated": "${var.eks_oidc_provider_arn}"
                 },
                 "Action": "sts:AssumeRoleWithWebIdentity",
                 "Condition": {
                     "StringEquals": {
-                        "${module.eks.oidc_provider}:sub": "system:serviceaccount:kube-system:external-dns"
+                        "${var.eks_oidc_provider}:sub": "system:serviceaccount:kube-system:external-dns"
                     }
                 }
             }

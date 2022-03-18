@@ -28,6 +28,14 @@ resource "tls_self_signed_cert" "root_ca" {
 resource "local_file" "root_ca_crt" {
     content =  tls_self_signed_cert.root_ca.cert_pem
     filename = "generated_certs/root_ca.crt"
+
+    # provisioner "local-exec" {
+    #   command = "sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ./generated_certs/root_ca.crt"
+    # }
+    # provisioner "local-exec" {
+    #   when    = destroy
+    #   command = "sudo security remove-trusted-cert -d  ./generated_certs/root_ca.crt "
+    # }
 }
 
 resource "aws_acm_certificate" "root_certificate" {

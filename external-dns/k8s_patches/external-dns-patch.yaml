@@ -1,0 +1,13 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: kube-system
+spec:
+  values:
+    domainFilters:
+      - ${resource_prefix}.local
+
+    serviceAccount:
+      annotations:
+        eks.amazonaws.com/role-arn: ${external_dns_iam_role_arn}

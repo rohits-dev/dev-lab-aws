@@ -51,3 +51,10 @@ terraform apply -var="ADD_FLUXCD=true" --auto-approve
 # setup kubeconfig
 aws eks update-kubeconfig --region eu-west-2 --name <resource-prefix>-eks-1
 
+# add custom certs to trust store
+For ease you can run below commands to add the root ca to trusted root on your mac
+
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ./generated_certs/root_ca.crt
+sudo security remove-trusted-cert -d  ./generated_certs/root_ca.crt   
+```

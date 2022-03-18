@@ -1,5 +1,5 @@
 
-module fluxcd{
+module fluxcd {
     source = "./fluxcd"
     count = var.ADD_FLUXCD ? 1: 0
     depends_on = [
@@ -13,7 +13,44 @@ module fluxcd{
     
 }
 
-module vault{
+module "autoscaler" {
+    source = "./autoscaler"
+    depends_on = [
+        module.eks, 
+        module.fluxcd, 
+        module.vpn]
+    aws_region = var.AWS_REGION
+    resource_prefix = var.RESOURCE_PREFIX
+    
+    github_owner = var.GITHUB_OWNER
+    repository_name = var.REPOSITORY_NAME
+    branch = var.BRANCH
+    target_path = var.TARGET_PATH
+    eks_oidc_provider = module.eks.oidc_provider
+    eks_oidc_provider_arn = module.eks.oidc_provider_arn
+    
+}
+
+module "external_dns" {
+    source = "./external-dns"
+    depends_on = [
+        module.eks, 
+        module.fluxcd, 
+        module.vpn]
+    aws_region = var.AWS_REGION
+    resource_prefix = var.RESOURCE_PREFIX
+    
+    github_owner = var.GITHUB_OWNER
+    repository_name = var.REPOSITORY_NAME
+    branch = var.BRANCH
+    target_path = var.TARGET_PATH
+    eks_oidc_provider = module.eks.oidc_provider
+    eks_oidc_provider_arn = module.eks.oidc_provider_arn
+    route_53_zone_id = aws_route53_zone.main.zone_id
+    route_53_zone_arn = aws_route53_zone.main.arn
+}
+
+module vault {
     source = "./vault"
     depends_on = [
         module.eks, 
@@ -30,4 +67,6 @@ module vault{
     eks_oidc_provider = module.eks.oidc_provider
     eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }
+
+
 
