@@ -53,6 +53,10 @@ terraform apply -var="ADD_FLUXCD=true" --auto-approve
 # setup kubeconfig
 aws eks update-kubeconfig --region eu-west-2 --name rohit-eks-1
 
+# get vault token 
+aws s3 cp s3://rohit-vault/vault/vault_secret.json vault-secret.json 
+export VAULT_TOKEN=$(jq -r '.root_token | values' vault-secret.json)
+
 # add custom certs to trust store
 For ease you can run below commands to add the root ca to trusted root on your mac
 
