@@ -8,6 +8,7 @@ spec:
     autoDiscovery:
       clusterName: ${resource_prefix}-eks-1
     awsRegion: ${aws_region}
-    serviceAccount:
-      annotations:
-        eks.amazonaws.com/role-arn: ${autoscaler_iam_role_arn}
+    rbac:
+      serviceAccount:
+        annotations:
+          eks.amazonaws.com/role-arn: ${autoscaler_iam_role_arn}

@@ -52,6 +52,7 @@ module "external_dns" {
 
 module vault {
     source = "./vault"
+    count = var.ADD_FLUXCD ? 1: 0
     depends_on = [
         module.eks, 
         module.fluxcd, 

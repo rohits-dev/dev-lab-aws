@@ -162,10 +162,10 @@ resource "github_repository_file" "kustomize" {
   content    = "${local.file_header_safe}${data.flux_sync.main.kustomize_content}"
   branch     = var.branch
   overwrite_on_create = false
+  
   lifecycle {
-    ignore_changes = [
-      content
-    ]
+    ignore_changes = all
+    # prevent_destroy = true
   }
 }
 

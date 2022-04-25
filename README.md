@@ -1,16 +1,18 @@
 # dev-lab-aws
 
-# VPN Client Auth
-VPN Client auth is configured using mutual auth i.e. mTLS which requires certificates to be in ACM. Create a CA and Client cert following https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/client-authentication.html#mutual and import into ACM. Set the ROOT_CA_ARN in variables with the arn of root CA in ACM.
+# local tools
 
-Upload the configuration in S3 with certificates information so that next time onwards it works. 
+## vault cli for local
+It would be a good idea to have vault cli locally
 
->>>
-of course this needs improvements.
->>>
-
-# install openvpn
+```bash
+brew tap hashicorp/tap       
+brew install hashicorp/tap/vault
+```
+## install openvpn
 brew install --cask openvpn-connect
+
+
 
 # apply terraform
 Fork the repo and change variables to run to create resources for you.
@@ -41,7 +43,7 @@ There is a variable ADD_FLUXCD which is set to false in tfvars, so first run wou
 terraform plan 
 terraform apply --auto-approve
 ```
-Once the resources are provisioned, it would have configured the open vpn client, connect the VPN and run the below command. 
+> **_NOTE:_** Once the resources are provisioned, it would have configured the open vpn client, **_connect the VPN_** and run the below command. 
 
 ```bash
 terraform plan -var="ADD_FLUXCD=true"
@@ -49,7 +51,7 @@ terraform apply -var="ADD_FLUXCD=true" --auto-approve
 ```
 
 # setup kubeconfig
-aws eks update-kubeconfig --region eu-west-2 --name <resource-prefix>-eks-1
+aws eks update-kubeconfig --region eu-west-2 --name rohit-eks-1
 
 # add custom certs to trust store
 For ease you can run below commands to add the root ca to trusted root on your mac
