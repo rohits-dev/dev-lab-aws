@@ -15,9 +15,10 @@ brew install --cask openvpn-connect
 
 
 # apply terraform
-Fork the repo and change variables to run to create resources for you.
+Fork this repo and https://github.com/rohits-dev/dev-lab-k8s-aws 
+Change variables to run to create resources for you.
 
-dev-lab-k8s-aws
+
 
 Update the terraform.tfvars as per you.
 
