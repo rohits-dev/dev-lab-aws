@@ -1,0 +1,14 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: autoscaler
+  namespace: kube-system
+spec:
+  values:
+    autoDiscovery:
+      clusterName: ${resource_prefix}-eks-1
+    awsRegion: ${aws_region}
+    rbac:
+      serviceAccount:
+        annotations:
+          eks.amazonaws.com/role-arn: ${autoscaler_iam_role_arn}

@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-init
+  namespace: vault
+spec:
+  template:
+    spec:
+      containers:
+        - name: vault-init
+          env:
+            - name: AWS_REGION
+              value: ${aws_region}
+            - name: S3_BUCKET
+              value: ${s3_bucket}
