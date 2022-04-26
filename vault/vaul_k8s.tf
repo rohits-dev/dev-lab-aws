@@ -33,7 +33,7 @@ resource "github_repository_file" "vault_init_job_patch" {
   repository          = data.github_repository.main.name
   file                = "vault/release/vault-init-job-patch.yaml"
   content             = "${local.file_header_not_safe}${data.template_file.vault_init_job_patch.rendered}"
-  branch              = "tf-test"
+  branch              = var.branch
   overwrite_on_create = true
 }
 
