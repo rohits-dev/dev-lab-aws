@@ -27,7 +27,7 @@ Update the terraform.tfvars as per you.
 GITHUB_OWNER = "<your-github-account>"
 GITHUB_TOKEN = "<your-github--token>"
 REPOSITORY_NAME = "dev-lab-k8s-aws"
-REPOSITORY_VISIBILITY = "private"
+REPOSITORY_VISIBILITY = "public"
 BRANCH = "main"
 TARGET_PATH = ""
 
@@ -51,12 +51,29 @@ terraform plan -var="ADD_FLUXCD=true"
 terraform apply -var="ADD_FLUXCD=true" --auto-approve
 ```
 
-# setup kubeconfig
-aws eks update-kubeconfig --region eu-west-2 --name rohit-eks-1
+> **TIP:_**  If you get dns resolution error, please disconnect the VPN and connect again, sometimes it fails to resolve the dns. 
 
+# setup kubeconfig
+
+Change the name & region of the cluster as per your variables.
+
+```bash
+export EKS_NAME=$(terraform output -json | jq -r '.eks_cluster_name.value | values')
+export AWS_REGION=$(terraform output -json | jq -r '.aws_region.value | values')
+aws eks update-kubeconfig --region $AWS_REGION --name $EKS_NAME
+```
 # get vault token 
-aws s3 cp s3://rohit-vault/vault/vault_secret.json vault-secret.json 
+
+
+
+```bash
+export S3_BUCKET_VAULT_OBJECT=$(terraform output -json | jq -r '.vault_s3_bucket.value | values')
+
+export VAULT_ADDR=https://$(terraform output -json | jq -r '.vault_url.value | values')
+
+aws s3 cp $S3_BUCKET_VAULT_OBJECT vault-secret.json 
 export VAULT_TOKEN=$(jq -r '.root_token | values' vault-secret.json)
+```
 
 # add custom certs to trust store
 For ease you can run below commands to add the root ca to trusted root on your mac
