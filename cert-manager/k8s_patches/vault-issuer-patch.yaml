@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: vault-issuer
+  # namespace: cert-manager
+spec:
+  vault:
+    server: https://vault.${resource_prefix}.local
+    caBundle: ${ca_base64}
+    auth:
+      kubernetes:
+        role: certs-creator
+        mountPath: /v1/auth/kubernetes
+        secretRef:
+          name: ${service_account_default_token}
+          key: token
