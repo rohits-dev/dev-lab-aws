@@ -51,7 +51,9 @@ terraform plan -var="ADD_FLUXCD=true"
 terraform apply -var="ADD_FLUXCD=true" --auto-approve
 ```
 
+
 > **_TIP:_**  If you get dns resolution error, please disconnect the VPN and connect again, sometimes it fails to resolve the dns. 
+
 
 # setup kubeconfig
 
