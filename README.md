@@ -92,6 +92,6 @@ terraform destroy
 if destroy stuck deleting  flux-system ns then edit a few resources and remove the fluxcd finalizers
 
 ```bash
-k edit gitrepositories flux-system
-k edit kustomizations flux-system 
+k edit gitrepositories flux-system -nflux-system
+k edit kustomizations flux-system -nflux-system
 ```
