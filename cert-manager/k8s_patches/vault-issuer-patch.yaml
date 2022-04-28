@@ -7,3 +7,4 @@ spec:
   vault:
     server: https://vault.${resource_prefix}.local
     caBundle: ${ca_base64}
+
