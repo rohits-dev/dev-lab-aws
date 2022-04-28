@@ -35,7 +35,7 @@ resource "kubernetes_namespace" "flux_system" {
     command    = <<EOT
     kubectl get gitrepositories flux-system -nflux-system -o json \
       | tr -d "\n" | sed "s/\"finalizers.fluxcd.io\"//g" \
-      | kubectl -nflux-system replace --raw /apis/source.toolkit.fluxcd.io/v1beta1/namespaces/flux-system/gitrepositories/flux-system -f -
+      | kubectl -nflux-system replace --raw /apis/source.toolkit.fluxcd.io/v1beta2/namespaces/flux-system/gitrepositories/flux-system -f -
     kubectl delete --all gitrepositories -nflux-system
 
     

@@ -84,3 +84,16 @@ For ease you can run below commands to add the root ca to trusted root on your m
 sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ./generated_certs/root_ca.crt
 sudo security remove-trusted-cert -d  ./generated_certs/root_ca.crt   
 ```
+
+# destroy
+
+```bash
+terraform destroy
+```
+
+if destroy stuck deleting  flux-system ns then edit a few resources and remove the fluxcd finalizers
+
+```bash
+k edit gitrepositories flux-system -nflux-system
+k edit kustomizations flux-system -nflux-system
+```
