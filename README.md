@@ -3,7 +3,7 @@ This repository contains terraform resources to spin up an environment in AWS.
 It provisions a VPC, EKS and required resources to make the kubernetes cluster functional.
 
 
-[![asciicast](./lab.svg)](https://asciinema.org/a/492624?speed=1)
+[![asciicast](https://asciinema.org/a/492624.svg)](https://asciinema.org/a/492624?speed=1)
 
 
 # local tools
