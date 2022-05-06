@@ -31,7 +31,7 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = "DEV"
-      Owner       = "ROHIT"
+      Owner       = "https://github.com/${var.GITHUB_OWNER}"
       Project     = "LAB"
       ManagedBy   = "Terraform"
     }
@@ -41,16 +41,16 @@ provider "aws" {
 provider "flux" {}
 
 provider "kubectl" {
- 
+
 }
 
 data "aws_eks_cluster_auth" "cluster_auth" {
   depends_on = [module.eks]
-  name = local.cluster_name
+  name       = local.cluster_name
 }
 
 provider "kubernetes" {
-  
+
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
   token                  = data.aws_eks_cluster_auth.cluster_auth.token
