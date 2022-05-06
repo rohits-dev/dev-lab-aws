@@ -1,24 +1,24 @@
 data "template_file" "vault_patch" {
-  template = "${file("${path.module}/k8s_patches/vault-release-patch.yaml")}"
+  template = file("${path.module}/k8s_patches/vault-release-patch.yaml")
   vars = {
     vault_auto_unseal_kms_id = aws_kms_key.vault.key_id
-    vault_role_arn = aws_iam_role.vault.arn
-    resource_prefix = var.resource_prefix
-    aws_region = var.aws_region
+    vault_role_arn           = aws_iam_role.vault.arn
+    resource_prefix          = var.resource_prefix
+    aws_region               = var.aws_region
   }
 }
 
 data "template_file" "vault_init_job_patch" {
-  template = "${file("${path.module}/k8s_patches/vault-init-job-patch.yaml")}"
+  template = file("${path.module}/k8s_patches/vault-init-job-patch.yaml")
   vars = {
-    s3_bucket = local.vault_s3_bucket_name
+    s3_bucket  = local.vault_s3_bucket_name
     aws_region = var.aws_region
   }
 }
 
 # GitHub
 data "github_repository" "main" {
-  full_name  = "${var.github_owner}/${var.repository_name}"
+  full_name = "${var.github_owner}/${var.repository_name}"
 }
 
 resource "github_repository_file" "vault_patch" {
@@ -51,7 +51,7 @@ resource "kubernetes_namespace" "vault" {
   provisioner "local-exec" {
     when       = destroy
     command    = <<EOT
-    helm uninstall vault 
+    helm uninstall vault -nvault
     kubectl delete pvc data-vault-0 data-vault-1 data-vault-2 audit-vault-0 audit-vault-1 audit-vault-2 -nvault
     kubectl get -nvault helmrelease vault -o  json \
       | tr -d "\n" | sed "s/\"finalizers.fluxcd.io\"//g" \
