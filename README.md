@@ -1,4 +1,10 @@
 # dev-lab-aws
+This repository contains terraform resources to spin up an environment in AWS. 
+It provisions a VPC, EKS and required resources to make the kubernetes cluster functional.
+
+
+[![asciicast](./lab.svg)](https://asciinema.org/a/492624?speed=1)
+
 
 # local tools
 
@@ -17,7 +23,6 @@ brew install --cask openvpn-connect
 # apply terraform
 Fork this repo and https://github.com/rohits-dev/dev-lab-k8s-aws 
 Change variables to run to create resources for you.
-
 
 
 Update the terraform.tfvars as per you.
