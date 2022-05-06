@@ -10,7 +10,7 @@
 # .tfstate files
 *.tfstate
 *.tfstate.*
-.terraform.*
+*.cast
 # Crash log files
 crash.log
 *.ovpn
