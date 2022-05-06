@@ -34,7 +34,7 @@ GITHUB_TOKEN = "<your-github--token>"
 REPOSITORY_NAME = "dev-lab-k8s-aws"
 REPOSITORY_VISIBILITY = "public"
 BRANCH = "main"
-TARGET_PATH = ""
+
 
 AWS_REGION      = "<your-desired-region>"
 RESOURCE_PREFIX = "<your-name/any-prefix>"

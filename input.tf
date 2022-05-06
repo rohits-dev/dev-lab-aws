@@ -51,12 +51,12 @@ variable "BRANCH" {
 
 variable "TARGET_PATH" {
   type        = string
-  default     = ""
+  default     = "operators/"
   description = "flux sync target path"
 }
 
 variable "ADD_FLUXCD" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Should add fluxcd to new EKS?"
 }
