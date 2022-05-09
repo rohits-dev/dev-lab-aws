@@ -1,0 +1,35 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: cert-manager-restrict-issuer
+  namespace: kyverno
+  annotations:
+    policies.kyverno.io/title: Restrict issuer
+    policies.kyverno.io/category: Cert-Manager
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Certificate
+    policies.kyverno.io/description: >-
+      Certificates for trusted domains should always be steered to a controlled issuer to
+      ensure the chain of trust is appropriate for that application. Users may otherwise be
+      able to create their own issuers and sign certificates for other domains. This policy
+      ensures that a certificate request for a specific domain uses a designated ClusterIssuer.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: restrict-corp-cert-issuer
+      match:
+        resources:
+          kinds:
+            - Certificate
+      # preconditions:
+      #   all:
+      #     - issuerRef:
+      #         name: ca-issuer
+      #         kind: ClusterIssuer
+      #         group: cert-manager.io
+      validate:
+        message: When requesting a cert, domain must be namespace specific.
+        pattern:
+          spec:
+            (dnsNames): [".{{serviceAccountNamespace}}.svc.cluster.local"]
