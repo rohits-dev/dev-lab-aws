@@ -48,7 +48,7 @@ data "github_repository" "main" {
 
 resource "github_repository_file" "vault_issuer_patch" {
   repository          = data.github_repository.main.name
-  file                = "resources/cert-manager/vault-issuer-patch.yaml"
+  file                = "cluster-resources/resources/cert-manager/vault-issuer-patch.yaml"
   content             = "${local.file_header_not_safe}${data.template_file.vault_issuer_patch.rendered}"
   branch              = var.branch
   overwrite_on_create = true

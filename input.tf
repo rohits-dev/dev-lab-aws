@@ -51,7 +51,7 @@ variable "BRANCH" {
 
 variable "TARGET_PATH" {
   type        = string
-  default     = "operators/"
+  default     = "cluster-resources/operators/"
   description = "flux sync target path"
 }
 
