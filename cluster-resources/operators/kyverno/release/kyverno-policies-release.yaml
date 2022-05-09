@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: kyverno
+  name: kyverno-policies
   namespace: kyverno
 spec:
   chart:
@@ -14,5 +14,5 @@ spec:
       version: "2.*"
   interval: 5m0s
   timeout: 5m0s
-  releaseName: kyverno
+  releaseName: kyverno-polcies
   values:
