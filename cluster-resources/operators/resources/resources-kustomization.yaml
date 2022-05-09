@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 0m3s
-  path: ./resources/
+  path: ./cluster-resources/resources/
   prune: true
   sourceRef:
     kind: GitRepository
