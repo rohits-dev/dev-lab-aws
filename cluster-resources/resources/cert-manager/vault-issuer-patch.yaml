@@ -1,0 +1,14 @@
+    #############################################################################
+    #############################################################################
+    ######### Managed by Terraform, not safe to change ##########################
+    #############################################################################
+    #############################################################################
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: vault-issuer
+  namespace: confluent
+spec:
+  vault:
+    server: https://vault.rohit.local
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lSQUpzT05td3ZyeDFtcDNWS3d2anJPell3RFFZSktvWklodmNOQVFFTEJRQXcKTGpFV01CUUdBMVVFQ2hNTlRYa2dURzlqWVd3c0lFbHVZekVVTUJJR0ExVUVBeE1MY205b2FYUXViRzlqWVd3dwpIaGNOTWpJd05UQTVNVFExTXpJeVdoY05Nak13TlRBNU1UUTFNekl5V2pBdU1SWXdGQVlEVlFRS0V3MU5lU0JNCmIyTmhiQ3dnU1c1ak1SUXdFZ1lEVlFRREV3dHliMmhwZEM1c2IyTmhiRENDQVNJd0RRWUpLb1pJaHZjTkFRRUIKQlFBRGdnRVBBRENDQVFvQ2dnRUJBTFNPOHRwRkZxVUJ2amZudnE5QSt4MVkvc01XREptTnhnSm90emZUL3FaQQpKL1VLalJzeHgxNHZMVXBvam9xdmZrSTZFWjhtaW9EV1VSMUZVdENtUUxTWHVMaGxzbENhb3VvZnovejdGcThFClM2OUdaRXRhQWcvd0tKbDBKMjVXazBJWFhZc0h1aDNZb3NuVG5aVWxEOHFHVVprMlQrcXFtbWpUbklIS1I5WFoKMjIvSmdlRWhOanVSd3hQUzJ0SEZSU2RZOXhUZVFmSlc2UTBPelJHMXNiMHI3MmJWU1E5RjJSQXRYV085YkVhMApsZHVZUi9hQkVsREtRK3M0UCtUTjgwTnVlMkFQd1d3dlRTaU9BUkdrYzZpNDk4Y29ySVhDSk1sem5WYS9XZVd4CitYd2doQ1A4MzZTOUlXR3FWUlFtRkhidWJJbUVtQktSN1AxcUI2YXQzL1VDQXdFQUFhTkNNRUF3RGdZRFZSMFAKQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3SFFZRFZSME9CQllFRkJ0cDlqemFhSUdEbUxCOQpVTENTcm1qTmYxL29NQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUNCek53ZnQ1QnFSZDFVVUtMVGRNeW0vK3hiCkhhL2lEc3h1WFQrMDJDVzk3eHh2SG43WHIvWVZVUzNBd05USmFkZVhaV1B4T0ZiVXNwT1V0WGx4TnljdDNjMXMKbG5RTXFVaEhVRzFLeDZKQTg3Q1pmNGtNb0VOUzg4cnhGNllpTWZRekEyVjZkMklkeVF3T1NybzhxUzRHMkFYaQpVNk1BK2tMTWRIM21odStUVG9mMFo4SlVHdjJ4R3BoZUlxZ1hIcUZFaGZ1YjVOemtvSllka1ViUHVQVlJOODB5CjdMVURZVzk5UllkL1lmUkpucEp4Q1dxditYN3lGaEpVVSt2MEQvYk9IWlpsWlVuVkhib2RMUXlTZVdCMWhCRlgKY21kbHd1R1loQ0dCdUZoTWZqL2M0VHQwVlltNytlaithSWNzVlZvN1hmUWF4MDk5QzVLSXVJaVFRY2hzCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
