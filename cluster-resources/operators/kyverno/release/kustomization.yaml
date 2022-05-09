@@ -3,5 +3,6 @@ kind: Kustomization
 
 resources:
   - kyverno-release.yaml
+  - kyverno-policies-release.yaml
 patchesStrategicMerge:
   # - external-dns-release-patch.yaml
