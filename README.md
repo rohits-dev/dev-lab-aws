@@ -102,4 +102,5 @@ if destroy stuck deleting  flux-system ns then edit a few resources and remove t
 ```bash
 k edit gitrepositories flux-system -nflux-system
 k edit kustomizations flux-system -nflux-system
+k edit kustomizations resources -nflux-system
 ```

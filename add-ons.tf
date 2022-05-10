@@ -6,7 +6,7 @@ module "fluxcd" {
   repository_name       = var.REPOSITORY_NAME
   repository_visibility = "private"
   branch                = var.BRANCH
-  target_path           = var.TARGET_PATH
+  target_path           = local.target_path
   providers = {
     kubernetes = kubernetes
   }
@@ -25,7 +25,7 @@ module "autoscaler" {
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = var.TARGET_PATH
+  target_path           = local.target_path
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
 
@@ -44,7 +44,7 @@ module "external_dns" {
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = var.TARGET_PATH
+  target_path           = local.target_path
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
   route_53_zone_id      = aws_route53_zone.main.zone_id
@@ -66,7 +66,7 @@ module "vault" {
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = var.TARGET_PATH
+  target_path           = local.target_path
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }
@@ -85,7 +85,7 @@ module "certmanager" {
   github_owner    = var.GITHUB_OWNER
   repository_name = var.REPOSITORY_NAME
   branch          = var.BRANCH
-  target_path     = var.TARGET_PATH
+  target_path     = local.target_path
 }
 
 module "confluent" {
@@ -102,7 +102,7 @@ module "confluent" {
   # github_owner = var.GITHUB_OWNER
   # repository_name = var.REPOSITORY_NAME
   # branch = var.BRANCH
-  # target_path = var.TARGET_PATH
+  # target_path = local.target_path
   # eks_oidc_provider = module.eks.oidc_provider
   # eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }

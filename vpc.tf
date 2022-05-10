@@ -5,10 +5,9 @@ locals {
   cluster_name = "${var.RESOURCE_PREFIX}-eks-1"
 }
 
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  #version = "3.2.0"
 
+module "vpc" {
+  source               = "terraform-aws-modules/vpc/aws"
   name                 = "${var.RESOURCE_PREFIX}-vpc-1"
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
@@ -33,12 +32,12 @@ module "vpc" {
   }
 }
 
-module "vpn"{
-  source = "./vpn"
-  vpc_id = module.vpc.vpc_id
-  a_subnet_id = module.vpc.public_subnets[0]
-  vpc_cidr_block = module.vpc.vpc_cidr_block
-  root_ca_crt = tls_self_signed_cert.root_ca.cert_pem
-  root_ca_key = tls_private_key.root_ca.private_key_pem
+module "vpn" {
+  source          = "./vpn"
+  vpc_id          = module.vpc.vpc_id
+  a_subnet_id     = module.vpc.public_subnets[0]
+  vpc_cidr_block  = module.vpc.vpc_cidr_block
+  root_ca_crt     = tls_self_signed_cert.root_ca.cert_pem
+  root_ca_key     = tls_private_key.root_ca.private_key_pem
   root_ca_acm_arn = aws_acm_certificate.root_certificate.arn
 }
