@@ -32,4 +32,8 @@ spec:
         message: When requesting a cert, domain must be namespace specific.
         pattern:
           spec:
-            (dnsNames): [".{{serviceAccountNamespace}}.svc.cluster.local"]
+            issuerRef:
+              <(name): ca-issuer
+              kind: ClusterIssuer
+              group: cert-manager.io
+            commonName: "*.{{request.namespace}}.svc.cluster.local"
