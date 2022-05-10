@@ -29,7 +29,7 @@ variable "GITHUB_OWNER" {
 
 variable "REPOSITORY_NAME" {
   type        = string
-  default     = ""
+  default     = "dev-lab-aws"
   description = "github repository name"
   # validation {
   #   condition     = length(var.REPOSITORY_NAME) < 1

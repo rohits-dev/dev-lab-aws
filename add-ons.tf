@@ -14,6 +14,7 @@ module "fluxcd" {
 
 module "autoscaler" {
   source = "./autoscaler"
+  count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
     module.fluxcd,
@@ -32,6 +33,7 @@ module "autoscaler" {
 
 module "external_dns" {
   source = "./external-dns"
+  count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
     module.fluxcd,
@@ -55,6 +57,7 @@ module "vault" {
   depends_on = [
     module.eks,
     module.fluxcd,
+    module.external_dns,
   module.vpn]
   aws_region            = var.AWS_REGION
   resource_prefix       = var.RESOURCE_PREFIX
