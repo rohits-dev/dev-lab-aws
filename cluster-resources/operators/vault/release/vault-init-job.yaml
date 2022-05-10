@@ -50,11 +50,12 @@ data:
         echo $(cat vault_secret.json)
         echo "Copy to S3"
         aws s3 cp  ./vault_secret.json s3://$S3_BUCKET/vault/
+        echo "give vault initialization to settle -  10 seconds"
+        sleep 10
     else
         echo "failing the script so that job runs once more"
         exit 1
     fi
-    sleep 80
     echo "setup pki engine"
     aws s3 cp s3://$S3_BUCKET/vault/vault_secret.json vault_secret.json 
     export VAULT_TOKEN=$(jq -r '.root_token | values' vault_secret.json)
