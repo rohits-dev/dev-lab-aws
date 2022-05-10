@@ -42,6 +42,11 @@ resource "kubernetes_namespace" "flux_system" {
     kubectl get kustomization flux-system -nflux-system -o json \
       | tr -d "\n" | sed "s/\"finalizers.fluxcd.io\"//g" \
       | kubectl -nflux-system replace --raw /apis/kustomize.toolkit.fluxcd.io/v1beta2/namespaces/flux-system/kustomizations/flux-system -f -
+
+    kubectl get kustomization resources -nflux-system -o json \
+      | tr -d "\n" | sed "s/\"finalizers.fluxcd.io\"//g" \
+      | kubectl -nflux-system replace --raw /apis/kustomize.toolkit.fluxcd.io/v1beta2/namespaces/flux-system/kustomizations/resources -f -
+
     kubectl delete --all kustomization -nflux-system
     EOT
     on_failure = continue
@@ -73,7 +78,7 @@ resource "kubectl_manifest" "install" {
   for_each   = { for v in local.install : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
   depends_on = [kubernetes_namespace.flux_system]
   yaml_body  = each.value
-  
+
 }
 
 resource "kubectl_manifest" "sync" {
@@ -99,7 +104,7 @@ resource "kubernetes_secret" "main" {
 
 # GitHub
 data "github_repository" "main" {
-  full_name  = "${var.github_owner}/${var.repository_name}"
+  full_name = "${var.github_owner}/${var.repository_name}"
 }
 
 # resource "github_branch_default" "main" {
@@ -129,12 +134,12 @@ resource "github_repository_file" "sync" {
 }
 
 resource "github_repository_file" "kustomize" {
-  repository = data.github_repository.main.name
-  file       = data.flux_sync.main.kustomize_path
-  content    = "${local.file_header_safe}${data.flux_sync.main.kustomize_content}"
-  branch     = var.branch
+  repository          = data.github_repository.main.name
+  file                = data.flux_sync.main.kustomize_path
+  content             = "${local.file_header_safe}${data.flux_sync.main.kustomize_content}"
+  branch              = var.branch
   overwrite_on_create = false
-  
+
   lifecycle {
     ignore_changes = all
     # prevent_destroy = true

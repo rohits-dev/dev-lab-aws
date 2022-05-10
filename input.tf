@@ -49,10 +49,8 @@ variable "BRANCH" {
   description = "branch name"
 }
 
-variable "TARGET_PATH" {
-  type        = string
-  default     = "cluster-resources/operators/"
-  description = "flux sync target path"
+locals {
+  target_path = "cluster-resources/operators/"
 }
 
 variable "ADD_FLUXCD" {

@@ -1,0 +1,11 @@
+name: test
+policies:
+  - restric-issuer.yaml
+resources:
+  - resource.yaml
+results:
+  - policy: cert-manager-restrict-issuer
+    rule: restrict-corp-cert-issuer
+    resource: test-cert
+    kind: Certificate
+    result: fail
