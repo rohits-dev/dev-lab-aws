@@ -58,8 +58,10 @@ terraform apply -var="ADD_FLUXCD=true" --auto-approve
 
 > **_TIP:_**  If you get dns resolution error, please disconnect the VPN and connect again, sometimes it fails to resolve the dns. 
 
+# set local variables
+After successful run, you may run `./scripts/post_run.sh` to set local env variables to connect to vault and eks. Alternatively, you may run these as below. 
 
-# setup kubeconfig
+## setup kubeconfig
 
 Change the name & region of the cluster as per your variables.
 
@@ -68,7 +70,7 @@ export EKS_NAME=$(terraform output -json | jq -r '.eks_cluster_name.value | valu
 export AWS_REGION=$(terraform output -json | jq -r '.aws_region.value | values')
 aws eks update-kubeconfig --region $AWS_REGION --name $EKS_NAME
 ```
-# get vault token 
+## get vault token 
 
 
 
@@ -82,7 +84,7 @@ export VAULT_TOKEN=$(jq -r '.root_token | values' vault-secret.json)
 ```
 
 # add custom certs to trust store
-For ease you can run below commands to add the root ca to trusted root on your mac
+(Optional) For ease you can run below commands to add the root ca to trusted root on your mac
 
 ```bash
 sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ./generated_certs/root_ca.crt
