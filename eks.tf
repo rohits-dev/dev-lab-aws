@@ -1,6 +1,5 @@
 module "eks" {
   source                          = "terraform-aws-modules/eks/aws"
-  depends_on                      = [module.vpn]
   version                         = "18.8.1"
   cluster_name                    = local.cluster_name
   cluster_version                 = "1.21"

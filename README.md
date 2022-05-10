@@ -91,8 +91,10 @@ sudo security remove-trusted-cert -d  ./generated_certs/root_ca.crt
 ```
 
 # destroy
+First we should delete the namespaces and fluxcd from the cluster before we delete EKS and VPN. 
 
 ```bash
+terraform apply --auto-approve
 terraform destroy
 ```
 
