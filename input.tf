@@ -29,7 +29,7 @@ variable "GITHUB_OWNER" {
 
 variable "REPOSITORY_NAME" {
   type        = string
-  default     = ""
+  default     = "dev-lab-aws"
   description = "github repository name"
   # validation {
   #   condition     = length(var.REPOSITORY_NAME) < 1
@@ -51,12 +51,12 @@ variable "BRANCH" {
 
 variable "TARGET_PATH" {
   type        = string
-  default     = ""
+  default     = "cluster-resources/operators/"
   description = "flux sync target path"
 }
 
 variable "ADD_FLUXCD" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Should add fluxcd to new EKS?"
 }

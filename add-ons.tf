@@ -1,10 +1,7 @@
 
 module "fluxcd" {
-  source = "./fluxcd"
-  count  = var.ADD_FLUXCD ? 1 : 0
-  depends_on = [
-    module.eks,
-  module.vpn]
+  source                = "./fluxcd"
+  count                 = var.ADD_FLUXCD ? 1 : 0
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   repository_visibility = "private"
@@ -17,6 +14,7 @@ module "fluxcd" {
 
 module "autoscaler" {
   source = "./autoscaler"
+  count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
     module.fluxcd,
@@ -35,6 +33,7 @@ module "autoscaler" {
 
 module "external_dns" {
   source = "./external-dns"
+  count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
     module.fluxcd,
@@ -58,6 +57,7 @@ module "vault" {
   depends_on = [
     module.eks,
     module.fluxcd,
+    module.external_dns,
   module.vpn]
   aws_region            = var.AWS_REGION
   resource_prefix       = var.RESOURCE_PREFIX
@@ -105,6 +105,16 @@ module "confluent" {
   # target_path = var.TARGET_PATH
   # eks_oidc_provider = module.eks.oidc_provider
   # eks_oidc_provider_arn = module.eks.oidc_provider_arn
+}
+
+module "kyverno" {
+  source = "./kyverno"
+  count  = var.ADD_FLUXCD ? 1 : 0
+  depends_on = [
+    module.eks,
+    module.fluxcd,
+  module.vpn]
+
 }
 
 

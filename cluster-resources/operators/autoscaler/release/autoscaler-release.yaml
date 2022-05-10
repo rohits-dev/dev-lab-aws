@@ -1,0 +1,37 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: autoscaler
+  namespace: kube-system
+spec:
+  chart:
+    spec:
+      chart: cluster-autoscaler
+      sourceRef:
+        kind: HelmRepository
+        name: autoscaler
+      version: "9.*"
+  interval: 5m0s
+  timeout: 5m0s
+  releaseName: autoscaler
+  values:
+    rbac:
+      # rbac.create -- If `true`, create and use RBAC resources.
+      create: true
+      # rbac.pspEnabled -- If `true`, creates and uses RBAC resources required in the cluster with [Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) enabled.
+      # Must be used with `rbac.create` set to `true`.
+      pspEnabled: false
+      # rbac.clusterScoped -- if set to false will only provision RBAC to alter resources in the current namespace. Most useful for Cluster-API
+      clusterScoped: true
+      serviceAccount:
+        # rbac.serviceAccount.annotations -- Additional Service Account annotations.
+
+        # rbac.serviceAccount.create -- If `true` and `rbac.create` is also true, a Service Account will be created.
+        create: true
+        # rbac.serviceAccount.name -- The name of the ServiceAccount to use. If not set and create is `true`, a name is generated using the fullname template.
+        name: "cluster-autoscaler"
+        # rbac.serviceAccount.automountServiceAccountToken -- Automount API credentials for a Service Account.
+        automountServiceAccountToken: true
+    #leader-elect: false
+    sslCertPath: /etc/ssl/certs/ca-bundle.crt

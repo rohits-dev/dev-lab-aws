@@ -1,0 +1,23 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: kube-system
+spec:
+  chart:
+    spec:
+      chart: external-dns
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+      version: "6.*"
+  interval: 5m0s
+  timeout: 5m0s
+  releaseName: external-dns
+  values:
+    provider: aws
+
+    policy: sync
+    serviceAccount:
+      name: external-dns

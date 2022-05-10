@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-manager
+  namespace: confluent
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cert-manager-token
+  namespace: confluent
+  annotations:
+    kubernetes.io/service-account.name: cert-manager
+type: kubernetes.io/service-account-token
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: vault-issuer
+  namespace: confluent
+spec:
+  vault:
+    path: pki-external/v1/ica2/v1/sign/templated-local
+    auth:
+      kubernetes:
+        role: templated-role-external-ca
+        mountPath: /v1/auth/kubernetes
+        secretRef:
+          name: cert-manager-token
+          key: token

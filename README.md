@@ -21,8 +21,7 @@ brew install --cask openvpn-connect
 
 
 # apply terraform
-Fork this repo and https://github.com/rohits-dev/dev-lab-k8s-aws 
-Change variables to run to create resources for you.
+Fork this repo and change variables to run to create resources for you.
 
 
 Update the terraform.tfvars as per you.
@@ -31,10 +30,10 @@ Update the terraform.tfvars as per you.
 ```
 GITHUB_OWNER = "<your-github-account>"
 GITHUB_TOKEN = "<your-github--token>"
-REPOSITORY_NAME = "dev-lab-k8s-aws"
+REPOSITORY_NAME = "dev-lab-aws"
 REPOSITORY_VISIBILITY = "public"
 BRANCH = "main"
-TARGET_PATH = ""
+
 
 AWS_REGION      = "<your-desired-region>"
 RESOURCE_PREFIX = "<your-name/any-prefix>"
@@ -91,8 +90,10 @@ sudo security remove-trusted-cert -d  ./generated_certs/root_ca.crt
 ```
 
 # destroy
+First we should delete the namespaces and fluxcd from the cluster before we delete EKS and VPN. 
 
 ```bash
+terraform apply --auto-approve
 terraform destroy
 ```
 

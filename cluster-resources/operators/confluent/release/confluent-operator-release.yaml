@@ -1,0 +1,19 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: confluent-operator
+  namespace: confluent
+spec:
+  chart:
+    spec:
+      chart: confluent-for-kubernetes
+      sourceRef:
+        kind: HelmRepository
+        name: confluentinc
+      version: "0.*"
+  interval: 5m0s
+  timeout: 5m0s
+  releaseName: confluent-operator
+  values:
+    namespaced: false

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: awscli
+  namespace: tools
+spec:
+  containers:
+    - name: awscli
+      image: amazon/aws-cli:2.4.23
+      command:
+        - sleep
+        - "3600"
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always

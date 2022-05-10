@@ -1,0 +1,253 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-init-openssl-ca-conf
+  namespace: vault
+data:
+  extfile.cnf: |-
+    basicConstraints=CA:TRUE
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-init-script
+  namespace: vault
+data:
+  entrypoint.sh: |-
+    #!/bin/bash
+
+    yum install jq -y;
+    yum install -y yum-utils
+    yum -y install shadow-utils
+    yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+    yum -y install vault;
+    yum -y install openssl
+    vault --version
+
+    #reinstall vault to make it work https://github.com/hashicorp/vault/issues/10924
+    yum -y reinstall vault;
+
+    echo "give vault pods to come up -- in 10 seconds"
+    sleep 10
+    echo "Get vault Status"
+    VAULT_INITIALIZED=$(curl https://vault-internal:8200/v1/sys/health --insecure | jq '.initialized')
+    echo "vault initialization status is ${VAULT_INITIALIZED}"
+    if [[ $VAULT_INITIALIZED = 'true' ]]; then
+        echo "vault already initialized."
+    elif [[ $VAULT_INITIALIZED = 'false' ]]; then
+        echo "Initialize vault" 
+        curl --location --request POST https://vault-internal:8200/v1/sys/init --header \
+              'Content-Type: text/plain' --data-raw \
+              '{
+                  "secret_shares": 3,
+                  "secret_threshold": 5,
+                  "recovery_shares": 3,
+                  "recovery_threshold": 3
+              }' \
+              --insecure > vault_secret.json
+        echo "Vault Initialized"
+        echo $(cat vault_secret.json)
+        echo "Copy to S3"
+        aws s3 cp  ./vault_secret.json s3://$S3_BUCKET/vault/
+        echo "give vault initialization to settle -  10 seconds"
+        sleep 10
+    else
+        echo "failing the script so that job runs once more"
+        exit 1
+    fi
+    echo "setup pki engine"
+    aws s3 cp s3://$S3_BUCKET/vault/vault_secret.json vault_secret.json 
+    export VAULT_TOKEN=$(jq -r '.root_token | values' vault_secret.json)
+    export VAULT_ADDR=https://vault-internal:8200
+    echo "secret json"
+    cat vault_secret.json
+    echo "vault token $VAULT_TOKEN"
+
+    # PKI Engine root ca in vault
+    ## enable pki engine 
+    vault secrets enable -tls-skip-verify pki
+    vault secrets tune -tls-skip-verify -max-lease-ttl=8760h pki
+
+
+    ## Generate root CA
+    vault write -tls-skip-verify -field=certificate pki/root/generate/internal \
+        common_name="local" \
+        ttl=87600h > CA_cert.crt
+
+
+    vault write -tls-skip-verify pki/config/urls \
+        issuing_certificates="$VAULT_ADDR/v1/pki/ca" \
+        crl_distribution_points="$VAULT_ADDR/v1/pki/crl"
+
+    ## Generate Intermediate
+    vault secrets enable -tls-skip-verify -path=pki_int pki
+
+    vault write -tls-skip-verify -format=json pki_int/intermediate/generate/internal \
+        common_name="local Intermediate Authority" \
+        | jq -r '.data.csr' > pki_intermediate.csr
+
+    vault write -tls-skip-verify -format=json pki/root/sign-intermediate csr=@pki_intermediate.csr \
+        format=pem_bundle ttl="43800h" \
+        | jq -r '.data.certificate' > intermediate.cert.pem
+
+    vault write -tls-skip-verify pki_int/intermediate/set-signed certificate=@intermediate.cert.pem
+
+    ## Create role
+    vault write -tls-skip-verify pki_int/roles/local \
+        allowed_domains="local" \
+        allow_subdomains=true \
+        max_ttl="720h"
+
+
+
+    # enable kubernetes auth
+    vault auth enable -tls-skip-verify kubernetes
+    vault write -tls-skip-verify auth/kubernetes/config \
+        issuer="https://kubernetes.default.svc.cluster.local" \
+        token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+        kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
+        kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+    # enable key-value secret engine
+    vault secrets enable -tls-skip-verify -path=kv kv 
+
+
+    # policy to allow creation of certificates
+
+    vault policy write -tls-skip-verify allow-create-cert - <<EOF
+    path "pki_int/sign/*" {
+      capabilities = ["update"]
+    }
+    EOF
+
+    # kubernetes role for vault-cluster-issuer sa in cert-manager namespace
+    vault write -tls-skip-verify auth/kubernetes/role/certs-creator \
+        bound_service_account_names=vault-cluster-issuer \
+        bound_service_account_namespaces=cert-manager \
+        policies=allow-create-cert \
+        ttl=20m
+
+    # template role for vault-issuer per namespace
+    export MOUNT_ACCESSOR=$(vault auth list -tls-skip-verify -format=json | jq -r '."kubernetes/".accessor')
+
+    vault write -tls-skip-verify pki_int/roles/templated-local \
+        allowed_domains="*.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.svc.cluster.local, *.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.*.local" \
+        allowed_domains_template=true \
+        allow_subdomains=true \
+        allow_bare_domains=true \
+        allow_glob_domains=true \
+        max_ttl="720h"
+
+
+    vault write -tls-skip-verify auth/kubernetes/role/templated-role \
+        bound_service_account_names=cert-manager \
+        bound_service_account_namespaces="*" \
+        policies=allow-create-cert \
+        ttl=20m
+      
+    # external ca
+    ## enable pki-external path with pki engine
+
+    vault secrets enable -tls-skip-verify -path=pki-external/v1/ica1/v1 -default-lease-ttl=1h -max-lease-ttl=94608000s pki
+
+
+    vault write -tls-skip-verify -format=json pki-external/v1/ica1/v1/intermediate/generate/internal \
+        common_name="Local Intermediate Authority External CA" \
+        ttl=43800h \
+        | jq -r '.data.csr' > pki_intermediate.csr
+
+    #sign csr with external root ca
+
+    openssl x509 -req -in pki_intermediate.csr \
+      -CA /mnt/tls-ca/tls.crt -CAkey /mnt/tls-ca/tls.key \
+      -extfile /mnt/openssl-ca-conf/extfile.cnf -CAcreateserial -CAserial tls-ca.srl -out intermediate-cert.pem
+
+    vault write -tls-skip-verify pki-external/v1/ica1/v1/intermediate/set-signed certificate=@intermediate-cert.pem
+
+    vault write -tls-skip-verify pki-external/v1/ica1/v1/config/urls \
+        issuing_certificates="$VAULT_ADDR/v1/pki-external/v1/ica1/v1/ca" \
+        crl_distribution_points="$VAULT_ADDR/v1/pki-external/v1/ica1/v1/crl"
+
+    curl --header "X-Vault-Token: $VAULT_TOKEN" \
+      --request GET \
+      $VAULT_ADDR/v1/pki-external/v1/ica1/v1/ca/pem \
+      --insecure | openssl crl2pkcs7 -nocrl -certfile  /dev/stdin  | openssl pkcs7 -print_certs -noout
+
+    vault secrets enable -tls-skip-verify -path=pki-external/v1/ica2/v1 pki
+
+    vault write -tls-skip-verify -format=json pki-external/v1/ica2/v1/intermediate/generate/internal \
+        common_name="Vault Intermediate Authority 2 External CA" \
+        | jq -r '.data.csr' > pki_intermediate.csr
+
+    vault write -tls-skip-verify -format=json pki-external/v1/ica1/v1/root/sign-intermediate csr=@pki_intermediate.csr \
+        format=pem_bundle ttl="43800h" \
+        | jq -r '.data.certificate' > intermediate.cert.pem
+
+    vault write -tls-skip-verify pki-external/v1/ica2/v1/intermediate/set-signed certificate=@intermediate.cert.pem
+
+
+    curl --header "X-Vault-Token: $VAULT_TOKEN" \
+      --request GET \
+      $VAULT_ADDR/v1/pki-external/v1/ica2/v1/ca/pem \
+      --insecure | openssl crl2pkcs7 -nocrl -certfile  /dev/stdin  | openssl pkcs7 -print_certs -noout
+
+    vault write -tls-skip-verify pki/config/urls \
+      issuing_certificates="$VAULT_ADDR/v1/pki-external/v1/ica2/v1/ca" \
+      crl_distribution_points="$VAULT_ADDR/v1/pki-external/v1/ica2/v1/crl"
+
+    vault write -tls-skip-verify pki-external/v1/ica2/v1/roles/templated-local \
+            allowed_domains="*.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.svc.cluster.local, *.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.*.local" \
+            allowed_domains_template=true \
+            allow_subdomains=true \
+            allow_bare_domains=true \
+            allow_glob_domains=true \
+            max_ttl="720h"
+
+    vault policy write -tls-skip-verify allow-create-cert-external-ca - <<EOF
+    path "pki-external/v1/ica2/v1/sign/*" {
+      capabilities = ["update"]
+    }
+    EOF
+
+    vault write -tls-skip-verify auth/kubernetes/role/templated-role-external-ca \
+            bound_service_account_names=cert-manager \
+            bound_service_account_namespaces="*" \
+            policies=allow-create-cert-external-ca \
+            ttl=20m
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-init
+  namespace: vault
+spec:
+  template:
+    spec:
+      containers:
+        - name: vault-init
+          image: amazon/aws-cli:2.4.23
+          command:
+            - /mnt/script/entrypoint.sh
+          volumeMounts:
+            - name: init-script
+              mountPath: /mnt/script
+            - name: openssl-ca-conf
+              mountPath: /mnt/openssl-ca-conf
+            - name: tls-ca
+              mountPath: /mnt/tls-ca
+      restartPolicy: Never
+      volumes:
+        - name: init-script
+          configMap:
+            defaultMode: 0700
+            name: vault-init-script
+        - name: openssl-ca-conf
+          configMap:
+            name: vault-init-openssl-ca-conf
+        - name: tls-ca
+          secret:
+            secretName: tls-ca
+      serviceAccount: vault
+  backoffLimit: 4

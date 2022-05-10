@@ -8,7 +8,7 @@ module "eks" {
   cluster_endpoint_public_access  = false
 
   cluster_additional_security_group_ids = [module.vpn.vpn_security_group_id]
-  vpc_id = module.vpc.vpc_id
+  vpc_id                                = module.vpc.vpc_id
 
   cluster_addons = {
     coredns = {
@@ -19,7 +19,7 @@ module "eks" {
       resolve_conflicts = "OVERWRITE"
     }
   }
-# Extend node-to-node security group rules
+  # Extend node-to-node security group rules
   node_security_group_additional_rules = {
     ingress_self_all = {
       description = "Node to node all ports/protocols"
@@ -28,6 +28,14 @@ module "eks" {
       to_port     = 0
       type        = "ingress"
       self        = true
+    }
+    ingress_internal_all = {
+      description = "Within VPC to all node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      cidr_blocks = ["10.0.0.0/16"]
     }
     egress_all = {
       description      = "Node all egress"
@@ -69,9 +77,9 @@ module "eks" {
       #   }
       # }
       tags = {
-        ExtraTag = "example"
+        ExtraTag                                          = "example"
         "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
-        "k8s.io/cluster-autoscaler/enabled" = "TRUE"
+        "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
       }
     }
   }

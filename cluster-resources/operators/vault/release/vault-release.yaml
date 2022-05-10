@@ -1,0 +1,131 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vault
+  namespace: vault
+spec:
+  chart:
+    spec:
+      chart: vault
+      sourceRef:
+        kind: HelmRepository
+        name: hashicorp
+      version: "0.*"
+  interval: 5m0s
+  timeout: 5m0s
+  releaseName: vault
+  values:
+    global:
+      enabled: true
+      tlsDisable: false
+    csi:
+      enabled: true
+    injector:
+      enabled: true
+      image:
+        repository: hashicorp/vault-k8s
+        tag: latest
+      resources:
+        limits:
+          cpu: 250m
+          memory: 256Mi
+        requests:
+          cpu: 125m
+          memory: 128Mi
+    server:
+      affinity: null
+      auditStorage:
+        enabled: true
+      extraEnvironmentVars:
+        VAULT_CACERT: /vault/userconfig/tls-ca/tls.crt
+      extraVolumes:
+        - name: tls-server
+          type: secret
+        - name: tls-ca
+          type: secret
+      ha:
+        enabled: true
+        raft:
+          config: |
+            ui = true
+            listener "tcp" {
+              address = "[0.0.0.0]:8200"
+              cluster_address = "[0.0.0.0]:8201"
+              tls_disable = false
+              tls_cert_file = "/vault/userconfig/tls-server/tls.crt"
+              tls_key_file = "/vault/userconfig/tls-server/tls.key"
+              tls_ca_cert_file = "/vault/userconfig/tls-ca/tls.crt"
+            }
+            storage "raft" {
+              path = "/vault/data"
+              retry_join {
+                leader_api_addr = "https://vault-0.vault-internal:8200"
+                leader_ca_cert_file = "/vault/userconfig/tls-ca/tls.crt"
+                leader_client_cert_file = "/vault/userconfig/tls-server/tls.crt"
+                leader_client_key_file = "/vault/userconfig/tls-server/tls.key"
+              }
+              retry_join {
+                leader_api_addr = "https://vault-1.vault-internal:8200"
+                leader_ca_cert_file = "/vault/userconfig/tls-ca/tls.crt"
+                leader_client_cert_file = "/vault/userconfig/tls-server/tls.crt"
+                leader_client_key_file = "/vault/userconfig/tls-server/tls.key"          
+              }
+              retry_join {
+                leader_api_addr = "https://vault-2.vault-internal:8200"
+                leader_ca_cert_file = "/vault/userconfig/tls-ca/tls.crt"
+                leader_client_cert_file = "/vault/userconfig/tls-server/tls.crt"
+                leader_client_key_file = "/vault/userconfig/tls-server/tls.key"          
+              }
+              autopilot {
+                cleanup_dead_servers = "true"
+                last_contact_threshold = "200ms"
+                last_contact_failure_threshold = "10m"
+                max_trailing_logs = 250000
+                min_quorum = 5
+                server_stabilization_time = "10s"
+              }
+            }
+
+            service_registration "kubernetes" {
+              namespace      = "vault"
+              pod_name       = "${VAULT_K8S_POD_NAME}"
+            }
+          enabled: true
+          setNodeId: true
+        replicas: 2
+      image:
+        repository: hashicorp/vault
+        tag: 1.9.4
+      livenessProbe:
+        enabled: true
+        # initialDelaySeconds: 60
+        path: /v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204
+        failureThreshold: 5
+        # timeoutSeconds: 10
+      readinessProbe:
+        enabled: true
+        path: /v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204
+        failureThreshold: 5
+        # timeoutSeconds: 10
+      resources:
+        limits:
+          cpu: 2000m
+          memory: 4Gi
+        requests:
+          cpu: 125m
+          memory: 128Mi
+      serviceAccount:
+        create: true
+        name: vault
+      standalone:
+        enabled: false
+    ui:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        service.beta.kubernetes.io/load-balancer-source-ranges: 10.0.0.0/8
+      enabled: true
+      externalPort: 443
+      serviceNodePort: null
+      serviceType: LoadBalancer
