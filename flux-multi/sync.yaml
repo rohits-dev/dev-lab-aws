@@ -1,0 +1,27 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: tenant-a
+  namespace: tenant-a-flux
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  url: https://github.com/rohits-dev/tenant-a
+
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: tenant-a
+  namespace: tenant-a-flux
+spec:
+  interval: 1m0s
+  path: ./tenant-a
+  prune: false
+  serviceAccountName: tenant-a
+  sourceRef:
+    kind: GitRepository
+    name: tenant-a
+

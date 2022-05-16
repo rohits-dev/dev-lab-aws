@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a-staging
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a
+  namespace: tenant-a-staging
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a-reconciler
+  namespace: tenant-a-staging
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: gotk:tenant-a-staging:reconciler
+- kind: ServiceAccount
+  name: tenant-a
+  namespace: tenant-a-staging
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a-production
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a
+  namespace: tenant-a-production
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a-reconciler
+  namespace: tenant-a-production
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: gotk:tenant-a-production:reconciler
+- kind: ServiceAccount
+  name: tenant-a
+  namespace: tenant-a-production
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a-flux
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a
+  namespace: tenant-a-flux
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    toolkit.fluxcd.io/tenant: tenant-a
+  name: tenant-a-reconciler
+  namespace: tenant-a-flux
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: gotk:tenant-a-flux:reconciler
+- kind: ServiceAccount
+  name: tenant-a
+  namespace: tenant-a-flux
+
