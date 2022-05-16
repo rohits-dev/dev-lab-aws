@@ -1,3 +1,5 @@
+
+```bash
 flux create tenant tenant-a \
     --with-namespace=tenant-a-staging \
     --with-namespace=tenant-a-production \
@@ -16,3 +18,5 @@ flux create kustomization tenant-a \
     --source=GitRepository/tenant-a \
     --path="./tenant-a" \
     --export >> ./sync.yaml
+
+```
