@@ -28,15 +28,24 @@ Update the terraform.tfvars as per you.
 
 
 ```
-GITHUB_OWNER = "<your-github-account>"
-GITHUB_TOKEN = "<your-github--token>"
-REPOSITORY_NAME = "dev-lab-aws"
+OWNER_EMAIL           = "xxx@xxx.xxx"
+GITHUB_OWNER          = "<your-github-account>"
+GITHUB_TOKEN          = "<your-github--token>"
+REPOSITORY_NAME       = "dev-lab-aws"
 REPOSITORY_VISIBILITY = "public"
-BRANCH = "main"
+BRANCH                = "main"
 
 
 AWS_REGION      = "<your-desired-region>"
 RESOURCE_PREFIX = "<your-name/any-prefix>"
+
+AWS_AUTH_ROLES = [
+    {
+      rolearn  = "arn:aws:iam::66666666666:role/role1" # change role name here
+      username = "role1"
+      groups   = ["system:masters"]
+    },
+  ]
 ```
 
 ## apply changes
@@ -48,6 +57,8 @@ There is a variable ADD_FLUXCD which is set to false in tfvars, so first run wou
 terraform plan 
 terraform apply --auto-approve
 ```
+
+
 > **_NOTE:_** Once the resources are provisioned, it would have configured the open vpn client, **_connect the VPN_** and run the below command. 
 
 ```bash
@@ -83,6 +94,12 @@ aws s3 cp $S3_BUCKET_VAULT_OBJECT vault-secret.json
 export VAULT_TOKEN=$(jq -r '.root_token | values' vault-secret.json)
 ```
 
+kubectl patch deployment coredns \                       
+    -n kube-system \
+    --type json \
+    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
+
+    
 # add custom certs to trust store
 (Optional) For ease you can run below commands to add the root ca to trusted root on your mac
 

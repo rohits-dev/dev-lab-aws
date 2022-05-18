@@ -30,10 +30,12 @@ provider "aws" {
   region = var.AWS_REGION
   default_tags {
     tags = {
-      Environment = "DEV"
-      Owner       = "https://github.com/${var.GITHUB_OWNER}"
-      Project     = "LAB"
-      ManagedBy   = "Terraform"
+      environment       = "DEV"
+      owner_name        = var.GITHUB_OWNER
+      owner_email       = var.OWNER_EMAIL
+      owner_github_repo = "https://github.com/${var.GITHUB_OWNER}"
+      project           = "LAB"
+      ManagedBy         = "Terraform"
     }
   }
 }
