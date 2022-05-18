@@ -37,7 +37,7 @@ BRANCH                = "main"
 
 
 AWS_REGION      = "<your-desired-region>"
-RESOURCE_PREFIX = "<your-name/any-prefix>"
+RESOURCE_PREFIX = "<your-name-or-any-prefix-you-prefer>"
 
 AWS_AUTH_ROLES = [
     {
@@ -68,6 +68,9 @@ terraform apply -var="ADD_FLUXCD=true" --auto-approve
 
 
 > **_TIP:_**  If you get dns resolution error, please disconnect the VPN and connect again, sometimes it fails to resolve the dns. 
+
+# force sync git
+Flux is scheduled to sync Git Repository evert minute, if you would like to force sync then run `./scripts/sync_git.sh` to sync immediately.
 
 # set local variables
 After successful run, you may run `./scripts/post_run.sh` to set local env variables to connect to vault and eks. Alternatively, you may run these as below. 

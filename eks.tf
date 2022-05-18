@@ -1,4 +1,7 @@
 data "aws_subnets" "private_subnet_a" {
+  depends_on = [
+    module.vpc
+  ]
   filter {
     name   = "vpc-id"
     values = [module.vpc.vpc_id]
@@ -13,6 +16,9 @@ data "aws_subnets" "private_subnet_a" {
   }
 }
 data "aws_subnets" "private_subnet_b" {
+  depends_on = [
+    module.vpc
+  ]
   filter {
     name   = "vpc-id"
     values = [module.vpc.vpc_id]
@@ -27,6 +33,9 @@ data "aws_subnets" "private_subnet_b" {
   }
 }
 data "aws_subnets" "private_subnet_c" {
+  depends_on = [
+    module.vpc
+  ]
   filter {
     name   = "vpc-id"
     values = [module.vpc.vpc_id]
