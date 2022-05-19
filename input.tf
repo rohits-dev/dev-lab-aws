@@ -1,29 +1,27 @@
 variable "AWS_REGION" {
-  default = "eu-west-2"
+  nullable = false
 }
 
 variable "RESOURCE_PREFIX" {
-  default = ""
+  nullable = false
 }
 
+variable "OWNER_EMAIL" {
+  default  = ""
+  nullable = false
+}
 
 #### GITHUB ######
 
 variable "GITHUB_TOKEN" {
   type        = string
   description = "github token"
-  # validation {
-  #   condition     = length(var.GITHUB_TOKEN) < 1
-  #   error_message = "The GITHUB_TOKEN is required field."
-  # }
+  nullable    = false
 }
 variable "GITHUB_OWNER" {
   type        = string
   description = "github owner"
-  # validation {
-  #   condition     = length(var.GITHUB_OWNER) < 1
-  #   error_message = "The GITHUB_OWNER is required field."
-  # }
+  nullable    = false
 }
 
 
@@ -31,15 +29,12 @@ variable "REPOSITORY_NAME" {
   type        = string
   default     = "dev-lab-aws"
   description = "github repository name"
-  # validation {
-  #   condition     = length(var.REPOSITORY_NAME) < 1
-  #   error_message = "The REPOSITORY_NAME is required field."
-  # }
+  nullable    = false
 }
 
 variable "REPOSITORY_VISIBILITY" {
   type        = string
-  default     = "private"
+  default     = "public"
   description = "How visible is the github repo"
 }
 
@@ -57,4 +52,10 @@ variable "ADD_FLUXCD" {
   type        = bool
   default     = false
   description = "Should add fluxcd to new EKS?"
+}
+
+variable "AWS_AUTH_ROLES" {
+  description = "List of role maps to add to the aws-auth configmap"
+  type        = list(any)
+  default     = []
 }
