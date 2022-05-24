@@ -1,0 +1,1 @@
+k get nodes -o=custom-columns=NODE:.metadata.name,ZONE:.metadata.labels."topology\.kubernetes\.io/zone"

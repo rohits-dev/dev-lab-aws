@@ -1,11 +1,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: tls-c3
+  name: tls-kafka
   namespace: confluent
 spec:
   # Secret names are always required.
-  secretName: tls-c3
+  secretName: tls-kafka
 
   # secretTemplate is optional. If set, these annotations and labels will be
   # copied to the Secret named example-com-tls. These labels and annotations will
@@ -26,7 +26,7 @@ spec:
       - local
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: kafka.rohit.local
+  commonName: kafka.confluent.svc.cluster.local
   isCA: false
   privateKey:
     algorithm: RSA
@@ -37,8 +37,12 @@ spec:
     - client auth
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
-    - controlcenter.rohit.local
-    - controlcenter.confluent.svc.cluster.local
+    - kafka.rohit.local
+    - kafka.confluent.svc.cluster.local
+    - kafka-2.kafka.confluent.svc.cluster.local
+    - kafka-1.kafka.confluent.svc.cluster.local
+    - kafka-0.kafka.confluent.svc.cluster.local
+    - "*.kafka.rohit.local"
 
     # - www.example.com
   # uris:

@@ -5,6 +5,17 @@ metadata:
   namespace: confluent
 spec:
   replicas: 3
+  oneReplicaPerNode: true
+  podTemplate:
+    # serviceAccountName: zookeeper
+    topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app: zookeeper
+        maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+
   image:
     application: confluentinc/cp-zookeeper:7.0.1
     init: confluentinc/confluent-init-container:2.2.0-1
@@ -24,6 +35,17 @@ metadata:
   namespace: confluent
 spec:
   replicas: 3
+  oneReplicaPerNode: true
+  podTemplate:
+    serviceAccountName: kafka
+    topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app: kafka
+        maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+
   image:
     application: confluentinc/cp-server:7.0.1
     init: confluentinc/confluent-init-container:2.2.0-1
@@ -56,6 +78,8 @@ spec:
           domain: kafka.rohit.local
           brokerPrefix: b
           bootstrapPrefix: kafka
+          annotations:
+            service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   authorization:
     type: simple
     superUsers:
@@ -166,6 +190,9 @@ spec:
     loadBalancer:
       domain: rohit.local
       prefix: controlcenter
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+
   tls:
     secretRef: tls-c3
   dependencies:
