@@ -216,3 +216,57 @@ spec:
 #       url: https://schemaregistry.confluent.svc.cluster.local:8081
 #       tls:
 #         enabled: true
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations:
+  labels:
+    release: prometheus-operator
+    monitoring-platform: prometheus
+  name: confluent
+  namespace: confluent
+
+spec:
+  endpoints:
+    - path: /
+      port: prometheus
+  namespaceSelector:
+    matchNames:
+      - confluent
+  selector:
+    matchLabels:
+      confluent-platform: "true"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kafka
+  namespace: confluent
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kafka-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+      - pods
+    verbs:
+      - get
+      - list
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kafka-binding
+subjects:
+  - kind: ServiceAccount
+    name: kafka
+    namespace: confluent
+roleRef:
+  kind: ClusterRole
+  name: kafka-role
+  apiGroup: rbac.authorization.k8s.io
