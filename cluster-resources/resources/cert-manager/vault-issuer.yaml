@@ -26,5 +26,5 @@ spec:
         role: templated-role-external-ca
         mountPath: /v1/auth/kubernetes
         secretRef:
-          name: cert-manager-token
+          name: cert-manager-token-9ksqs
           key: token
