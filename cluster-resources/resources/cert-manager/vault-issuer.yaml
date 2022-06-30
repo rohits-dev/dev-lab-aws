@@ -20,11 +20,12 @@ metadata:
   # namespace: confluent
 spec:
   vault:
+    server: https://vault-0.vault-internal.vault.svc.cluster.local:8200
     path: pki-external/v1/ica2/v1/sign/templated-local
     auth:
       kubernetes:
         role: templated-role-external-ca
         mountPath: /v1/auth/kubernetes
         secretRef:
-          name: cert-manager-token-9ksqs
+          name: cert-manager-token
           key: token
