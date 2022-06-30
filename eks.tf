@@ -113,7 +113,9 @@ module "eks" {
       min_size     = 0
       max_size     = 6
       desired_size = 1
-
+      credit_specification = {
+        cpu_credits = "standard"
+      }
       instance_types = ["t3a.2xlarge"]
       subnet_ids     = data.aws_subnets.private_subnet_a.ids
       capacity_type  = "SPOT"
@@ -131,7 +133,9 @@ module "eks" {
       min_size     = 0
       max_size     = 6
       desired_size = 0
-
+      credit_specification = {
+        cpu_credits = "standard"
+      }
       instance_types = ["t3a.2xlarge"]
       subnet_ids     = data.aws_subnets.private_subnet_b.ids
       capacity_type  = "SPOT"
@@ -149,7 +153,9 @@ module "eks" {
       min_size     = 0
       max_size     = 6
       desired_size = 0
-
+      credit_specification = {
+        cpu_credits = "standard"
+      }
       instance_types = ["t3a.2xlarge"]
       subnet_ids     = data.aws_subnets.private_subnet_c.ids
       capacity_type  = "SPOT"
