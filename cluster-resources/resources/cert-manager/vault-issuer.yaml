@@ -8,7 +8,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: cert-manager-token
-  namespace: confluent
+  namespace: cert-manager
   annotations:
     kubernetes.io/service-account.name: cert-manager
 type: kubernetes.io/service-account-token
@@ -17,7 +17,7 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: vault-issuer
-  namespace: confluent
+  # namespace: confluent
 spec:
   vault:
     path: pki-external/v1/ica2/v1/sign/templated-local
