@@ -5,7 +5,7 @@ metadata:
   labels:
     service: ingress-nginx
   annotations:
-  namespace: kube-system
+  namespace: ingress-nginx
 spec:
   releaseName: ingress-nginx
 
