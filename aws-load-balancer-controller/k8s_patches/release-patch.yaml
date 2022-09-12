@@ -1,0 +1,11 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: aws-load-balancer-controller
+  labels:
+    service: aws-load-balancer-controller
+  annotations:
+  namespace: kube-system
+spec:
+  values:
+    clusterName: ${eks_cluster_name}

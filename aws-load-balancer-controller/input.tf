@@ -1,9 +1,33 @@
 variable "resource_prefix" {
-  default = ""
-  # validation {
-  #   condition     = length(var.resource_prefix) < 1
-  #   error_message = "The RESOURCE_PREFIX is required field."
-  # }
+  nullable = false
+}
+variable "eks_cluster_name" {
+  nullable = false
+}
+
+variable "github_owner" {
+  type        = string
+  description = "github owner"
+  nullable    = false
+}
+
+variable "repository_name" {
+  type        = string
+  description = "github repository name"
+  nullable    = false
+}
+
+variable "branch" {
+  type        = string
+  nullable    = false
+  description = "branch name"
+}
+
+
+variable "target_path" {
+  type        = string
+  nullable    = false
+  description = "flux sync target path"
 }
 
 variable "eks_oidc_provider_arn" {
