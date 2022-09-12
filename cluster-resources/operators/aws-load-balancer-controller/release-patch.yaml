@@ -14,3 +14,10 @@ metadata:
 spec:
   values:
     clusterName: rohit-eks-1
+    ingressClassParams:
+      spec:
+        tags:
+          - key: owner_name
+            value: rohits-dev
+          - key: owner_email
+            value: rshrivastava@confluent.io
