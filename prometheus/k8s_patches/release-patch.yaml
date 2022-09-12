@@ -15,20 +15,20 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: prometheus.${resource_prefix}.local
         hosts:
-          - prometheus.rohit.local
+          - prometheus.${resource_prefix}.local
         tls:
           - secretName: prometheus-cert
             hosts:
-              - prometheus.rohit.local
+              - prometheus.${resource_prefix}.local
         pathType: Prefix
 
     grafana:
       ingress:
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: grafana.rohit.local
+          external-dns.alpha.kubernetes.io/hostname: grafana.${resource_prefix}.local
         hosts:
-          - grafana.rohit.local
+          - grafana.${resource_prefix}.local
         tls:
           - secretName: grafana-cert
             hosts:
-              - grafana.rohit.local
+              - grafana.${resource_prefix}.local

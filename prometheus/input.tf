@@ -1,6 +1,6 @@
 variable "resource_prefix" {
-  default  = ""
   nullable = false
+
 }
 
 variable "github_owner" {

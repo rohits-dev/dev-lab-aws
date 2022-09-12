@@ -113,6 +113,7 @@ module "prometheus" {
   providers = {
     kubernetes = kubernetes
   }
+  resource_prefix = var.RESOURCE_PREFIX
   github_owner    = var.GITHUB_OWNER
   repository_name = var.REPOSITORY_NAME
   branch          = var.BRANCH
