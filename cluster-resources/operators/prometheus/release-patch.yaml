@@ -18,7 +18,7 @@ spec:
       ingress:
         enabled: true
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: prometheus..local
+          external-dns.alpha.kubernetes.io/hostname: prometheus.rohit.local
         hosts:
           - prometheus.rohit.local
         tls:
