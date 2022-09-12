@@ -132,7 +132,7 @@ module "eks" {
     zone_b = {
       min_size     = 0
       max_size     = 6
-      desired_size = 0
+      desired_size = 1
       credit_specification = {
         cpu_credits = "standard"
       }
@@ -152,7 +152,7 @@ module "eks" {
     zone_c = {
       min_size     = 0
       max_size     = 6
-      desired_size = 0
+      desired_size = 1
       credit_specification = {
         cpu_credits = "standard"
       }
