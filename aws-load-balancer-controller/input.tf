@@ -11,6 +11,10 @@ variable "github_owner" {
   nullable    = false
 }
 
+variable "owner_email" {
+  nullable = false
+}
+
 variable "repository_name" {
   type        = string
   description = "github repository name"

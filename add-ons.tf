@@ -129,6 +129,7 @@ module "aws_load_balancer_controller" {
   eks_cluster_name      = local.cluster_name
   resource_prefix       = var.RESOURCE_PREFIX
   github_owner          = var.GITHUB_OWNER
+  owner_email           = var.OWNER_EMAIL
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
   target_path           = local.target_path

@@ -9,6 +9,8 @@ data "template_file" "release_patch" {
   template = file("${path.module}/k8s_patches/release-patch.yaml")
   vars = {
     eks_cluster_name = var.eks_cluster_name
+    owner_name       = var.github_owner
+    owner_email      = var.owner_email
   }
 }
 

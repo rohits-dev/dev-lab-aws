@@ -9,3 +9,10 @@ metadata:
 spec:
   values:
     clusterName: ${eks_cluster_name}
+    ingressClassParams:
+      spec:
+        tags:
+          - key: owner_name
+            value: ${owner_name}
+          - key: owner_email
+            value: ${owner_email}
