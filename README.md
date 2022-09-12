@@ -16,8 +16,11 @@ brew tap hashicorp/tap
 brew install hashicorp/tap/vault
 ```
 ## install openvpn
-brew install --cask openvpn-connect
+Install openvpn to connect to VPN and accept the GDPR terms and condition so that it opens and ready to be used. TF script will add configuration to it so its necessary that it is ready to be used. 
 
+```bash
+brew install --cask openvpn-connect
+```
 
 
 # apply terraform
@@ -48,6 +51,14 @@ AWS_AUTH_ROLES = [
   ]
 ```
 
+## initialize terraform
+
+First initialize the terraform to get all the modules and provider versions.
+
+```bash
+terraform init
+```
+
 ## apply changes
 Due to the dependency of EKS for kube config to add any kubernetes manifests, run the terraform apply in 2 steps. 
 
@@ -65,7 +76,7 @@ terraform apply --auto-approve
 terraform plan -var="ADD_FLUXCD=true"
 terraform apply -var="ADD_FLUXCD=true" --auto-approve
 ```
-
+> **_RETRY:_** If it fails, try one more time. There is an unknown issue where sometimes it fails for the first time. 
 
 > **_TIP:_**  If you get dns resolution error, please disconnect the VPN and connect again, sometimes it fails to resolve the dns. 
 

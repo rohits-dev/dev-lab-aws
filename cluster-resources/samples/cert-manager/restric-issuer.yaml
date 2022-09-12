@@ -22,12 +22,6 @@ spec:
         resources:
           kinds:
             - Certificate
-      # preconditions:
-      #   all:
-      #     - issuerRef:
-      #         name: ca-issuer
-      #         kind: ClusterIssuer
-      #         group: cert-manager.io
       validate:
         message: When requesting a cert, domain must be namespace specific.
         pattern:

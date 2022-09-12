@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: test-cert
-  namespace: confluent
+  namespace: cert-manager
 spec:
   # Secret names are always required.
   secretName: test-cert-tls

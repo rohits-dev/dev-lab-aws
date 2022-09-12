@@ -1,6 +1,6 @@
-resource "kubernetes_namespace" "confluent" {
+resource "kubernetes_namespace" "ingress_nginx" {
   metadata {
-    name = "confluent"
+    name = "ingress-nginx"
     labels = {
       # protected = "true"
     }

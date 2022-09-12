@@ -1,0 +1,155 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: prometheus-operator
+  labels:
+    service: prometheus-operator
+  annotations:
+  namespace: monitoring
+spec:
+  releaseName: prometheus-operator
+
+  chart:
+    spec:
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus
+      chart: kube-prometheus-stack
+      version: ~x.x.x
+
+  interval: 5m0s
+  timeout: 5m0s
+  values:
+    commonLabels:
+      monitoring-platform: prometheus
+
+    ## Hosts is a valid FQDN
+    prometheus:
+      ingress:
+        enabled: true
+        # ingressClassName: alb
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: ca-issuer
+          external-dns.alpha.kubernetes.io/hostname: prometheus.rohit.local
+          alb.ingress.kubernetes.io/success-codes: 200-399
+          alb.ingress.kubernetes.io/target-type: ip
+        hosts:
+          - prometheus.rohit.local
+        tls:
+          - secretName: prometheus-cert
+            hosts:
+              - prometheus.rohit.local
+        pathType: Prefix
+      prometheusSpec:
+        retention: 30d
+        # serviceMonitorNamespaceSelector:
+        #   any: true
+        # podMonitorSelector:
+        #   matchLabels:
+        #     monitoring-platform: prometheus
+        # ruleSelector:
+        #   matchLabels:
+        #     monitoring-platform: prometheus
+        serviceMonitorSelector:
+          matchLabels:
+            monitoring-platform: prometheus
+
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 10Gi
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 1024Mi
+          limits:
+            cpu: 4000m
+            memory: 8192Mi
+
+    grafana:
+      enabled: true
+      extraLabels:
+        monitoring-platform: prometheus
+      grafana.ini:
+        auth.anonymous:
+          enabled: true
+          org_role: Viewer
+        users:
+          viewers_can_edit: true
+
+      plugins:
+        - grafana-piechart-panel
+
+      resources:
+        requests:
+          cpu: 10m
+          memory: 128Mi
+        limits:
+          cpu: 1000m
+          memory: 256Mi
+
+      sidecar:
+        dashboards:
+          searchNamespace: ALL
+
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 256Mi
+      ingress:
+        enabled: true
+        # ingressClassName: alb
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: ca-issuer
+          external-dns.alpha.kubernetes.io/hostname: grafana.rohit.local
+          alb.ingress.kubernetes.io/target-type: ip
+        hosts:
+          - grafana.rohit.local
+        tls:
+          - secretName: grafana-cert
+            hosts:
+              - grafana.rohit.local
+
+    nameOverride: "prometheus-operator"
+
+    prometheusOperator:
+      enabled: true
+      createCustomResource: false
+      manageCrds: false
+
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
+
+    prometheus-node-exporter:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 16Mi
+        limits:
+          cpu: 500m
+          memory: 128Mi
+
+    kube-state-metrics:
+      customLabels:
+        monitoring-platform: prometheus
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi

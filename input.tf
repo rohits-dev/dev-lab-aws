@@ -7,7 +7,6 @@ variable "RESOURCE_PREFIX" {
 }
 
 variable "OWNER_EMAIL" {
-  default  = ""
   nullable = false
 }
 

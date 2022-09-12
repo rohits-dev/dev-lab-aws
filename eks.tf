@@ -103,33 +103,28 @@ module "eks" {
   eks_managed_node_group_defaults = {
     ami_type       = "AL2_x86_64"
     disk_size      = 50
-    instance_types = ["t3a.2xlarge", ]
+    instance_types = ["t3a.2xlarge"]
     #vpc_security_group_ids = [aws_security_group.additional.id]
   }
 
   eks_managed_node_groups = {
+
     zone_a = {
       min_size     = 0
       max_size     = 6
       desired_size = 1
-
-      instance_types = ["t3a.medium", "t3a.2xlarge"]
+      credit_specification = {
+        cpu_credits = "standard"
+      }
+      instance_types = ["t3a.2xlarge"]
       subnet_ids     = data.aws_subnets.private_subnet_a.ids
       capacity_type  = "SPOT"
       labels = {
-        Environment = "DEV"
-        GithubRepo  = "terraform-aws-eks"
-        GithubOrg   = "terraform-aws-modules"
+        GithubRepo = "terraform-aws-eks"
+        GithubOrg  = "terraform-aws-modules"
       }
-      # taints = {
-      #   dedicated = {
-      #     key    = "dedicated"
-      #     value  = "gpuGroup"
-      #     effect = "NO_SCHEDULE"
-      #   }
-      # }
+
       tags = {
-        ExtraTag                                          = "example"
         "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
         "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
       }
@@ -137,25 +132,19 @@ module "eks" {
     zone_b = {
       min_size     = 0
       max_size     = 6
-      desired_size = 0
-
-      instance_types = ["t3a.medium", "t3a.2xlarge"]
+      desired_size = 1
+      credit_specification = {
+        cpu_credits = "standard"
+      }
+      instance_types = ["t3a.2xlarge"]
       subnet_ids     = data.aws_subnets.private_subnet_b.ids
       capacity_type  = "SPOT"
       labels = {
-        Environment = "DEV"
-        GithubRepo  = "terraform-aws-eks"
-        GithubOrg   = "terraform-aws-modules"
+        GithubRepo = "terraform-aws-eks"
+        GithubOrg  = "terraform-aws-modules"
       }
-      # taints = {
-      #   dedicated = {
-      #     key    = "dedicated"
-      #     value  = "gpuGroup"
-      #     effect = "NO_SCHEDULE"
-      #   }
-      # }
+
       tags = {
-        ExtraTag                                          = "example"
         "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
         "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
       }
@@ -163,15 +152,17 @@ module "eks" {
     zone_c = {
       min_size     = 0
       max_size     = 6
-      desired_size = 0
-
-      instance_types = ["t3a.medium", "t3a.2xlarge"]
+      desired_size = 1
+      credit_specification = {
+        cpu_credits = "standard"
+      }
+      instance_types = ["t3a.2xlarge"]
       subnet_ids     = data.aws_subnets.private_subnet_c.ids
       capacity_type  = "SPOT"
       labels = {
-        Environment = "DEV"
-        GithubRepo  = "terraform-aws-eks"
-        GithubOrg   = "terraform-aws-modules"
+
+        GithubRepo = "terraform-aws-eks"
+        GithubOrg  = "terraform-aws-modules"
       }
       # taints = {
       #   dedicated = {
@@ -181,7 +172,6 @@ module "eks" {
       #   }
       # }
       tags = {
-        ExtraTag                                          = "example"
         "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
         "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
       }

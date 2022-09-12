@@ -95,16 +95,6 @@ module "confluent" {
     module.eks,
     module.fluxcd,
   module.vpn]
-  # aws_region = var.AWS_REGION
-  # resource_prefix = var.RESOURCE_PREFIX
-  # root_ca_crt = tls_self_signed_cert.root_ca.cert_pem
-  # root_ca_key = tls_private_key.root_ca.private_key_pem
-  # github_owner = var.GITHUB_OWNER
-  # repository_name = var.REPOSITORY_NAME
-  # branch = var.BRANCH
-  # target_path = local.target_path
-  # eks_oidc_provider = module.eks.oidc_provider
-  # eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }
 
 module "kyverno" {
@@ -115,6 +105,45 @@ module "kyverno" {
     module.fluxcd,
   module.vpn]
 
+}
+
+module "prometheus" {
+  source = "./prometheus"
+  count  = var.ADD_FLUXCD ? 1 : 0
+  providers = {
+    kubernetes = kubernetes
+  }
+  resource_prefix = var.RESOURCE_PREFIX
+  github_owner    = var.GITHUB_OWNER
+  repository_name = var.REPOSITORY_NAME
+  branch          = var.BRANCH
+  target_path     = local.target_path
+}
+
+module "aws_load_balancer_controller" {
+  source = "./aws-load-balancer-controller"
+  count  = var.ADD_FLUXCD ? 1 : 0
+  providers = {
+    kubernetes = kubernetes
+  }
+  eks_cluster_name      = local.cluster_name
+  resource_prefix       = var.RESOURCE_PREFIX
+  github_owner          = var.GITHUB_OWNER
+  owner_email           = var.OWNER_EMAIL
+  repository_name       = var.REPOSITORY_NAME
+  branch                = var.BRANCH
+  target_path           = local.target_path
+  eks_oidc_provider     = module.eks.oidc_provider
+  eks_oidc_provider_arn = module.eks.oidc_provider_arn
+}
+
+module "ingress_nginx" {
+  source = "./ingress-nginx"
+  count  = var.ADD_FLUXCD ? 1 : 0
+  providers = {
+    kubernetes = kubernetes
+  }
+  resource_prefix = var.RESOURCE_PREFIX
 }
 
 
