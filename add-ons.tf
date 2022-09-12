@@ -113,6 +113,10 @@ module "prometheus" {
   providers = {
     kubernetes = kubernetes
   }
+  github_owner    = var.GITHUB_OWNER
+  repository_name = var.REPOSITORY_NAME
+  branch          = var.BRANCH
+  target_path     = local.target_path
 }
 
 module "aws_load_balancer_controller" {
@@ -124,6 +128,15 @@ module "aws_load_balancer_controller" {
   resource_prefix       = var.RESOURCE_PREFIX
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
+}
+
+module "ingress_nginx" {
+  source = "./ingress-nginx"
+  count  = var.ADD_FLUXCD ? 1 : 0
+  providers = {
+    kubernetes = kubernetes
+  }
+  resource_prefix = var.RESOURCE_PREFIX
 }
 
 

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ccloud-telemetry-scrape-config
+  namespace: monitoring
+type: Opaque
+stringData:
+  prometheus-additional.yaml: |-
+    - job_name: "ccloud-telemetry"
+      scheme: https
+      scrape_interval: 10s
+      metrics_path: /v2/metrics/cloud/export
+      params: 
+        resource.kafka.id: ['lkc-xxxx']
+      basic_auth:
+        username: "xxxxx"
+        password: "xxxxx"
+      static_configs:
+        - targets:
+          - api.telemetry.confluent.cloud:443
