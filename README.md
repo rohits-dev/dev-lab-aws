@@ -49,6 +49,14 @@ AWS_AUTH_ROLES = [
       groups   = ["system:masters"]
     },
   ]
+
+# If you want to use an existing vpc, set the vpc id. Also make sure the region is set same as vpc region. 
+VPC_ID = "vpc-xxx"
+
+# only set when you are using existing vpc, default is set to use ["*private*", "*Private*", "*PRIVATE*"] and ["*public*", "*Public*", "*PUBLIC*"], in case you have different name then set them here. 
+
+PRIVATE_SUBNETS_NAME_FILTER = ["*my-private-filter*"]
+PUBLIC_SUBNETS_NAME_FILTER = ["*my-public-filter*"]
 ```
 
 ## initialize terraform
