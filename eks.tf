@@ -4,7 +4,7 @@ data "aws_subnets" "private_subnet_a" {
   ]
   filter {
     name   = "vpc-id"
-    values = [module.vpc.vpc_id]
+    values = [local.vpc_id]
   }
   filter {
     name   = "availabilityZone"
@@ -12,7 +12,7 @@ data "aws_subnets" "private_subnet_a" {
   }
   filter {
     name   = "tag:Name"
-    values = ["*private*"]
+    values = var.PRIVATE_SUBNETS_NAME_FILTER
   }
 }
 data "aws_subnets" "private_subnet_b" {
@@ -21,7 +21,7 @@ data "aws_subnets" "private_subnet_b" {
   ]
   filter {
     name   = "vpc-id"
-    values = [module.vpc.vpc_id]
+    values = [local.vpc_id]
   }
   filter {
     name   = "availabilityZone"
@@ -29,7 +29,7 @@ data "aws_subnets" "private_subnet_b" {
   }
   filter {
     name   = "tag:Name"
-    values = ["*private*"]
+    values = var.PRIVATE_SUBNETS_NAME_FILTER
   }
 }
 data "aws_subnets" "private_subnet_c" {
@@ -38,7 +38,7 @@ data "aws_subnets" "private_subnet_c" {
   ]
   filter {
     name   = "vpc-id"
-    values = [module.vpc.vpc_id]
+    values = [local.vpc_id]
   }
   filter {
     name   = "availabilityZone"
@@ -46,7 +46,7 @@ data "aws_subnets" "private_subnet_c" {
   }
   filter {
     name   = "tag:Name"
-    values = ["*private*"]
+    values = var.PRIVATE_SUBNETS_NAME_FILTER
   }
 }
 
@@ -55,12 +55,12 @@ module "eks" {
   version                         = "~> 18.0"
   cluster_name                    = local.cluster_name
   cluster_version                 = "1.22"
-  subnet_ids                      = module.vpc.private_subnets
+  subnet_ids                      = local.private_subnets
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = false
 
   cluster_additional_security_group_ids = [module.vpn.vpn_security_group_id]
-  vpc_id                                = module.vpc.vpc_id
+  vpc_id                                = local.vpc_id
 
   cluster_addons = {
     coredns = {

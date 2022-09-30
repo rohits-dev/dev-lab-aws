@@ -58,3 +58,22 @@ variable "AWS_AUTH_ROLES" {
   type        = list(any)
   default     = []
 }
+
+# existing vpc
+variable "VPC_ID" {
+  type        = string
+  default     = null
+  description = "Existing vpc-id"
+}
+
+variable "PRIVATE_SUBNETS_NAME_FILTER" {
+  type        = list(string)
+  default     = ["*private*", "*Private*", "*PRIVATE*"]
+  description = "Name filter to find all private subnets"
+}
+
+variable "PUBLIC_SUBNETS_NAME_FILTER" {
+  type        = list(string)
+  default     = ["*public*", "*Public*", "*PUBLIC*"]
+  description = "Name filter to find all private subnets"
+}
