@@ -116,10 +116,10 @@ aws s3 cp $S3_BUCKET_VAULT_OBJECT vault-secret.json
 export VAULT_TOKEN=$(jq -r '.root_token | values' vault-secret.json)
 ```
 
-kubectl patch deployment coredns \                       
+<!-- kubectl patch deployment coredns \                       
     -n kube-system \
     --type json \
-    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
+    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]' -->
 
     
 # add custom certs to trust store

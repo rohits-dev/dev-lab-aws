@@ -109,6 +109,29 @@ module "eks" {
 
   eks_managed_node_groups = {
 
+    dedicated_all_zone = {
+      min_size     = 0
+      max_size     = 6
+      desired_size = 1
+      credit_specification = {
+        cpu_credits = "standard"
+      }
+      instance_types = ["t3a.2xlarge"]
+      subnet_ids = concat(data.aws_subnets.private_subnet_a.ids,
+        data.aws_subnets.private_subnet_b.ids,
+        data.aws_subnets.private_subnet_c.ids
+      )
+      capacity_type = "ON_DEMAND"
+      labels = {
+        GithubRepo = "terraform-aws-eks"
+        GithubOrg  = "terraform-aws-modules"
+      }
+
+      tags = {
+        "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
+        "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
+      }
+    }
     zone_a = {
       min_size     = 0
       max_size     = 6
