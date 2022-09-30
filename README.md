@@ -49,6 +49,14 @@ AWS_AUTH_ROLES = [
       groups   = ["system:masters"]
     },
   ]
+
+# If you want to use an existing vpc, set the vpc id. Also make sure the region is set same as vpc region. 
+VPC_ID = "vpc-xxx"
+
+# only set when you are using existing vpc, default is set to use ["*private*", "*Private*", "*PRIVATE*"] and ["*public*", "*Public*", "*PUBLIC*"], in case you have different name then set them here. 
+
+PRIVATE_SUBNETS_NAME_FILTER = ["*my-private-filter*"]
+PUBLIC_SUBNETS_NAME_FILTER = ["*my-public-filter*"]
 ```
 
 ## initialize terraform
@@ -108,10 +116,10 @@ aws s3 cp $S3_BUCKET_VAULT_OBJECT vault-secret.json
 export VAULT_TOKEN=$(jq -r '.root_token | values' vault-secret.json)
 ```
 
-kubectl patch deployment coredns \                       
+<!-- kubectl patch deployment coredns \                       
     -n kube-system \
     --type json \
-    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
+    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]' -->
 
     
 # add custom certs to trust store

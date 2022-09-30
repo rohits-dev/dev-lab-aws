@@ -21,10 +21,10 @@ output "aws_region" {
 
 output "vpc_id" {
   description = "vpc id"
-  value       = module.vpc.vpc_id
+  value       = local.vpc_id
 }
 
 output "private_subnet_ids" {
   description = "subnet ids"
-  value       = module.vpc.private_subnets
+  value       = local.private_subnets
 }

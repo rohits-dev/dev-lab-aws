@@ -4,7 +4,7 @@ data "aws_subnets" "private_subnet_a" {
   ]
   filter {
     name   = "vpc-id"
-    values = [module.vpc.vpc_id]
+    values = [local.vpc_id]
   }
   filter {
     name   = "availabilityZone"
@@ -12,7 +12,7 @@ data "aws_subnets" "private_subnet_a" {
   }
   filter {
     name   = "tag:Name"
-    values = ["*private*"]
+    values = var.PRIVATE_SUBNETS_NAME_FILTER
   }
 }
 data "aws_subnets" "private_subnet_b" {
@@ -21,7 +21,7 @@ data "aws_subnets" "private_subnet_b" {
   ]
   filter {
     name   = "vpc-id"
-    values = [module.vpc.vpc_id]
+    values = [local.vpc_id]
   }
   filter {
     name   = "availabilityZone"
@@ -29,7 +29,7 @@ data "aws_subnets" "private_subnet_b" {
   }
   filter {
     name   = "tag:Name"
-    values = ["*private*"]
+    values = var.PRIVATE_SUBNETS_NAME_FILTER
   }
 }
 data "aws_subnets" "private_subnet_c" {
@@ -38,7 +38,7 @@ data "aws_subnets" "private_subnet_c" {
   ]
   filter {
     name   = "vpc-id"
-    values = [module.vpc.vpc_id]
+    values = [local.vpc_id]
   }
   filter {
     name   = "availabilityZone"
@@ -46,7 +46,7 @@ data "aws_subnets" "private_subnet_c" {
   }
   filter {
     name   = "tag:Name"
-    values = ["*private*"]
+    values = var.PRIVATE_SUBNETS_NAME_FILTER
   }
 }
 
@@ -55,12 +55,12 @@ module "eks" {
   version                         = "~> 18.0"
   cluster_name                    = local.cluster_name
   cluster_version                 = "1.22"
-  subnet_ids                      = module.vpc.private_subnets
+  subnet_ids                      = local.private_subnets
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = false
 
   cluster_additional_security_group_ids = [module.vpn.vpn_security_group_id]
-  vpc_id                                = module.vpc.vpc_id
+  vpc_id                                = local.vpc_id
 
   cluster_addons = {
     coredns = {
@@ -87,7 +87,7 @@ module "eks" {
       from_port   = 0
       to_port     = 0
       type        = "ingress"
-      cidr_blocks = ["10.0.0.0/16"]
+      cidr_blocks = [local.vpc_cidr_block]
     }
     egress_all = {
       description      = "Node all egress"
@@ -109,6 +109,29 @@ module "eks" {
 
   eks_managed_node_groups = {
 
+    dedicated_all_zone = {
+      min_size     = 0
+      max_size     = 6
+      desired_size = 1
+      credit_specification = {
+        cpu_credits = "standard"
+      }
+      instance_types = ["t3a.2xlarge"]
+      subnet_ids = concat(data.aws_subnets.private_subnet_a.ids,
+        data.aws_subnets.private_subnet_b.ids,
+        data.aws_subnets.private_subnet_c.ids
+      )
+      capacity_type = "ON_DEMAND"
+      labels = {
+        GithubRepo = "terraform-aws-eks"
+        GithubOrg  = "terraform-aws-modules"
+      }
+
+      tags = {
+        "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
+        "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
+      }
+    }
     zone_a = {
       min_size     = 0
       max_size     = 6

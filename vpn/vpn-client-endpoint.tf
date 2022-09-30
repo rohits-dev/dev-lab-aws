@@ -9,6 +9,7 @@ resource "aws_security_group" "client_vpn" {
 
     cidr_blocks = [
       "10.0.0.0/8",
+      var.vpc_cidr_block
     ]
   }
   egress {
@@ -18,6 +19,7 @@ resource "aws_security_group" "client_vpn" {
 
     cidr_blocks = [
       "10.0.0.0/8",
+      var.vpc_cidr_block
     ]
   }
 }
