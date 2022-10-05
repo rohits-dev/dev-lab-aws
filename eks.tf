@@ -205,6 +205,7 @@ module "eks" {
   manage_aws_auth_configmap = var.ADD_FLUXCD
 
   aws_auth_roles = var.AWS_AUTH_ROLES
+  aws_auth_users = var.AWS_AUTH_USERS
 }
 
 data "aws_eks_cluster" "cluster" {
