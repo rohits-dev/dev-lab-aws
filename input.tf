@@ -59,6 +59,12 @@ variable "AWS_AUTH_ROLES" {
   default     = []
 }
 
+variable "AWS_AUTH_USERS" {
+  description = "List of users maps to add to the aws-auth configmap"
+  type        = list(any)
+  default     = []
+}
+
 # existing vpc
 variable "VPC_ID" {
   type        = string
