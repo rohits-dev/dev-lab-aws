@@ -130,15 +130,21 @@ sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keyc
 sudo security remove-trusted-cert -d  ./generated_certs/root_ca.crt   
 ```
 
-# destroy
-First we should delete the namespaces and fluxcd from the cluster before we delete EKS and VPN. 
+# Tear down
+A clean tear down is very important for all the resources to be deleted without leaving dangling resources.
+
+- Make sure all resources which you deployed are deleted, mainly check the persistent volumes, services which are of type load-balancer. Primarily check for any resource which would have created any corresponding AWS resource such as EBS, load balancers.
+- to remove all CR for confluent for kubernetes across all namespaces can be deleted by `./script/cleanup-kafka.sh`.
+
+
+Below is a 2 step process to tear down the cluster and other resources. Its important to cleanup the k8s cluster before deleting the cluster.
 
 ```bash
 terraform apply --auto-approve
 terraform destroy
 ```
 
-if destroy stuck deleting  flux-system ns then edit a few resources and remove the fluxcd finalizers
+If destroy stuck deleting  flux-system ns then edit a few resources and remove the fluxcd finalizers
 
 ```bash
 k edit gitrepositories flux-system -nflux-system
