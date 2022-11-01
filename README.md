@@ -68,21 +68,10 @@ terraform init
 ```
 
 ## apply changes
-Due to the dependency of EKS for kube config to add any kubernetes manifests, run the terraform apply in 2 steps. 
-
-There is a variable ADD_FLUXCD which is set to false in tfvars, so first run wouldn't create any k8s resources. Run the below to create the VPC, EKS and etc.
+To apply the change, make use of a small script located in `./script/up.sh`
 
 ```bash
-terraform plan 
-terraform apply --auto-approve
-```
-
-
-> **_NOTE:_** Once the resources are provisioned, it would have configured the open vpn client, **_connect the VPN_** and run the below command. 
-
-```bash
-terraform plan -var="ADD_FLUXCD=true"
-terraform apply -var="ADD_FLUXCD=true" --auto-approve
+./script/up.sh
 ```
 > **_RETRY:_** If it fails, try one more time. There is an unknown issue where sometimes it fails for the first time. 
 
@@ -137,11 +126,10 @@ A clean tear down is very important for all the resources to be deleted without 
 - to remove all CR for confluent for kubernetes across all namespaces can be deleted by `./script/cleanup-kafka.sh`.
 
 
-Below is a 2 step process to tear down the cluster and other resources. Its important to cleanup the k8s cluster before deleting the cluster.
+A multi step process to tear down the cluster and other resources is in small script at `./script/down.sh`. Its important to cleanup the k8s cluster before deleting the cluster.
 
 ```bash
-terraform apply --auto-approve
-terraform destroy
+./script/down.sh
 ```
 
 If destroy stuck deleting  flux-system ns then edit a few resources and remove the fluxcd finalizers

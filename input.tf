@@ -83,3 +83,9 @@ variable "PUBLIC_SUBNETS_NAME_FILTER" {
   default     = ["*public*", "*Public*", "*PUBLIC*"]
   description = "Name filter to find all private subnets"
 }
+
+variable "ADD_EKS_PUBLIC_ACCESS" {
+  type        = bool
+  default     = false
+  description = "Make the EKS cluster private"
+}

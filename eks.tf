@@ -57,7 +57,7 @@ module "eks" {
   cluster_version                 = "1.22"
   subnet_ids                      = local.private_subnets
   cluster_endpoint_private_access = true
-  cluster_endpoint_public_access  = false
+  cluster_endpoint_public_access  = var.ADD_EKS_PUBLIC_ACCESS
 
   cluster_additional_security_group_ids = [module.vpn.vpn_security_group_id]
   vpc_id                                = local.vpc_id
