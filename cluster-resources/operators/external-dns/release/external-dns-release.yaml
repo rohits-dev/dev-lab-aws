@@ -10,8 +10,8 @@ spec:
       chart: external-dns
       sourceRef:
         kind: HelmRepository
-        name: bitnami
-      version: "6.*"
+        name: external-dns
+      version: "*"
   interval: 5m0s
   timeout: 5m0s
   releaseName: external-dns
