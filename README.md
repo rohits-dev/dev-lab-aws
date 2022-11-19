@@ -22,8 +22,14 @@ Install openvpn to connect to VPN and accept the GDPR terms and condition so tha
 brew install --cask openvpn-connect
 ```
 
+## install flux cli
+Solution uses flux to sync resources to EKS cluster, so please install flux cli. Refer brew install fluxcd/tap/flux
 
-# apply terraform
+```bash
+brew install fluxcd/tap/flux
+```
+
+# apply terraform (up)
 Fork this repo and change variables to run to create resources for you.
 
 
@@ -59,42 +65,34 @@ PRIVATE_SUBNETS_NAME_FILTER = ["*my-private-filter*"]
 PUBLIC_SUBNETS_NAME_FILTER = ["*my-public-filter*"]
 ```
 
-## initialize terraform
+## run
 
-First initialize the terraform to get all the modules and provider versions.
-
-```bash
-terraform init
-```
-
-## apply changes
-To apply the change, make use of a small script located in `./script/up.sh`
+To run, make use of a small script located in `./script/up.sh`
 
 ```bash
 ./script/up.sh
 ```
 > **_RETRY:_** If it fails, try one more time. There is an unknown issue where sometimes it fails for the first time. 
 
-> **_TIP:_**  If you get dns resolution error, please disconnect the VPN and connect again, sometimes it fails to resolve the dns. 
 
-# force sync git
+## force sync git (optional)
 Flux is scheduled to sync Git Repository evert minute, if you would like to force sync then run `./scripts/sync_git.sh` to sync immediately.
 
 # set local variables
-After successful run, you may run `./scripts/post_run.sh` to set local env variables to connect to vault and eks. Alternatively, you may run these as below. 
+After successful run, you may run `source ./scripts/post_run.sh` to set local env variables to connect to vault and eks. Alternatively, you may run these as below. 
 
-## setup kubeconfig
+### (alternatively) setup kubeconfig
+If you didn't run post_run.sh then you can manually setup.
 
-Change the name & region of the cluster as per your variables.
 
 ```bash
 export EKS_NAME=$(terraform output -json | jq -r '.eks_cluster_name.value | values')
 export AWS_REGION=$(terraform output -json | jq -r '.aws_region.value | values')
 aws eks update-kubeconfig --region $AWS_REGION --name $EKS_NAME
 ```
-## get vault token 
+### (alternatively) get vault token 
 
-
+Export vault token
 
 ```bash
 export S3_BUCKET_VAULT_OBJECT=$(terraform output -json | jq -r '.vault_s3_bucket.value | values')
@@ -105,13 +103,8 @@ aws s3 cp $S3_BUCKET_VAULT_OBJECT vault-secret.json
 export VAULT_TOKEN=$(jq -r '.root_token | values' vault-secret.json)
 ```
 
-<!-- kubectl patch deployment coredns \                       
-    -n kube-system \
-    --type json \
-    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]' -->
-
     
-# add custom certs to trust store
+# (Optional) add custom certs to trust store
 (Optional) For ease you can run below commands to add the root ca to trusted root on your mac
 
 ```bash
@@ -139,3 +132,9 @@ k edit gitrepositories flux-system -nflux-system
 k edit kustomizations flux-system -nflux-system
 k edit kustomizations resources -nflux-system
 ```
+# rough notes.
+
+<!-- kubectl patch deployment coredns \                       
+    -n kube-system \
+    --type json \
+    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]' -->

@@ -43,9 +43,6 @@ variable "BRANCH" {
   description = "branch name"
 }
 
-locals {
-  target_path = "cluster-resources/operators/"
-}
 
 variable "ADD_FLUXCD" {
   type        = bool
@@ -88,4 +85,11 @@ variable "ADD_EKS_PUBLIC_ACCESS" {
   type        = bool
   default     = false
   description = "Make the EKS cluster private"
+}
+
+variable "ARM_OR_AMD" {
+  type        = string
+  default     = "AMD"
+  description = "To test with ARM instances set it to ARM"
+
 }

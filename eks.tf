@@ -1,3 +1,13 @@
+locals {
+  amd_instance_types = ["t3a.2xlarge", "t3.2xlarge", "t2.2xlarge",
+  "m6i.2xlarge", "m5.2xlarge", "m5a.2xlarge", ]
+  arm_instance_types       = ["t4g.2xlarge", "m6g.2xlarge", "c6g.4xlarge", "r6g.xlarge"]
+  amd_ami                  = "AL2_x86_64"
+  arm_ami                  = "AL2_ARM_64"
+  effective_instance_types = var.ARM_OR_AMD == "ARM" ? local.arm_instance_types : local.amd_instance_types
+  effective_ami            = var.ARM_OR_AMD == "ARM" ? local.arm_ami : local.amd_ami
+}
+
 data "aws_subnets" "private_subnet_a" {
   depends_on = [
     module.vpc
@@ -15,6 +25,7 @@ data "aws_subnets" "private_subnet_a" {
     values = var.PRIVATE_SUBNETS_NAME_FILTER
   }
 }
+
 data "aws_subnets" "private_subnet_b" {
   depends_on = [
     module.vpc
@@ -101,27 +112,27 @@ module "eks" {
   }
 
   eks_managed_node_group_defaults = {
-    ami_type       = "AL2_x86_64"
-    disk_size      = 50
-    instance_types = ["t3a.2xlarge"]
+    ami_type       = local.effective_ami
+    disk_size      = 100
+    instance_types = local.effective_instance_types
     #vpc_security_group_ids = [aws_security_group.additional.id]
   }
 
   eks_managed_node_groups = {
 
-    dedicated_all_zone = {
+    all_zone = {
       min_size     = 0
       max_size     = 6
       desired_size = 1
       credit_specification = {
         cpu_credits = "standard"
       }
-      instance_types = ["t3a.2xlarge"]
+      instance_types = local.effective_instance_types
       subnet_ids = concat(data.aws_subnets.private_subnet_a.ids,
         data.aws_subnets.private_subnet_b.ids,
         data.aws_subnets.private_subnet_c.ids
       )
-      capacity_type = "ON_DEMAND"
+      capacity_type = "SPOT" #ON_DEMAND
       labels = {
         GithubRepo = "terraform-aws-eks"
         GithubOrg  = "terraform-aws-modules"
@@ -135,11 +146,11 @@ module "eks" {
     zone_a = {
       min_size     = 0
       max_size     = 6
-      desired_size = 1
+      desired_size = 0
       credit_specification = {
         cpu_credits = "standard"
       }
-      instance_types = ["t3a.2xlarge"]
+      instance_types = local.effective_instance_types
       subnet_ids     = data.aws_subnets.private_subnet_a.ids
       capacity_type  = "SPOT"
       labels = {
@@ -155,11 +166,11 @@ module "eks" {
     zone_b = {
       min_size     = 0
       max_size     = 6
-      desired_size = 1
+      desired_size = 0
       credit_specification = {
         cpu_credits = "standard"
       }
-      instance_types = ["t3a.2xlarge"]
+      instance_types = local.effective_instance_types
       subnet_ids     = data.aws_subnets.private_subnet_b.ids
       capacity_type  = "SPOT"
       labels = {
@@ -175,11 +186,11 @@ module "eks" {
     zone_c = {
       min_size     = 0
       max_size     = 6
-      desired_size = 1
+      desired_size = 0
       credit_specification = {
         cpu_credits = "standard"
       }
-      instance_types = ["t3a.2xlarge"]
+      instance_types = local.effective_instance_types
       subnet_ids     = data.aws_subnets.private_subnet_c.ids
       capacity_type  = "SPOT"
       labels = {
@@ -202,7 +213,7 @@ module "eks" {
   }
 
   # aws-auth configmap
-  manage_aws_auth_configmap = var.ADD_FLUXCD
+  manage_aws_auth_configmap = var.ADD_FLUXCD || var.ADD_EKS_PUBLIC_ACCESS
 
   aws_auth_roles = var.AWS_AUTH_ROLES
   aws_auth_users = var.AWS_AUTH_USERS

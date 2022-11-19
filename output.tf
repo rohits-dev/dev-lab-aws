@@ -28,3 +28,13 @@ output "private_subnet_ids" {
   description = "subnet ids"
   value       = local.private_subnets
 }
+
+output "eks_has_public_access" {
+  description = "Expose if EKS has public access"
+  value       = var.ADD_EKS_PUBLIC_ACCESS
+}
+
+output "has_fluxcd" {
+  description = "If EKS has services deployed"
+  value       = var.ADD_FLUXCD
+}
