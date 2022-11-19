@@ -32,6 +32,6 @@ if [[ $has_fluxcd == "true" ]];  then
 fi
 
 echo "delete vpc, eks, vpn etc"
-# terraform destroy --auto-approve
+terraform destroy --auto-approve
 
 echo "Successfully completed !"
