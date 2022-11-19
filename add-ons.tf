@@ -6,7 +6,7 @@ module "fluxcd" {
   repository_name       = var.REPOSITORY_NAME
   repository_visibility = "private"
   branch                = var.BRANCH
-  target_path           = local.target_path
+  target_path           = local.flux_target_path
   providers = {
     kubernetes = kubernetes
   }
