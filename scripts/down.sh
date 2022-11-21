@@ -21,6 +21,7 @@ if [[ $has_fluxcd == "true" ]];  then
     kubectl delete validatingwebhookconfiguration kyverno-resource-validating-webhook-cfg
     kubectl delete mutatingwebhookconfiguration kyverno-resource-mutating-webhook-cfg
     set -e
+    sleep 3
     ####### delete pvc ######
     delete_all_resources 'pvc'
     
@@ -31,7 +32,7 @@ if [[ $has_fluxcd == "true" ]];  then
     terraform apply -var="ADD_EKS_PUBLIC_ACCESS=true" --auto-approve
 fi
 
-echo "delete vpc, eks, vpn etc"
+echo "Final stage - delete vpc, eks, vpn etc"
 terraform destroy --auto-approve
 
 echo "Successfully completed !"

@@ -18,41 +18,6 @@ data "flux_sync" "main" {
   branch      = var.branch
 }
 
-# Kubernetes
-resource "kubernetes_namespace" "flux_system" {
-  metadata {
-    name = "flux-system"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      metadata[0].labels,
-    ]
-  }
-
-  provisioner "local-exec" {
-    when       = destroy
-    command    = <<EOT
-    kubectl get gitrepositories flux-system -nflux-system -o json \
-      | tr -d "\n" | sed "s/\"finalizers.fluxcd.io\"//g" \
-      | kubectl -nflux-system replace --raw /apis/source.toolkit.fluxcd.io/v1beta2/namespaces/flux-system/gitrepositories/flux-system -f -
-    kubectl delete --all gitrepositories -nflux-system
-
-    
-    kubectl get kustomization flux-system -nflux-system -o json \
-      | tr -d "\n" | sed "s/\"finalizers.fluxcd.io\"//g" \
-      | kubectl -nflux-system replace --raw /apis/kustomize.toolkit.fluxcd.io/v1beta2/namespaces/flux-system/kustomizations/flux-system -f -
-
-    kubectl get kustomization resources -nflux-system -o json \
-      | tr -d "\n" | sed "s/\"finalizers.fluxcd.io\"//g" \
-      | kubectl -nflux-system replace --raw /apis/kustomize.toolkit.fluxcd.io/v1beta2/namespaces/flux-system/kustomizations/resources -f -
-
-    kubectl delete --all kustomization -nflux-system
-    EOT
-    on_failure = continue
-  }
-}
-
 data "kubectl_file_documents" "install" {
   content = data.flux_install.main.content
 }
@@ -75,20 +40,18 @@ locals {
 }
 
 resource "kubectl_manifest" "install" {
-  for_each   = { for v in local.install : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
-  depends_on = [kubernetes_namespace.flux_system]
-  yaml_body  = each.value
+  for_each  = { for v in local.install : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
+  yaml_body = each.value
 
 }
 
 resource "kubectl_manifest" "sync" {
-  for_each   = { for v in local.sync : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
-  depends_on = [kubernetes_namespace.flux_system]
-  yaml_body  = each.value
+  for_each  = { for v in local.sync : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
+  yaml_body = each.value
 }
 
 resource "kubernetes_secret" "main" {
-  depends_on = [kubectl_manifest.install, kubernetes_namespace.flux_system]
+  depends_on = [kubectl_manifest.install]
 
   metadata {
     name      = data.flux_sync.main.secret
@@ -106,11 +69,6 @@ resource "kubernetes_secret" "main" {
 data "github_repository" "main" {
   full_name = "${var.github_owner}/${var.repository_name}"
 }
-
-# resource "github_branch_default" "main" {
-#   repository = github_repository.main.name
-#   branch     = var.branch
-# }
 
 resource "github_repository_deploy_key" "main" {
   title      = "staging-cluster"

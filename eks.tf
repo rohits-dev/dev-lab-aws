@@ -213,7 +213,7 @@ module "eks" {
   }
 
   # aws-auth configmap
-  manage_aws_auth_configmap = var.ADD_FLUXCD || var.ADD_EKS_PUBLIC_ACCESS
+  manage_aws_auth_configmap = true
 
   aws_auth_roles = var.AWS_AUTH_ROLES
   aws_auth_users = var.AWS_AUTH_USERS
