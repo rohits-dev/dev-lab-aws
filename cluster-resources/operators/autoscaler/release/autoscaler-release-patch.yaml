@@ -1,0 +1,19 @@
+    #############################################################################
+    #############################################################################
+    ######### Managed by Terraform, not safe to change ##########################
+    #############################################################################
+    #############################################################################
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: autoscaler
+  namespace: kube-system
+spec:
+  values:
+    autoDiscovery:
+      clusterName: rohit-eks-1
+    awsRegion: us-west-2
+    rbac:
+      serviceAccount:
+        annotations:
+          eks.amazonaws.com/role-arn: arn:aws:iam::492737776546:role/rohit-cluster-autoscaler
