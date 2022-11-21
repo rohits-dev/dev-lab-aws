@@ -32,7 +32,7 @@ if [[ $has_fluxcd == "true" ]];  then
     terraform apply -var="ADD_EKS_PUBLIC_ACCESS=true" --auto-approve
 fi
 
-echo "delete vpc, eks, vpn etc"
+echo "Final stage - delete vpc, eks, vpn etc"
 terraform destroy --auto-approve
 
 echo "Successfully completed !"
