@@ -1,0 +1,20 @@
+    #############################################################################
+    #############################################################################
+    ######### Managed by Terraform, not safe to change ##########################
+    #############################################################################
+    #############################################################################
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-init
+  namespace: vault
+spec:
+  template:
+    spec:
+      containers:
+        - name: vault-init
+          env:
+            - name: AWS_REGION
+              value: us-west-2
+            - name: S3_BUCKET
+              value: rohit-vault
