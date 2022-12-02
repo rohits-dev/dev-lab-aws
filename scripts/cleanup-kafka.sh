@@ -19,6 +19,9 @@ delete_all_resources 'kafkatopics'
 ####### delete kafkarestproxy ######
 delete_all_resources 'kafkarestproxy'
 
+####### delete kafkarestclasses ######
+delete_all_resources 'kafkarestclasses'
+
 ####### delete cfrb ######
 delete_all_resources 'cfrb'
 
