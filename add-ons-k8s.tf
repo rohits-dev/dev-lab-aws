@@ -47,8 +47,8 @@ module "external_dns" {
   target_path           = local.target_path
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
-  route_53_zone_id      = aws_route53_zone.main.zone_id
-  route_53_zone_arn     = aws_route53_zone.main.arn
+  route_53_zone_id      = module.vpc.route_53_zone_id
+  route_53_zone_arn     = module.vpc.route_53_arn
 }
 
 module "vault" {
@@ -61,8 +61,8 @@ module "vault" {
   module.vpn]
   aws_region            = var.AWS_REGION
   resource_prefix       = var.RESOURCE_PREFIX
-  root_ca_crt           = tls_self_signed_cert.root_ca.cert_pem
-  root_ca_key           = tls_private_key.root_ca.private_key_pem
+  root_ca_crt           = module.vpc.root_ca_cert_pem
+  root_ca_key           = module.vpc.root_ca_private_key_pem
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
@@ -79,8 +79,8 @@ module "certmanager" {
     module.fluxcd,
   module.vpn]
 
-  root_ca_crt     = tls_self_signed_cert.root_ca.cert_pem
-  root_ca_key     = tls_private_key.root_ca.private_key_pem
+  root_ca_crt     = module.vpc.root_ca_cert_pem
+  root_ca_key     = module.vpc.root_ca_private_key_pem
   resource_prefix = var.RESOURCE_PREFIX
   github_owner    = var.GITHUB_OWNER
   repository_name = var.REPOSITORY_NAME

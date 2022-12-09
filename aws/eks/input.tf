@@ -30,6 +30,8 @@ variable "private_subnets_name_filter" {
   description = "Name filter to find all private subnets"
 }
 
+
+
 variable "add_eks_public_access" {
   type        = bool
   default     = false
