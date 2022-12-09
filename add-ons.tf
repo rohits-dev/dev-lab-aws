@@ -1,6 +1,6 @@
 
 module "fluxcd" {
-  source                = "./fluxcd"
+  source                = "./k8s/fluxcd"
   count                 = var.ADD_FLUXCD ? 1 : 0
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
@@ -13,7 +13,7 @@ module "fluxcd" {
 }
 
 module "autoscaler" {
-  source = "./autoscaler"
+  source = "./k8s/autoscaler"
   count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
@@ -32,7 +32,7 @@ module "autoscaler" {
 }
 
 module "external_dns" {
-  source = "./external-dns"
+  source = "./k8s/external-dns"
   count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
@@ -52,7 +52,7 @@ module "external_dns" {
 }
 
 module "vault" {
-  source = "./vault"
+  source = "./k8s/vault"
   count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
@@ -72,7 +72,7 @@ module "vault" {
 }
 
 module "certmanager" {
-  source = "./cert-manager"
+  source = "./k8s/cert-manager"
   count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
@@ -89,7 +89,7 @@ module "certmanager" {
 }
 
 module "confluent" {
-  source = "./confluent"
+  source = "./k8s/confluent"
   count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
@@ -98,7 +98,7 @@ module "confluent" {
 }
 
 module "kyverno" {
-  source = "./kyverno"
+  source = "./k8s/kyverno"
   count  = var.ADD_FLUXCD ? 1 : 0
   depends_on = [
     module.eks,
@@ -108,7 +108,7 @@ module "kyverno" {
 }
 
 module "prometheus" {
-  source = "./prometheus"
+  source = "./k8s/prometheus"
   count  = var.ADD_FLUXCD ? 1 : 0
   providers = {
     kubernetes = kubernetes
@@ -121,7 +121,7 @@ module "prometheus" {
 }
 
 module "aws_load_balancer_controller" {
-  source = "./aws-load-balancer-controller"
+  source = "./k8s/aws-load-balancer-controller"
   count  = var.ADD_FLUXCD ? 1 : 0
   providers = {
     kubernetes = kubernetes
@@ -138,7 +138,7 @@ module "aws_load_balancer_controller" {
 }
 
 module "ingress_nginx" {
-  source = "./ingress-nginx"
+  source = "./k8s/ingress-nginx"
   count  = var.ADD_FLUXCD ? 1 : 0
   providers = {
     kubernetes = kubernetes

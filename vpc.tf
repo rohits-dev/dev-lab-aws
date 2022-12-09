@@ -69,7 +69,7 @@ module "vpc" {
 }
 
 module "vpn" {
-  source          = "./vpn"
+  source          = "./aws/vpn"
   vpc_id          = local.vpc_id
   a_subnet_id     = local.public_subnets[0]
   vpc_cidr_block  = local.vpc_cidr_block
