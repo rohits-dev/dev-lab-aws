@@ -31,7 +31,6 @@ data "aws_subnets" "public_subnets" {
 }
 
 locals {
-  cluster_name    = "${var.RESOURCE_PREFIX}-eks-1"
   az_zone_ids     = data.aws_availability_zones.available.zone_ids
   vpc_id          = var.VPC_ID == null ? module.vpc[0].vpc_id : var.VPC_ID
   vpc_cidr_block  = var.VPC_ID == null ? module.vpc[0].vpc_cidr_block : data.aws_vpc.existing_vpc[0].cidr_block
