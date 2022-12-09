@@ -61,8 +61,8 @@ module "vault" {
   module.vpn]
   aws_region            = var.AWS_REGION
   resource_prefix       = var.RESOURCE_PREFIX
-  root_ca_crt           = module.vpc.root_ca_cert_pem
-  root_ca_key           = module.vpc.root_ca_private_key_pem
+  root_ca_crt           = module.root_ca.root_ca_cert_pem
+  root_ca_key           = module.root_ca.root_ca_private_key_pem
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
@@ -79,8 +79,8 @@ module "certmanager" {
     module.fluxcd,
   module.vpn]
 
-  root_ca_crt     = module.vpc.root_ca_cert_pem
-  root_ca_key     = module.vpc.root_ca_private_key_pem
+  root_ca_crt     = module.root_ca.root_ca_cert_pem
+  root_ca_key     = module.root_ca.root_ca_private_key_pem
   resource_prefix = var.RESOURCE_PREFIX
   github_owner    = var.GITHUB_OWNER
   repository_name = var.REPOSITORY_NAME

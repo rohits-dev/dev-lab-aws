@@ -41,5 +41,4 @@ resource "local_file" "root_ca_crt" {
 resource "aws_acm_certificate" "root_certificate" {
   private_key      = tls_private_key.root_ca.private_key_pem
   certificate_body = tls_self_signed_cert.root_ca.cert_pem
-
 }

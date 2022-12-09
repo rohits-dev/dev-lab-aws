@@ -1,3 +1,13 @@
+
+module "vpc" {
+  source                      = "./aws/vpc"
+  resource_prefix             = var.RESOURCE_PREFIX
+  cluster_name                = local.cluster_name
+  vpc_id                      = var.VPC_ID
+  aws_region                  = var.AWS_REGION
+  private_subnets_name_filter = var.PRIVATE_SUBNETS_NAME_FILTER
+}
+
 module "eks" {
   source                                = "./aws/eks"
   resource_prefix                       = var.RESOURCE_PREFIX
@@ -14,21 +24,18 @@ module "eks" {
   vpc_cidr_block                        = module.vpc.vpc_cidr_block
 }
 
-module "vpc" {
-  source                      = "./aws/vpc"
-  resource_prefix             = var.RESOURCE_PREFIX
-  cluster_name                = local.cluster_name
-  vpc_id                      = var.VPC_ID
-  aws_region                  = var.AWS_REGION
-  private_subnets_name_filter = var.PRIVATE_SUBNETS_NAME_FILTER
-}
-
 module "vpn" {
   source          = "./aws/vpn"
   vpc_id          = module.vpc.vpc_id
   a_subnet_id     = module.vpc.public_subnets[0]
   vpc_cidr_block  = module.vpc.vpc_cidr_block
-  root_ca_crt     = module.vpc.root_ca_cert_pem
-  root_ca_key     = module.vpc.root_ca_private_key_pem
-  root_ca_acm_arn = module.vpc.root_ca_acm_arn
+  root_ca_crt     = module.root_ca.root_ca_cert_pem
+  root_ca_key     = module.root_ca.root_ca_private_key_pem
+  root_ca_acm_arn = module.root_ca.root_ca_acm_arn
+  resource_prefix = var.RESOURCE_PREFIX
+}
+
+module "root_ca" {
+  source          = "./aws/root_ca"
+  resource_prefix = var.RESOURCE_PREFIX
 }
