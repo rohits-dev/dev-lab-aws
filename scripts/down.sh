@@ -8,7 +8,7 @@ eks_has_public_access=$(terraform output eks_has_public_access)
 
 if [[ $has_fluxcd == "true" ]];  then
     echo "stage 1 - Opening public access to EKS"
-    terraform apply --target='module.eks.aws_eks_cluster.this[0]' -var="ADD_EKS_PUBLIC_ACCESS=true" --auto-approve
+    terraform apply --target='module.eks.module.eks.aws_eks_cluster.this[0]' -var="ADD_EKS_PUBLIC_ACCESS=true" --auto-approve
 
     echo "stage 2 - delete all confluent resources"
     ./scripts/cleanup-kafka.sh
