@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo "Initialize terraform..."
-terraform init
+terraform init --upgrade
 
 has_fluxcd=$(terraform output has_fluxcd)
 eks_has_public_access=$(terraform output eks_has_public_access)
