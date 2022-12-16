@@ -1,6 +1,6 @@
 
 variable "resource_prefix" {
-  default = ""
+  nullable = false
   # validation {
   #   condition     = length(var.resource_prefix) < 1
   #   error_message = "The RESOURCE_PREFIX is required field."
@@ -8,7 +8,7 @@ variable "resource_prefix" {
 }
 
 variable "root_ca_crt" {
-  default = ""
+  nullable = false
   # validation {
   #   condition     = length(var.root_ca_crt) < 1
   #   error_message = "The root_ca_crt is required field."
@@ -16,7 +16,7 @@ variable "root_ca_crt" {
 }
 
 variable "root_ca_key" {
-  default = ""
+  nullable = false
   # validation {
   #   condition     = length(var.root_ca_key) < 1
   #   error_message = "The root_ca_key is required field."
@@ -24,16 +24,16 @@ variable "root_ca_key" {
 }
 
 variable "root_ca_acm_arn" {
-  default = ""
+  nullable = false
 }
 variable "vpc_cidr_block" {
-  default = ""
+  nullable = false
 }
 
-variable "a_subnet_id"{
-  default = ""
+variable "a_subnet_id" {
+  nullable = false
 }
 
 variable "vpc_id" {
-  default = ""
-} 
+  nullable = false
+}

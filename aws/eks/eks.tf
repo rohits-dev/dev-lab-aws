@@ -1,77 +1,60 @@
-locals {
-  amd_instance_types = ["t3a.2xlarge", "t3.2xlarge", "t2.2xlarge",
-  "m6i.2xlarge", "m5.2xlarge", "m5a.2xlarge", ]
-  arm_instance_types       = ["t4g.2xlarge", "m6g.2xlarge", "c6g.4xlarge", "r6g.xlarge"]
-  amd_ami                  = "AL2_x86_64"
-  arm_ami                  = "AL2_ARM_64"
-  effective_instance_types = var.ARM_OR_AMD == "ARM" ? local.arm_instance_types : local.amd_instance_types
-  effective_ami            = var.ARM_OR_AMD == "ARM" ? local.arm_ami : local.amd_ami
-}
+
 
 data "aws_subnets" "private_subnet_a" {
-  depends_on = [
-    module.vpc
-  ]
   filter {
     name   = "vpc-id"
-    values = [local.vpc_id]
+    values = [var.vpc_id]
   }
   filter {
     name   = "availabilityZone"
-    values = ["${var.AWS_REGION}a"]
+    values = ["${var.aws_region}a"]
   }
   filter {
     name   = "tag:Name"
-    values = var.PRIVATE_SUBNETS_NAME_FILTER
+    values = var.private_subnets_name_filter
   }
 }
 
 data "aws_subnets" "private_subnet_b" {
-  depends_on = [
-    module.vpc
-  ]
   filter {
     name   = "vpc-id"
-    values = [local.vpc_id]
+    values = [var.vpc_id]
   }
   filter {
     name   = "availabilityZone"
-    values = ["${var.AWS_REGION}b"]
+    values = ["${var.aws_region}b"]
   }
   filter {
     name   = "tag:Name"
-    values = var.PRIVATE_SUBNETS_NAME_FILTER
+    values = var.private_subnets_name_filter
   }
 }
 data "aws_subnets" "private_subnet_c" {
-  depends_on = [
-    module.vpc
-  ]
   filter {
     name   = "vpc-id"
-    values = [local.vpc_id]
+    values = [var.vpc_id]
   }
   filter {
     name   = "availabilityZone"
-    values = ["${var.AWS_REGION}c"]
+    values = ["${var.aws_region}c"]
   }
   filter {
     name   = "tag:Name"
-    values = var.PRIVATE_SUBNETS_NAME_FILTER
+    values = var.private_subnets_name_filter
   }
 }
 
 module "eks" {
   source                          = "terraform-aws-modules/eks/aws"
   version                         = "~> 18.0"
-  cluster_name                    = local.cluster_name
+  cluster_name                    = var.cluster_name
   cluster_version                 = "1.22"
-  subnet_ids                      = local.private_subnets
+  subnet_ids                      = var.private_subnets
   cluster_endpoint_private_access = true
-  cluster_endpoint_public_access  = var.ADD_EKS_PUBLIC_ACCESS
+  cluster_endpoint_public_access  = var.add_eks_public_access
 
-  cluster_additional_security_group_ids = [module.vpn.vpn_security_group_id]
-  vpc_id                                = local.vpc_id
+  cluster_additional_security_group_ids = var.cluster_additional_security_group_ids
+  vpc_id                                = var.vpc_id
 
   cluster_addons = {
     coredns = {
@@ -98,7 +81,7 @@ module "eks" {
       from_port   = 0
       to_port     = 0
       type        = "ingress"
-      cidr_blocks = [local.vpc_cidr_block]
+      cidr_blocks = [var.vpc_cidr_block]
     }
     egress_all = {
       description      = "Node all egress"
@@ -139,8 +122,8 @@ module "eks" {
       }
 
       tags = {
-        "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
-        "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
+        "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+        "k8s.io/cluster-autoscaler/enabled"             = "TRUE"
       }
     }
     zone_a = {
@@ -159,8 +142,8 @@ module "eks" {
       }
 
       tags = {
-        "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
-        "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
+        "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+        "k8s.io/cluster-autoscaler/enabled"             = "TRUE"
       }
     }
     zone_b = {
@@ -179,8 +162,8 @@ module "eks" {
       }
 
       tags = {
-        "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
-        "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
+        "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+        "k8s.io/cluster-autoscaler/enabled"             = "TRUE"
       }
     }
     zone_c = {
@@ -206,8 +189,8 @@ module "eks" {
       #   }
       # }
       tags = {
-        "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
-        "k8s.io/cluster-autoscaler/enabled"               = "TRUE"
+        "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+        "k8s.io/cluster-autoscaler/enabled"             = "TRUE"
       }
     }
   }
@@ -215,8 +198,8 @@ module "eks" {
   # aws-auth configmap
   manage_aws_auth_configmap = true
 
-  aws_auth_roles = var.AWS_AUTH_ROLES
-  aws_auth_users = var.AWS_AUTH_USERS
+  aws_auth_roles = var.aws_auth_roles
+  aws_auth_users = var.aws_auth_users
 }
 
 data "aws_eks_cluster" "cluster" {
@@ -226,5 +209,4 @@ data "aws_eks_cluster" "cluster" {
 
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_id
-
 }

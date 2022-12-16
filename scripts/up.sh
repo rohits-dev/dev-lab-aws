@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo "Initialize terraform..."
-terraform init
+terraform init --upgrade
 
 has_fluxcd=$(terraform output has_fluxcd)
 eks_has_public_access=$(terraform output eks_has_public_access)
@@ -12,7 +12,7 @@ if [[ $has_fluxcd != "true"  ]];  then
     terraform apply -var="ADD_EKS_PUBLIC_ACCESS=true" --auto-approve
 fi
 echo "stage 2 - Opening public access to EKS"
-terraform apply --target='module.eks.aws_eks_cluster.this[0]' -var="ADD_EKS_PUBLIC_ACCESS=true" --auto-approve
+terraform apply --target='module.eks.module.eks.aws_eks_cluster.this[0]' -var="ADD_EKS_PUBLIC_ACCESS=true" --auto-approve
 
 echo "stage 3 - Adding Services onto EKS"
 terraform apply -var="ADD_EKS_PUBLIC_ACCESS=true" -var="ADD_FLUXCD=true" --auto-approve

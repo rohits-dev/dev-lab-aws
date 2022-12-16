@@ -21,12 +21,12 @@ output "aws_region" {
 
 output "vpc_id" {
   description = "vpc id"
-  value       = local.vpc_id
+  value       = module.vpc.vpc_id
 }
 
 output "private_subnet_ids" {
   description = "subnet ids"
-  value       = local.private_subnets
+  value       = module.vpc.private_subnets
 }
 
 output "eks_has_public_access" {
