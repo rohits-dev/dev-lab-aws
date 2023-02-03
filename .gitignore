@@ -1,6 +1,7 @@
 # temporary files
 local/*
 vault-secret.json
+/.idea/
 
 # Local .terraform directories
 **/.terraform/*
