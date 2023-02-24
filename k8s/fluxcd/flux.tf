@@ -39,19 +39,32 @@ locals {
   ]
 }
 
-resource "kubectl_manifest" "install" {
-  for_each  = { for v in local.install : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
-  yaml_body = each.value
+resource "kubernetes_namespace" "flux_system" {
+  metadata {
+    name = "flux-system"
+  }
 
+  lifecycle {
+    ignore_changes = [
+      metadata[0].labels,
+    ]
+  }
+}
+
+resource "kubectl_manifest" "install" {
+  for_each   = { for v in local.install : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content if v.data.kind != "namespace" }
+  yaml_body  = each.value
+  depends_on = [kubernetes_namespace.flux_system]
 }
 
 resource "kubectl_manifest" "sync" {
-  for_each  = { for v in local.sync : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
-  yaml_body = each.value
+  for_each   = { for v in local.sync : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
+  yaml_body  = each.value
+  depends_on = [kubernetes_namespace.flux_system]
 }
 
 resource "kubernetes_secret" "main" {
-  depends_on = [kubectl_manifest.install]
+  depends_on = [kubectl_manifest.install, kubernetes_namespace.flux_system]
 
   metadata {
     name      = data.flux_sync.main.secret
