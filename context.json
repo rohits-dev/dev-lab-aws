@@ -1,0 +1,37 @@
+{
+  "name": "arn:aws:eks:eu-west-2:492737776546:cluster/rohit-eks-1",
+  "context": {
+    "cluster": "arn:aws:eks:eu-west-2:492737776546:cluster/rohit-eks-1",
+    "user": "arn:aws:eks:eu-west-2:492737776546:cluster/rohit-eks-1",
+    "namespace": "confluent"
+  }
+}
+{
+  "name": "arn:aws:eks:us-west-2:492737776546:cluster/sven-americas-eks-1",
+  "context": {
+    "cluster": "arn:aws:eks:us-west-2:492737776546:cluster/sven-americas-eks-1",
+    "user": "arn:aws:eks:us-west-2:492737776546:cluster/sven-americas-eks-1"
+  }
+}
+{
+  "name": "docker-desktop",
+  "context": {
+    "cluster": "docker-desktop",
+    "user": "docker-desktop"
+  }
+}
+{
+  "name": "lab",
+  "context": {
+    "cluster": "arn:aws:eks:eu-west-2:492737776546:cluster/rohit-eks-1",
+    "user": "arn:aws:eks:eu-west-2:492737776546:cluster/rohit-eks-1"
+  }
+}
+{
+  "name": "rshrivastava",
+  "context": {
+    "cluster": "rshrivastava",
+    "user": "clusterUser_rshrivastava_rshrivastava",
+    "namespace": "tools"
+  }
+}
