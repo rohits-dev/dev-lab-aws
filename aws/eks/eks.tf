@@ -48,7 +48,7 @@ module "eks" {
   source                          = "terraform-aws-modules/eks/aws"
   version                         = "~> 18.0"
   cluster_name                    = var.cluster_name
-  cluster_version                 = "1.22"
+  cluster_version                 = "1.24"
   subnet_ids                      = var.private_subnets
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = var.add_eks_public_access
@@ -200,6 +200,30 @@ module "eks" {
 
   aws_auth_roles = var.aws_auth_roles
   aws_auth_users = var.aws_auth_users
+}
+
+module "ebs_csi_iam_eks_role" {
+  source                = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  role_name             = "${var.resource_prefix}-ebs-csi"
+  attach_ebs_csi_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
+}
+
+resource "aws_eks_addon" "aws_ebs_csi_driver" {
+  depends_on = [
+    module.eks
+  ]
+  cluster_name             = var.cluster_name
+  addon_name               = "aws-ebs-csi-driver"
+  addon_version            = "v1.13.0-eksbuild.1"
+  resolve_conflicts        = "OVERWRITE"
+  service_account_role_arn = module.ebs_csi_iam_eks_role.iam_role_arn
 }
 
 data "aws_eks_cluster" "cluster" {
