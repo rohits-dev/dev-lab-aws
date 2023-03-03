@@ -48,7 +48,7 @@ module "eks" {
   source                          = "terraform-aws-modules/eks/aws"
   version                         = "~> 18.0"
   cluster_name                    = var.cluster_name
-  cluster_version                 = "1.24"
+  cluster_version                 = "1.25"
   subnet_ids                      = var.private_subnets
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = var.add_eks_public_access
@@ -102,34 +102,10 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-
-    all_zone = {
-      min_size     = 0
-      max_size     = 6
-      desired_size = 1
-      credit_specification = {
-        cpu_credits = "standard"
-      }
-      instance_types = local.effective_instance_types
-      subnet_ids = concat(data.aws_subnets.private_subnet_a.ids,
-        data.aws_subnets.private_subnet_b.ids,
-        data.aws_subnets.private_subnet_c.ids
-      )
-      capacity_type = "SPOT" #ON_DEMAND
-      labels = {
-        GithubRepo = "terraform-aws-eks"
-        GithubOrg  = "terraform-aws-modules"
-      }
-
-      tags = {
-        "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
-        "k8s.io/cluster-autoscaler/enabled"             = "TRUE"
-      }
-    }
     zone_a = {
       min_size     = 0
       max_size     = 6
-      desired_size = 0
+      desired_size = 1
       credit_specification = {
         cpu_credits = "standard"
       }
@@ -149,7 +125,7 @@ module "eks" {
     zone_b = {
       min_size     = 0
       max_size     = 6
-      desired_size = 0
+      desired_size = 1
       credit_specification = {
         cpu_credits = "standard"
       }
@@ -169,7 +145,7 @@ module "eks" {
     zone_c = {
       min_size     = 0
       max_size     = 6
-      desired_size = 0
+      desired_size = 1
       credit_specification = {
         cpu_credits = "standard"
       }
@@ -221,7 +197,7 @@ resource "aws_eks_addon" "aws_ebs_csi_driver" {
   ]
   cluster_name             = var.cluster_name
   addon_name               = "aws-ebs-csi-driver"
-  addon_version            = "v1.13.0-eksbuild.1"
+  addon_version            = "v1.16.0-eksbuild.1"
   resolve_conflicts        = "OVERWRITE"
   service_account_role_arn = module.ebs_csi_iam_eks_role.iam_role_arn
 }
