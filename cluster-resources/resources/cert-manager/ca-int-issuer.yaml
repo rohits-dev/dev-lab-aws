@@ -1,0 +1,8 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: ca-int-issuer
+  namespace: cert-manager
+spec:
+  ca:
+    secretName: int-cert-tls
