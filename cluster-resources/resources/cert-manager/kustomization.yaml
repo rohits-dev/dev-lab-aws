@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - ca-issuer.yaml
+  - ca-int-issuer.yaml
   - vault-issuer.yaml
 patchesStrategicMerge:
   - vault-issuer-patch.yaml

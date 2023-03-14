@@ -20,7 +20,8 @@ resource "aws_iam_policy" "cluster_autoscaler" {
           "autoscaling:SetDesiredCapacity",
           "autoscaling:TerminateInstanceInAutoScalingGroup",
           "ec2:DescribeLaunchTemplateVersions",
-          "ec2:DescribeInstanceTypes"
+          "ec2:DescribeInstanceTypes",
+          "eks:DescribeNodegroup"
         ],
         "Resource" : "*",
         "Effect" : "Allow"
