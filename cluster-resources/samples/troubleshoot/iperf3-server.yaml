@@ -1,0 +1,56 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iperf3-server
+spec:
+  selector:
+    app: iperf3-server
+  ports:
+    - protocol: TCP
+      port: 9100
+      targetPort: 9100
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iperf3-server
+  labels:
+    app: iperf3-server
+spec:
+  containers:
+    - name: iperf3
+      image: networkstatic/iperf3
+      command:
+        - iperf3
+        - -s
+        - -p
+        - "9100"
+        - -f
+        - m
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+---
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iperf3-client
+  labels:
+    app: iperf3-client
+spec:
+  containers:
+    - name: iperf3
+      image: networkstatic/iperf3
+      command:
+        - iperf3
+        - -c
+        - iperf3-server
+        - -p
+        - "9100"
+        - -t
+        - "60"
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always

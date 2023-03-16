@@ -43,6 +43,7 @@ spec:
     - kafka-1.kafka.confluent.svc.cluster.local
     - kafka-0.kafka.confluent.svc.cluster.local
     - "*.kafka.rohit.local"
+    - kafka
 
     # - www.example.com
   # uris:
