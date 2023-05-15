@@ -11,14 +11,14 @@ spec:
     topologySpreadConstraints:
       - labelSelector:
           matchLabels:
-            app: zookeeper
+            confluent-platform: "true"
+
         maxSkew: 1
         topologyKey: topology.kubernetes.io/zone
         whenUnsatisfiable: DoNotSchedule
-
   image:
-    application: confluentinc/cp-zookeeper:7.3.1
-    init: confluentinc/confluent-init-container:2.5.1
+    application: confluentinc/cp-zookeeper:7.3.3
+    init: confluentinc/confluent-init-container:2.5.2
   dataVolumeCapacity: 10Gi
   logVolumeCapacity: 10Gi
   authentication:
@@ -37,22 +37,60 @@ spec:
   replicas: 3
   oneReplicaPerNode: true
   podTemplate:
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - kafka
+                    - controlcenter
+                    - perf-test-consumer
+                    - perf-test-producer
+            topologyKey: kubernetes.io/hostname
+    resources:
+      requests:
+        memory: "25Gi"
+        cpu: "1000m"
+      limits:
+        memory: "30Gi"
+        cpu: "4000m"
     serviceAccountName: kafka
     topologySpreadConstraints:
       - labelSelector:
           matchLabels:
-            app: kafka
+            confluent-platform: "true"
         maxSkew: 1
         topologyKey: topology.kubernetes.io/zone
         whenUnsatisfiable: DoNotSchedule
 
   image:
-    application: confluentinc/cp-server:7.3.1
-    init: confluentinc/confluent-init-container:2.5.1
-  dataVolumeCapacity: 10Gi
+    application: confluentinc/cp-server:7.3.3
+    init: confluentinc/confluent-init-container:2.5.2
+  dataVolumeCapacity: 100Gi
   configOverrides:
+    # jvm:
+    #   - -Djavax.net.ssl.trustStore=/usr/lib/jvm/jre/lib/security/cacerts
+    #   - -Djavax.net.ssl.trustStorePassword=changeit
+    log4j:
+      - log4j.rootLogger=TRACE, stdout
     server: #This config override is required for CP 7.0 update to use AclAuthorizer instead of SimpleAclAuthorizer
       - authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+      - confluent.tier.feature=true
+      - confluent.tier.enable=true
+      - confluent.tier.backend=S3
+      - confluent.tier.s3.bucket=rohit-confluent
+      - confluent.tier.s3.region=eu-west-2
+      - confluent.tier.s3.ssl.truststore.location=/usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts
+      - confluent.tier.s3.ssl.truststore.password=changeit
+      - confluent.tier.s3.ssl.truststore.type=JKS
+      - confluent.tier.sts.ssl.truststore.location=/usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts
+      - confluent.tier.sts.ssl.truststore.password=changeit
+      - confluent.tier.sts.ssl.truststore.type=JKS
+      # - confluent.tier.s3.credentials.provider.class=WebIdentityTokenFileCredentialsProvider
+  # confluent.tier.metadata.replication.factor=1
   tls:
     secretRef: tls-kafka
   listeners:
@@ -91,6 +129,11 @@ spec:
         type: mtls
       tls:
         enabled: true
+  metrics:
+    authentication:
+      type: mtls
+    tls:
+      enabled: true
 # ---
 # apiVersion: platform.confluent.io/v1beta1
 # kind: Connect
@@ -100,8 +143,8 @@ spec:
 # spec:
 #   replicas: 2
 #   image:
-#     application: confluentinc/cp-server-connect:7.3.1
-#     init: confluentinc/confluent-init-container:2.5.1
+#     application: confluentinc/cp-server-connect:7.3.3
+#     init: confluentinc/confluent-init-container:2.5.2
 #   tls:
 #     secretRef: tls-connect
 #   externalAccess:
@@ -125,8 +168,8 @@ spec:
 # spec:
 #   replicas: 1
 #   image:
-#     application: confluentinc/cp-schema-registry:7.3.1
-#     init: confluentinc/confluent-init-container:2.5.1
+#     application: confluentinc/cp-schema-registry:7.3.3
+#     init: confluentinc/confluent-init-container:2.5.2
 #   tls:
 #     secretRef: tls-schemaregistry
 #   externalAccess:
@@ -150,8 +193,8 @@ spec:
 # spec:
 #   replicas: 2
 #   image:
-#     application: confluentinc/cp-ksqldb-server:7.3.1
-#     init: confluentinc/confluent-init-container:2.5.1
+#     application: confluentinc/cp-ksqldb-server:7.3.3
+#     init: confluentinc/confluent-init-container:2.5.2
 #   dataVolumeCapacity: 10Gi
 #   externalAccess:
 #     type: loadBalancer
@@ -176,14 +219,21 @@ metadata:
 spec:
   replicas: 1
   podTemplate:
+    topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            confluent-platform: "true"
+        maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
     probe:
       liveness:
         periodSeconds: 10
         failureThreshold: 5
         timeoutSeconds: 500
   image:
-    application: confluentinc/cp-enterprise-control-center:7.3.1
-    init: confluentinc/confluent-init-container:2.5.1
+    application: confluentinc/cp-enterprise-control-center:7.3.3
+    init: confluentinc/confluent-init-container:2.5.2
   dataVolumeCapacity: 10Gi
   externalAccess:
     type: loadBalancer
@@ -192,7 +242,9 @@ spec:
       prefix: controlcenter
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-internal: "true"
-
+  # configOverrides:
+  #   server:
+  #     - confluent.controlcenter.mode.enable=management
   tls:
     secretRef: tls-c3
   dependencies:
@@ -243,6 +295,18 @@ kind: ServiceAccount
 metadata:
   name: kafka
   namespace: confluent
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::492737776546:role/rohit-confluent"
+    eks.amazonaws.com/sts-regional-endpoints: "true"
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kafka-sa-secret
+  annotations:
+    kubernetes.io/service-account.name: kafka
+type: kubernetes.io/service-account-token
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

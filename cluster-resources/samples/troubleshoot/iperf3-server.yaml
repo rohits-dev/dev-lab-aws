@@ -54,3 +54,32 @@ spec:
         - "60"
       imagePullPolicy: IfNotPresent
   restartPolicy: Always
+
+---
+# spec:
+#   template:
+#     spec:
+#       affinity:
+#         podAntiAffinity:
+#           preferredDuringSchedulingIgnoredDuringExecution:
+#           - weight: 100
+#             podAffinityTerm:
+#               labelSelector:
+#                 matchExpressions:
+#                 - key: app
+#                   operator: In
+#                   values:
+#                   - kafka
+
+# spec:
+#   template:
+#     spec:
+#       - containers
+#         - name: tool
+#           image: alpine:3.14
+#           command:
+#             - sleep
+#             - "10000000"
+#           imagePullPolicy: IfNotPresent
+#           securityContext:
+#             runAsUser: 0

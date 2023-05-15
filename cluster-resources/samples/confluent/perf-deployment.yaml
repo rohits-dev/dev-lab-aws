@@ -7,10 +7,12 @@ spec:
   replicas: 3
   partitionCount: 12
   configs:
+    # cleanup.policy: compact
+    min.insync.replicas: "2"
     retention.bytes: "-1"
     retention.ms: "-1"
-    confluent.tier.enable: "true"
-    confluent.tier.local.hotset.bytes: "30000000"
+    confluent.tier.enable: "false"
+    # confluent.tier.local.hotset.bytes: "30000000"
 ---
 apiVersion: v1
 kind: Secret
@@ -34,11 +36,11 @@ spec:
       - local
 
   commonName: kafka.confluent.svc.cluster.local
-  # isCA: false
-  # privateKey:
-  #   algorithm: RSA
-  #   encoding: PKCS1
-  #   size: 2048
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
   usages:
     - server auth
     - client auth
@@ -102,65 +104,65 @@ spec:
     app: perf-test-producer
 
 ---
-# apiVersion: apps/v1
-# kind: StatefulSet
-# metadata:
-#   name: perf-producer
-#   namespace: confluent
-# spec:
-#   replicas: 10
-#   serviceName: perf-producer
-#   selector:
-#     matchLabels:
-#       app: perf-test-producer
-#       group: perf
-#   template:
-#     metadata:
-#       labels:
-#         app: perf-test-producer
-#         group: perf
-#     spec:
-#       containers:
-#         - name: perf-producer
-#           image: confluentinc/cp-server:7.3.3
-#           command:
-#             - kafka-producer-perf-test
-#             - --throughput
-#             - "-1"
-#             - --record-size
-#             - "1500"
-#             - --num-records
-#             - "10000000"
-#             - --print-metrics
-#             - --producer.config
-#             - /mnt/config/client.config
-#             - --topic
-#             - perf-test-1
-#             - --print-metrics
-#           resources:
-#             limits:
-#           #     memory: "256Mi"
-#           #     cpu: "1m"
-#           volumeMounts:
-#             - name: kafka-ssl
-#               mountPath: "/mnt/ssl"
-#             - name: kafka-config
-#               mountPath: "/mnt/config"
-#       volumes:
-#         - name: kafka-ssl
-#           secret:
-#             secretName: tls-kafka-perf
-#         - name: kafka-config
-#           secret:
-#             secretName: perf-config
-# ---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: perf-producer
+  namespace: confluent
+spec:
+  replicas: 0
+  serviceName: perf-producer
+  selector:
+    matchLabels:
+      app: perf-test-producer
+      group: perf
+  template:
+    metadata:
+      labels:
+        app: perf-test-producer
+        group: perf
+    spec:
+      containers:
+        - name: perf-producer
+          image: confluentinc/cp-server:7.3.3
+          command:
+            - kafka-producer-perf-test
+            - --throughput
+            - "-1"
+            - --record-size
+            - "1500"
+            - --num-records
+            - "10000000"
+            - --print-metrics
+            - --producer.config
+            - /mnt/config/client.config
+            - --topic
+            - perf-test-1
+            - --print-metrics
+          resources:
+            limits:
+          #     memory: "256Mi"
+          #     cpu: "1m"
+          volumeMounts:
+            - name: kafka-ssl
+              mountPath: "/mnt/ssl"
+            - name: kafka-config
+              mountPath: "/mnt/config"
+      volumes:
+        - name: kafka-ssl
+          secret:
+            secretName: tls-kafka-perf
+        - name: kafka-config
+          secret:
+            secretName: perf-config
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: perf-consumer
   namespace: confluent
 spec:
-  replicas: 6
+  replicas: 0
   serviceName: perf-consumer
   selector:
     matchLabels:
@@ -193,8 +195,8 @@ spec:
 
           resources:
             limits:
-          #     memory: "256Mi"
-          #     cpu: "1m"
+              memory: "256Mi"
+              cpu: "1m"
           volumeMounts:
             - name: kafka-ssl
               mountPath: "/mnt/ssl"
@@ -207,9 +209,3 @@ spec:
         - name: kafka-config
           secret:
             secretName: perf-config
-# 17.26.30
-# 17.43.20
-# 17 minutes
-# ~130 MBPS
-
-# 132GB

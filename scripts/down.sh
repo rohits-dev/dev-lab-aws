@@ -1,4 +1,5 @@
 set -euo pipefail
+SECONDS=0
 source ./scripts/bash_fn.sh
 
 
@@ -40,3 +41,6 @@ echo "Final Stage 5 - delete vpc, eks, vpn etc"
 terraform destroy --auto-approve
 
 echo "Successfully completed !"
+
+duration=$SECONDS
+echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds to complete the script!"

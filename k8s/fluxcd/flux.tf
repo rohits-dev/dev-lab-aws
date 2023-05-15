@@ -78,34 +78,29 @@ resource "kubernetes_secret" "main" {
   }
 }
 
-# GitHub
-data "github_repository" "main" {
-  full_name = "${var.github_owner}/${var.repository_name}"
-}
-
 resource "github_repository_deploy_key" "main" {
   title      = "staging-cluster"
-  repository = data.github_repository.main.name
+  repository = var.repository_name
   key        = tls_private_key.main.public_key_openssh
   read_only  = true
 }
 
 resource "github_repository_file" "install" {
-  repository = data.github_repository.main.name
+  repository = var.repository_name
   file       = data.flux_install.main.path
   content    = "${local.file_header_not_safe}${data.flux_install.main.content}"
   branch     = var.branch
 }
 
 resource "github_repository_file" "sync" {
-  repository = data.github_repository.main.name
+  repository = var.repository_name
   file       = data.flux_sync.main.path
   content    = "${local.file_header_not_safe}${data.flux_sync.main.content}"
   branch     = var.branch
 }
 
 resource "github_repository_file" "kustomize" {
-  repository          = data.github_repository.main.name
+  repository          = var.repository_name
   file                = data.flux_sync.main.kustomize_path
   content             = "${local.file_header_safe}${data.flux_sync.main.kustomize_content}"
   branch              = var.branch

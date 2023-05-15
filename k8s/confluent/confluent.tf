@@ -62,7 +62,7 @@ resource "aws_iam_role" "confluent" {
         "Action" : "sts:AssumeRoleWithWebIdentity",
         "Condition" : {
           "StringEquals" : {
-            "${var.eks_oidc_provider}:sub" : "system:serviceaccount:*:*"
+            "${var.eks_oidc_provider}:sub" : "system:serviceaccount:confluent:kafka"
           }
         }
       }

@@ -95,6 +95,9 @@ module "confluent" {
     module.eks,
     module.fluxcd,
   module.vpn]
+  resource_prefix       = var.RESOURCE_PREFIX
+  eks_oidc_provider     = module.eks.oidc_provider
+  eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }
 
 module "kyverno" {

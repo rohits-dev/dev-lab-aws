@@ -1,6 +1,6 @@
 #!/bin/sh
 set -euo pipefail
-
+SECONDS=0
 echo "Initialize terraform..."
 terraform init --upgrade
 
@@ -21,3 +21,6 @@ echo "stage 4 - Making EKS private for security reason, use VPN to access it"
 terraform apply -var="ADD_EKS_PUBLIC_ACCESS=false" -var="ADD_FLUXCD=true" --auto-approve
 
 echo "Successfully completed !"
+
+duration=$SECONDS
+echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds to complete the script!"
