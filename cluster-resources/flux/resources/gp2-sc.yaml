@@ -6,6 +6,7 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "false"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/aws-ebs
+volumeBindingMode: WaitForFirstConsumer
 parameters:
   type: gp2
   fsType: ext4
