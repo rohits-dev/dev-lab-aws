@@ -5,5 +5,6 @@ resources:
   - ca-issuer.yaml
   - ca-int-issuer.yaml
   - vault-issuer.yaml
+  - tls-cfk.yaml
 patchesStrategicMerge:
   - vault-issuer-patch.yaml
