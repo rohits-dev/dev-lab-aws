@@ -3,20 +3,9 @@
 This repository contains terraform resources to spin up an environment in AWS.
 It provisions a VPC, EKS and required resources to make the kubernetes cluster functional.
 
-[![asciicast](https://asciinema.org/a/492624.svg)](https://asciinema.org/a/492624?speed=1)
+## local tools
 
-# local tools
-
-## vault cli for local
-
-It would be a good idea to have vault cli locally
-
-```bash
-brew tap hashicorp/tap       
-brew install hashicorp/tap/vault
-```
-
-## install openvpn
+### install openvpn
 
 Install openvpn to connect to VPN and accept the GDPR terms and condition so that it opens and ready to be used. TF script will add configuration to it so its necessary that it is ready to be used.
 
@@ -24,7 +13,7 @@ Install openvpn to connect to VPN and accept the GDPR terms and condition so tha
 brew install --cask openvpn-connect
 ```
 
-## install flux cli
+### install flux cli
 
 Solution uses flux to sync resources to EKS cluster, so please install flux cli. Refer brew install fluxcd/tap/flux
 
@@ -32,13 +21,22 @@ Solution uses flux to sync resources to EKS cluster, so please install flux cli.
 brew install fluxcd/tap/flux
 ```
 
-# apply terraform (up)
+### vault cli for local (optional)
+
+It would be a good idea to have vault cli locally, though it is not must to run the project.
+
+```bash
+brew tap hashicorp/tap       
+brew install hashicorp/tap/vault
+```
+
+## apply terraform (up)
 
 Fork this repo and change variables to run to create resources for you. It's recommended to create a branch from main and use the branch instead of using `main` as all the commits done by the the terraform would remain in a branch and you can discard the branch once you destroy the environment.
 
 Update the terraform.tfvars as per you.
 
-```
+```terraform
 OWNER_EMAIL           = "xxx@xxx.xxx"
 GITHUB_OWNER          = "<your-github-account>"
 GITHUB_TOKEN          = "<your-github--token>"
@@ -67,7 +65,7 @@ PRIVATE_SUBNETS_NAME_FILTER = ["*my-private-filter*"]
 PUBLIC_SUBNETS_NAME_FILTER = ["*my-public-filter*"]
 ```
 
-## run
+### run
 
 To run, make use of a small script located in `./script/up.sh`
 
@@ -77,17 +75,17 @@ To run, make use of a small script located in `./script/up.sh`
 
 > **_RETRY:_** If it fails, try one more time. There is an unknown issue where sometimes it fails for the first time.
 
-## DNS resolution
+### DNS resolution
 
 Solution creates a private hosted zone to work with and use from the kubernetes cluster. You can resolve this from your machine once you are connected to VPN.
 
 One caveat is if you have any software which manages your DNS server then you may have to either disable it or use a VPN client which allows you to change the DNS configuration while connecting to VPN. e.g. If you have Cloudflare WARP installed then you can disable it while you are working with the VPN and enable it once you don't need it. After disabling you may need to reset the WIFI or Ethernet connection to reestablish the internet connection and then connect to VPN. To test you can run nslookup `vault.<resource_prefix>.local` it should resolve to a private IP address in 10.0.0.0/16 range.
 
-## force sync git (optional)
+### force sync git (optional)
 
 Flux is scheduled to sync Git Repository evert minute, if you would like to force sync then run `./scripts/sync_git.sh` to sync immediately.
 
-# set local variables
+## set local variables
 
 After successful run, you may run `source ./scripts/post_run.sh` to set local env variables to connect to vault and eks. Alternatively, you may run these as below.
 
@@ -144,9 +142,9 @@ k edit kustomizations flux-system -nflux-system
 k edit kustomizations resources -nflux-system
 ```
 
-# rough notes
+<!-- # rough notes
 
-<!-- kubectl patch deployment coredns \                       
+ kubectl patch deployment coredns \                       
     -n kube-system \
     --type json \
     -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]' -->

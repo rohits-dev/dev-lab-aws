@@ -11,8 +11,8 @@ spec:
     min.insync.replicas: "2"
     retention.bytes: "-1"
     retention.ms: "-1"
-    confluent.tier.enable: "false"
-    # confluent.tier.local.hotset.bytes: "30000000"
+    confluent.tier.enable: "true"
+    confluent.tier.local.hotset.bytes: "30000000"
 ---
 apiVersion: v1
 kind: Secret
@@ -110,7 +110,7 @@ metadata:
   name: perf-producer
   namespace: confluent
 spec:
-  replicas: 0
+  replicas: 12
   serviceName: perf-producer
   selector:
     matchLabels:
@@ -162,7 +162,7 @@ metadata:
   name: perf-consumer
   namespace: confluent
 spec:
-  replicas: 0
+  replicas: 12
   serviceName: perf-consumer
   selector:
     matchLabels:
@@ -180,7 +180,7 @@ spec:
           command:
             - kafka-consumer-perf-test
             - --bootstrap-server
-            - kafka:9071
+            - kafka.confluent.svc.cluster.local:9071
             - --messages
             - "10000000000"
             - --group
@@ -195,8 +195,8 @@ spec:
 
           resources:
             limits:
-              memory: "256Mi"
-              cpu: "1m"
+              # memory: "8Gi"
+              # cpu: "7000m"
           volumeMounts:
             - name: kafka-ssl
               mountPath: "/mnt/ssl"
@@ -209,3 +209,32 @@ spec:
         - name: kafka-config
           secret:
             secretName: perf-config
+# kafka-topics --bootstrap-server kafka.confluent.svc.cluster.local:9071 --command-config /tmp/client.config --list
+# kafka-topics --bootstrap-server kafka.confluent.svc.cluster.local:9071 --command-config /mnt/config/client.config --list
+
+# bootstrap.servers=kafka:9071
+# security.protocol=SSL
+# ssl.key.password=mystorepassword
+# ssl.keystore.location=/mnt/sslcerts/keystore.p12
+# ssl.keystore.password=mystorepassword
+# ssl.truststore.location=/mnt/sslcerts/truststore.p12
+# ssl.truststore.password=mystorepassword
+# record-size=1500
+# acks=all
+# batch.size=30000
+# linger.ms=100
+
+# kafka-consumer-perf-test \
+# --bootstrap-server \
+# kafka.confluent.svc.cluster.local:9071 \
+# --messages \
+# "10000000000" \
+# --group \
+# "perf-consumer-2" \
+# --print-metrics \
+# --consumer.config \
+# /tmp/client.config \
+# --topic \
+# perf-test-1 \
+# --timeout \
+# "100000000"
