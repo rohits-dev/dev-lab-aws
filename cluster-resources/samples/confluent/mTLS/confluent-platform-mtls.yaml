@@ -79,7 +79,7 @@ spec:
     #   - -Djavax.net.ssl.trustStore=/usr/lib/jvm/jre/lib/security/cacerts
     #   - -Djavax.net.ssl.trustStorePassword=changeit
     log4j:
-      - log4j.rootLogger=TRACE, stdout
+      - log4j.rootLogger=INFO, stdout
     server: #This config override is required for CP 7.0 update to use AclAuthorizer instead of SimpleAclAuthorizer
       - authorizer.class.name=kafka.security.authorizer.AclAuthorizer
       - confluent.tier.feature=true

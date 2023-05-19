@@ -76,7 +76,7 @@ metadata:
 type: Opaque
 stringData:
   client.config: |
-    bootstrap.servers=kafka:9071
+    bootstrap.servers=kafka.confluent.svc.cluster.local:9071
     security.protocol=SSL
     ssl.key.password=mystorepassword
     ssl.keystore.location=/mnt/ssl/keystore.p12
@@ -110,7 +110,7 @@ metadata:
   name: perf-producer
   namespace: confluent
 spec:
-  replicas: 12
+  replicas: 1
   serviceName: perf-producer
   selector:
     matchLabels:
@@ -162,7 +162,7 @@ metadata:
   name: perf-consumer
   namespace: confluent
 spec:
-  replicas: 12
+  replicas: 0
   serviceName: perf-consumer
   selector:
     matchLabels:

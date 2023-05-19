@@ -3,5 +3,6 @@ kind: Kustomization
 
 resources:
   - confluent-operator-release.yaml
+  - tls-cfk.yaml
 # patchesStrategicMerge:
 # - confluent-operator-release-patch.yaml
