@@ -21,12 +21,16 @@ if [[ $has_fluxcd == "true" ]];  then
     echo "Stage 3 - delete services in EKS deployed via Flux"
     flux suspend kustomization flux-system
     set +e
+    flux suspend kustomization operators-level-1
     flux delete kustomization operators -s
-    sleep 3
+    sleep 30
+    flux delete kustomization operators-level-1 -s
+    
+    sleep 10
     kubectl delete validatingwebhookconfiguration kyverno-resource-validating-webhook-cfg
     kubectl delete mutatingwebhookconfiguration kyverno-resource-mutating-webhook-cfg
     set -e
-    sleep 3
+    sleep 10
     ####### delete pvc ######
     delete_all_resources 'pvc'
     
