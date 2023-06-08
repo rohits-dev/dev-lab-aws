@@ -1,23 +1,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: tls-kafka
+  name: tls-cfk
   namespace: confluent
 spec:
   # Secret names are always required.
-  secretName: tls-kafka
-
-  # secretTemplate is optional. If set, these annotations and labels will be
-  # copied to the Secret named example-com-tls. These labels and annotations will
-  # be re-reconciled if the Certificate's secretTemplate changes. secretTemplate
-  # is also enforced, so relevant label and annotation changes on the Secret by a
-  # third party will be overwriten by cert-manager to match the secretTemplate.
-  # secretTemplate:
-  #   annotations:
-  #     my-secret-annotation-1: "foo"
-  #     my-secret-annotation-2: "bar"
-  #   labels:
-  #     my-secret-label: foo
+  secretName: tls-cfk
 
   duration: 8760h # 90d
   renewBefore: 48h # 15d
@@ -26,7 +14,7 @@ spec:
       - local
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: kafka.confluent.svc.cluster.local
+  commonName: confluent-operator.confluent.svc.cluster.local
   isCA: false
   privateKey:
     algorithm: RSA
@@ -37,13 +25,8 @@ spec:
     - client auth
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
-    - kafka.rohit.local
-    - kafka.confluent.svc.cluster.local
-    - kafka-2.kafka.confluent.svc.cluster.local
-    - kafka-1.kafka.confluent.svc.cluster.local
-    - kafka-0.kafka.confluent.svc.cluster.local
-    - "*.kafka.rohit.local"
-    - kafka
+    - confluent-operator.confluent.svc
+    - confluent-operator.confluent.svc.cluster.local
 
     # - www.example.com
   # uris:

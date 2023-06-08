@@ -25,10 +25,26 @@ module "autoscaler" {
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = local.target_path
+  target_path           = local.target_path_level_1
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
+}
 
+module "aws_load_balancer_controller" {
+  source = "./k8s/aws-load-balancer-controller"
+  count  = var.ADD_FLUXCD ? 1 : 0
+  providers = {
+    kubernetes = kubernetes
+  }
+  eks_cluster_name      = local.cluster_name
+  resource_prefix       = var.RESOURCE_PREFIX
+  github_owner          = var.GITHUB_OWNER
+  owner_email           = var.OWNER_EMAIL
+  repository_name       = var.REPOSITORY_NAME
+  branch                = var.BRANCH
+  target_path           = local.target_path_level_1
+  eks_oidc_provider     = module.eks.oidc_provider
+  eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }
 
 module "external_dns" {
@@ -44,7 +60,7 @@ module "external_dns" {
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = local.target_path
+  target_path           = local.target_path_level_1
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
   route_53_zone_id      = module.vpc.route_53_zone_id
@@ -85,7 +101,7 @@ module "certmanager" {
   github_owner    = var.GITHUB_OWNER
   repository_name = var.REPOSITORY_NAME
   branch          = var.BRANCH
-  target_path     = local.target_path
+  target_path     = local.target_path_level_1
 }
 
 module "confluent" {
@@ -95,6 +111,9 @@ module "confluent" {
     module.eks,
     module.fluxcd,
   module.vpn]
+  resource_prefix       = var.RESOURCE_PREFIX
+  eks_oidc_provider     = module.eks.oidc_provider
+  eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }
 
 module "kyverno" {
@@ -120,22 +139,7 @@ module "prometheus" {
   target_path     = local.target_path
 }
 
-module "aws_load_balancer_controller" {
-  source = "./k8s/aws-load-balancer-controller"
-  count  = var.ADD_FLUXCD ? 1 : 0
-  providers = {
-    kubernetes = kubernetes
-  }
-  eks_cluster_name      = local.cluster_name
-  resource_prefix       = var.RESOURCE_PREFIX
-  github_owner          = var.GITHUB_OWNER
-  owner_email           = var.OWNER_EMAIL
-  repository_name       = var.REPOSITORY_NAME
-  branch                = var.BRANCH
-  target_path           = local.target_path
-  eks_oidc_provider     = module.eks.oidc_provider
-  eks_oidc_provider_arn = module.eks.oidc_provider_arn
-}
+
 
 module "ingress_nginx" {
   source = "./k8s/ingress-nginx"

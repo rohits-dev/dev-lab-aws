@@ -40,6 +40,7 @@ delete_all_resources 'kafka'
 ####### delete zookeeper ######
 delete_all_resources 'zookeeper'
 
+delete_all_resources 'kraft'
 
 
 

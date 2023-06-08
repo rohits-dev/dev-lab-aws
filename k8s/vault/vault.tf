@@ -153,7 +153,7 @@ resource "aws_s3_bucket" "vault" {
 
 }
 
-resource "aws_s3_bucket_acl" "vault" {
-  bucket = aws_s3_bucket.vault.id
-  acl    = "private"
-}
+# resource "aws_s3_bucket_acl" "vault" {
+#   bucket = aws_s3_bucket.vault.id
+#   acl    = "private"
+# }

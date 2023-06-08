@@ -1,0 +1,240 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: perf-test-1
+  namespace: confluent
+spec:
+  replicas: 3
+  partitionCount: 12
+  configs:
+    # cleanup.policy: compact
+    min.insync.replicas: "2"
+    retention.bytes: "-1"
+    retention.ms: "-1"
+    confluent.tier.enable: "true"
+    confluent.tier.local.hotset.bytes: "30000000"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jkspass
+  namespace: confluent
+stringData:
+  jksPassword: mystorepassword
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tls-kafka-perf
+  namespace: confluent
+spec:
+  # Secret names are always required.
+  secretName: tls-kafka-perf
+
+  subject:
+    organizations:
+      - local
+
+  commonName: kafka.confluent.svc.cluster.local
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - server auth
+    - client auth
+  # At least one of a DNS Name, URI, or IP address is required.
+  dnsNames:
+    - kafka.rohit.local
+    - kafka.confluent.svc.cluster.local
+    - kafka-2.kafka.confluent.svc.cluster.local
+    - kafka-1.kafka.confluent.svc.cluster.local
+    - kafka-0.kafka.confluent.svc.cluster.local
+    - "*.kafka.rohit.local"
+  issuerRef:
+    name: ca-issuer # vault-issuer
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+    # This is optional since cert-manager will default to this value however
+    # if you are using an external issuer, change this to that issuer group.
+    group: cert-manager.io
+  keystores:
+    pkcs12:
+      create: true
+      passwordSecretRef:
+        name: jkspass
+        key: jksPassword
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: perf-config
+  namespace: confluent
+type: Opaque
+stringData:
+  client.config: |
+    bootstrap.servers=kafka.confluent.svc.cluster.local:9071
+    security.protocol=SSL
+    ssl.key.password=mystorepassword
+    ssl.keystore.location=/mnt/ssl/keystore.p12
+    ssl.keystore.password=mystorepassword
+    ssl.truststore.location=/mnt/ssl/truststore.p12
+    ssl.truststore.password=mystorepassword
+    record-size=1500
+    acks=all
+    batch.size=30000
+    linger.ms=100
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: perf-producer
+  labels:
+    app: perf-test-producer
+spec:
+  ports:
+    - port: 80
+      name: web
+  clusterIP: None
+  selector:
+    app: perf-test-producer
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: perf-producer
+  namespace: confluent
+spec:
+  replicas: 1
+  serviceName: perf-producer
+  selector:
+    matchLabels:
+      app: perf-test-producer
+      group: perf
+  template:
+    metadata:
+      labels:
+        app: perf-test-producer
+        group: perf
+    spec:
+      containers:
+        - name: perf-producer
+          image: confluentinc/cp-server:7.3.3
+          command:
+            - kafka-producer-perf-test
+            - --throughput
+            - "-1"
+            - --record-size
+            - "1500"
+            - --num-records
+            - "10000000"
+            - --print-metrics
+            - --producer.config
+            - /mnt/config/client.config
+            - --topic
+            - perf-test-1
+            - --print-metrics
+          resources:
+            limits:
+          #     memory: "256Mi"
+          #     cpu: "1m"
+          volumeMounts:
+            - name: kafka-ssl
+              mountPath: "/mnt/ssl"
+            - name: kafka-config
+              mountPath: "/mnt/config"
+      volumes:
+        - name: kafka-ssl
+          secret:
+            secretName: tls-kafka-perf
+        - name: kafka-config
+          secret:
+            secretName: perf-config
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: perf-consumer
+  namespace: confluent
+spec:
+  replicas: 0
+  serviceName: perf-consumer
+  selector:
+    matchLabels:
+      app: perf-test-consumer
+      group: perf
+  template:
+    metadata:
+      labels:
+        app: perf-test-consumer
+        group: perf
+    spec:
+      containers:
+        - name: perf-consumer
+          image: confluentinc/cp-server:7.3.3
+          command:
+            - kafka-consumer-perf-test
+            - --bootstrap-server
+            - kafka.confluent.svc.cluster.local:9071
+            - --messages
+            - "10000000000"
+            - --group
+            - "perf-consumer-2"
+            - --print-metrics
+            - --consumer.config
+            - /mnt/config/client.config
+            - --topic
+            - perf-test-1
+            - --timeout
+            - "100000000"
+
+          resources:
+            limits:
+              # memory: "8Gi"
+              # cpu: "7000m"
+          volumeMounts:
+            - name: kafka-ssl
+              mountPath: "/mnt/ssl"
+            - name: kafka-config
+              mountPath: "/mnt/config"
+      volumes:
+        - name: kafka-ssl
+          secret:
+            secretName: tls-kafka-perf
+        - name: kafka-config
+          secret:
+            secretName: perf-config
+# kafka-topics --bootstrap-server kafka.confluent.svc.cluster.local:9071 --command-config /tmp/client.config --list
+# kafka-topics --bootstrap-server kafka.confluent.svc.cluster.local:9071 --command-config /mnt/config/client.config --list
+
+# bootstrap.servers=kafka:9071
+# security.protocol=SSL
+# ssl.key.password=mystorepassword
+# ssl.keystore.location=/mnt/sslcerts/keystore.p12
+# ssl.keystore.password=mystorepassword
+# ssl.truststore.location=/mnt/sslcerts/truststore.p12
+# ssl.truststore.password=mystorepassword
+# record-size=1500
+# acks=all
+# batch.size=30000
+# linger.ms=100
+
+# kafka-consumer-perf-test \
+# --bootstrap-server \
+# kafka.confluent.svc.cluster.local:9071 \
+# --messages \
+# "10000000000" \
+# --group \
+# "perf-consumer-2" \
+# --print-metrics \
+# --consumer.config \
+# /tmp/client.config \
+# --topic \
+# perf-test-1 \
+# --timeout \
+# "100000000"

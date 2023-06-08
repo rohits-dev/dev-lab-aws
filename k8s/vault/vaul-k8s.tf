@@ -16,13 +16,8 @@ data "template_file" "vault_init_job_patch" {
   }
 }
 
-# GitHub
-data "github_repository" "main" {
-  full_name = "${var.github_owner}/${var.repository_name}"
-}
-
 resource "github_repository_file" "vault_patch" {
-  repository          = data.github_repository.main.name
+  repository          = var.repository_name
   file                = "${var.target_path}vault/release/vault-release-patch.yaml"
   content             = "${local.file_header_not_safe}${data.template_file.vault_patch.rendered}"
   branch              = var.branch
@@ -30,7 +25,7 @@ resource "github_repository_file" "vault_patch" {
 }
 
 resource "github_repository_file" "vault_init_job_patch" {
-  repository          = data.github_repository.main.name
+  repository          = var.repository_name
   file                = "${var.target_path}vault/release/vault-init-job-patch.yaml"
   content             = "${local.file_header_not_safe}${data.template_file.vault_init_job_patch.rendered}"
   branch              = var.branch

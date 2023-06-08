@@ -17,3 +17,9 @@ spec:
   releaseName: confluent-operator
   values:
     namespaced: false
+    kRaftEnabled: true
+    webhooks:
+      enabled: true
+      port: 8443
+      tls:
+        secretRef: "tls-cfk"
