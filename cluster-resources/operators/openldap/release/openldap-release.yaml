@@ -1,0 +1,30 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: openldap
+  namespace: confluent
+spec:
+  chart:
+    spec:
+      chart: openldap
+      sourceRef:
+        kind: HelmRepository
+        name: openldap
+      version: "2.*"
+  interval: 5m0s
+  timeout: 5m0s
+  releaseName: openldap
+  values:
+    replicaCount: 2
+    logLevel: info
+    users: kafka
+    userPasswords: kafka
+    replication:
+      enabled: false
+    persistence:
+      enabled: false
+    ltb-passwd:
+      enabled: false
+    phpldapadmin:
+      enabled: false
