@@ -3,6 +3,5 @@ kind: Kustomization
 
 resources:
   - openldap-release.yaml
-  - tls-cfk.yaml
 # patchesStrategicMerge:
 # - confluent-operator-release-patch.yaml
