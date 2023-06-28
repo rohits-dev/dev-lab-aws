@@ -11,7 +11,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: openldap
-      version: "2.*"
+      version: "*.*"
   interval: 5m0s
   timeout: 5m0s
   releaseName: openldap
