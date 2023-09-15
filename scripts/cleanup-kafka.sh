@@ -19,8 +19,6 @@ delete_all_resources 'kafkatopics'
 ####### delete kafkarestproxy ######
 delete_all_resources 'kafkarestproxy'
 
-####### delete kafkarestclasses ######
-delete_all_resources 'kafkarestclasses'
 
 ####### delete cfrb ######
 delete_all_resources 'cfrb'
@@ -33,6 +31,10 @@ delete_all_resources 'controlcenter'
 
 ####### delete clusterlink ######
 delete_all_resources 'clusterlink'
+
+
+####### delete kafkarestclasses ######
+delete_all_resources 'kafkarestclasses'
 
 ####### delete kafka ######
 delete_all_resources 'kafka'

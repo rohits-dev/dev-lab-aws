@@ -25,7 +25,7 @@ module "autoscaler" {
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = local.target_path_level_1
+  target_path           = local.target_path_level_0
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }
@@ -42,7 +42,7 @@ module "aws_load_balancer_controller" {
   owner_email           = var.OWNER_EMAIL
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = local.target_path_level_1
+  target_path           = local.target_path_level_0
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }

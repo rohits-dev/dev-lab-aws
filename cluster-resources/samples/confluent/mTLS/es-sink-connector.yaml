@@ -1,0 +1,43 @@
+# apiVersion: platform.confluent.io/v1beta1
+# kind: KafkaTopic
+# metadata:
+#   name: es
+#   namespace: confluent
+# spec:
+#   replicas: 3
+#   partitionCount: 1
+#   # kafkaClusterRef:
+#   #   name: kafka
+#   # kafkaRest:
+#   #   authentication:
+#   #     type: bearer
+#     bearer:
+#       secretRef: rest-credential
+---
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Connector
+metadata:
+  name: es
+  namespace: confluent
+spec:
+  class: "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector"
+  taskMax: 24
+
+  configs:
+    error.tolerance: "all"
+    error.log.enable: "true"
+    value.converter: "org.apache.kafka.connect.json.JsonConverter"
+    topics: "perf-test-1"
+    type.name: "_doc"
+    key.ignore: "true"
+    schema.ignore: "true"
+    name: "es"
+    value.converter.schemas.enable: "false"
+    # flush.synchronously: "true"
+    connection.url: https://quickstart-es-http.elastic-system:9200
+    connection.username: "elastic"
+    connection.password: "xx"
+    elastic.security.protocol: SSL
+    elastic.https.ssl.truststore.location: /mnt/sslcerts/truststore.p12
+    elastic.https.ssl.truststore.password: "mystorepassword"

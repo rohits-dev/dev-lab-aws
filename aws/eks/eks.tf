@@ -46,9 +46,9 @@ data "aws_subnets" "private_subnet_c" {
 
 module "eks" {
   source                          = "terraform-aws-modules/eks/aws"
-  version                         = "~> 18.0"
+  version                         = "~> 19.0"
   cluster_name                    = var.cluster_name
-  cluster_version                 = "1.25"
+  cluster_version                 = "1.27"
   subnet_ids                      = var.private_subnets
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = var.add_eks_public_access
@@ -203,10 +203,10 @@ resource "aws_eks_addon" "aws_ebs_csi_driver" {
 }
 
 data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_id
+  name = module.eks.cluster_name
 
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_id
+  name = module.eks.cluster_name
 }

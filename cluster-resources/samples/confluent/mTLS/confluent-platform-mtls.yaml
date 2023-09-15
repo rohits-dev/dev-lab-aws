@@ -2,7 +2,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: Zookeeper
 metadata:
   name: zookeeper
-  namespace: confluent
+
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
@@ -34,7 +34,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: Kafka
 metadata:
   name: kafka
-  namespace: confluent
+
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
@@ -138,37 +138,41 @@ spec:
   #     type: mtls
   #   tls:
   #     enabled: true
-# ---
-# apiVersion: platform.confluent.io/v1beta1
-# kind: Connect
-# metadata:
-#   name: connect
-#   namespace: confluent
-# spec:
-#   replicas: 2
-#   image:
-#     application: confluentinc/cp-server-connect:7.3.3
-#     init: confluentinc/confluent-init-container:2.5.2
-#   tls:
-#     secretRef: tls-connect
-#   externalAccess:
-#     type: loadBalancer
-#     loadBalancer:
-#       domain: mydomain.example
-#       prefix: connect
-#   dependencies:
-#     kafka:
-#       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
-#       authentication:
-#         type: mtls
-#       tls:
-#         enabled: true
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Connect
+metadata:
+  name: connect
+
+spec:
+  replicas: 2
+  image:
+    application: confluentinc/cp-server-connect:7.3.3
+    init: confluentinc/confluent-init-container:2.5.2
+  tls:
+    secretRef: tls-connect
+  build:
+    type: onDemand
+    onDemand:
+      plugins:
+        locationType: confluentHub
+        confluentHub:
+          - name: kafka-connect-elasticsearch
+            owner: confluentinc
+            version: 14.0.6
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+      authentication:
+        type: mtls
+      tls:
+        enabled: true
 # ---
 # apiVersion: platform.confluent.io/v1beta1
 # kind: SchemaRegistry
 # metadata:
 #   name: schemaregistry
-#   namespace: confluent
+#
 # spec:
 #   replicas: 1
 #   image:
@@ -193,7 +197,7 @@ spec:
 # kind: KsqlDB
 # metadata:
 #   name: ksqldb
-#   namespace: confluent
+#
 # spec:
 #   replicas: 2
 #   image:
@@ -219,7 +223,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ControlCenter
 metadata:
   name: controlcenter
-  namespace: confluent
+
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
@@ -260,11 +264,11 @@ spec:
         type: mtls
       tls:
         enabled: true
-#     connect:
-#       - name: connect
-#         url:  https://connect.confluent.svc.cluster.local:8083
-#         tls:
-#           enabled: true
+    connect:
+      - name: connect
+        url: https://connect.confluent.svc.cluster.local:8083
+        tls:
+          enabled: true
 #     ksqldb:
 #       - name: ksqldb
 #         url:  https://ksqldb.confluent.svc.cluster.local:8088
@@ -283,7 +287,6 @@ metadata:
     release: prometheus-operator
     monitoring-platform: prometheus
   name: confluent
-  namespace: confluent
 
 spec:
   endpoints:
@@ -300,7 +303,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kafka
-  namespace: confluent
+
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::492737776546:role/rohit-confluent"
     eks.amazonaws.com/sts-regional-endpoints: "true"
@@ -335,7 +338,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: kafka
-    namespace: confluent
+
 roleRef:
   kind: ClusterRole
   name: kafka-role

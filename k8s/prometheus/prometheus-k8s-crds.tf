@@ -14,30 +14,30 @@ resource "kubernetes_namespace" "monitoring" {
 }
 
 data "http" "crd_alertmanagerconfigs" {
-  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-alertmanagerconfigs.yaml"
+  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/charts/crds/crds/crd-alertmanagerconfigs.yaml"
 }
 data "http" "crd_alertmanagers" {
-  url = "https://github.com/prometheus-community/helm-charts/raw/main/charts/kube-prometheus-stack/crds/crd-alertmanagers.yaml"
+  url = "https://github.com/prometheus-community/helm-charts/raw/main/charts/kube-prometheus-stack/charts/crds/crds/crd-alertmanagers.yaml"
 }
 data "http" "crd_podmonitors" {
-  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-podmonitors.yaml"
+  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/charts/crds/crds/crd-podmonitors.yaml"
 }
 data "http" "crd_probes" {
-  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-probes.yaml"
+  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/charts/crds/crds/crd-probes.yaml"
 }
 data "http" "crd_prometheuses" {
-  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-prometheuses.yaml"
+  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/charts/crds/crds/crd-prometheuses.yaml"
 }
 data "http" "crd_prometheusrules" {
-  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-prometheusrules.yaml"
+  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/charts/crds/crds/crd-prometheusrules.yaml"
 }
 
 data "http" "crd_servicemonitors" {
-  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-servicemonitors.yaml"
+  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/charts/crds/crds/crd-servicemonitors.yaml"
 }
 
 data "http" "crd_thanosrulers" {
-  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-thanosrulers.yaml"
+  url = "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/charts/crds/crds/crd-thanosrulers.yaml"
 }
 
 resource "kubectl_manifest" "crd_alertmanagerconfigs" {

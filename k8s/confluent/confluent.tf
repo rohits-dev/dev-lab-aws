@@ -61,8 +61,8 @@ resource "aws_iam_role" "confluent" {
         },
         "Action" : "sts:AssumeRoleWithWebIdentity",
         "Condition" : {
-          "StringEquals" : {
-            "${var.eks_oidc_provider}:sub" : "system:serviceaccount:confluent:kafka"
+          "StringLike" : {
+            "${var.eks_oidc_provider}:sub" : "system:serviceaccount:*:kafka"
           }
         }
       }
@@ -73,4 +73,20 @@ resource "aws_iam_role" "confluent" {
 resource "aws_iam_role_policy_attachment" "confluent" {
   role       = aws_iam_role.confluent.name
   policy_arn = aws_iam_policy.confluent.arn
+}
+
+
+resource "kubernetes_secret" "mds_token_key_pair" {
+  depends_on = [kubernetes_namespace.confluent]
+
+  metadata {
+    name      = "mds-token-keypair"
+    namespace = "confluent"
+  }
+
+  data = {
+    "mdsPublicKey.pem"    = tls_private_key.mds_key_pair.public_key_pem
+    "mdsTokenKeyPair.pem" = tls_private_key.mds_key_pair.private_key_pem
+  }
+  type = "Opaque"
 }

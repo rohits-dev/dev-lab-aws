@@ -1,18 +1,19 @@
-apiVersion: platform.confluent.io/v1beta1
-kind: KafkaTopic
-metadata:
-  name: perf-test-1
-  namespace: confluent
-spec:
-  replicas: 3
-  partitionCount: 12
-  configs:
-    # cleanup.policy: compact
-    min.insync.replicas: "2"
-    retention.bytes: "-1"
-    retention.ms: "-1"
-    confluent.tier.enable: "true"
-    confluent.tier.local.hotset.bytes: "30000000"
+# apiVersion: platform.confluent.io/v1beta1
+# kind: KafkaTopic
+# metadata:
+#   name: perf-test-1
+#   namespace: confluent
+# spec:
+#   replicas: 3
+#   partitionCount: 24
+#   configs:
+#     # cleanup.policy: compact
+#     min.insync.replicas: "2"
+#     retention.bytes: "-1"
+#     retention.ms: "-1"
+#     confluent.tier.enable: "true"
+#     confluent.tier.local.hotset.bytes: "30000000"
+#     max.message.bytes: "5000000"
 ---
 apiVersion: v1
 kind: Secret
@@ -78,6 +79,12 @@ stringData:
   client.config: |
     bootstrap.servers=kafka.confluent.svc.cluster.local:9071
     security.protocol=SSL
+    # bootstrap.servers=lkc-j3kz7w-pd0l1k.eu-west-2.aws.glb.confluent.cloud:9092
+    # sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='xx' password='xx';
+    # sasl.mechanism=PLAIN
+    # Required for correctness in Apache Kafka clients prior to 2.6
+    client.dns.lookup=use_all_dns_ips
+    # security.protocol=SASL_SSL
     ssl.key.password=mystorepassword
     ssl.keystore.location=/mnt/ssl/keystore.p12
     ssl.keystore.password=mystorepassword
@@ -85,8 +92,8 @@ stringData:
     ssl.truststore.password=mystorepassword
     record-size=1500
     acks=all
-    batch.size=30000
-    linger.ms=100
+    batch.size=2000000
+    linger.ms=0
 
 ---
 apiVersion: v1
@@ -102,6 +109,17 @@ spec:
   clusterIP: None
   selector:
     app: perf-test-producer
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payload
+  namespace: confluent
+
+data:
+  payload.json: |-
+    {"a":["rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit","rohitrorohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohithitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohitrohit"]}
 
 ---
 apiVersion: apps/v1
@@ -128,26 +146,30 @@ spec:
           command:
             - kafka-producer-perf-test
             - --throughput
-            - "-1"
+            - "1"
             - --record-size
-            - "1500"
+            - "2000"
+            # - --payload-file
+            # - /mnt/payload/payload.json
             - --num-records
-            - "10000000"
-            - --print-metrics
+            - "10000000000000"
+            #- --print-metrics
             - --producer.config
             - /mnt/config/client.config
             - --topic
             - perf-test-1
-            - --print-metrics
-          resources:
-            limits:
-          #     memory: "256Mi"
-          #     cpu: "1m"
+            #- --print-metrics
+          # resources:
+          #   limits:
+          # #     memory: "256Mi"
+          # #     cpu: "1m"
           volumeMounts:
             - name: kafka-ssl
               mountPath: "/mnt/ssl"
             - name: kafka-config
               mountPath: "/mnt/config"
+            - name: payload
+              mountPath: "/mnt/payload"
       volumes:
         - name: kafka-ssl
           secret:
@@ -155,6 +177,9 @@ spec:
         - name: kafka-config
           secret:
             secretName: perf-config
+        - name: payload
+          configMap:
+            name: payload
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -224,17 +249,46 @@ spec:
 # batch.size=30000
 # linger.ms=100
 
-# kafka-consumer-perf-test \
-# --bootstrap-server \
-# kafka.confluent.svc.cluster.local:9071 \
-# --messages \
-# "10000000000" \
-# --group \
-# "perf-consumer-2" \
+# # kafka-consumer-perf-test \
+# # --bootstrap-server \
+# # kafka.confluent.svc.cluster.local:9071 \
+# # --messages \
+# # "10000000000" \
+# # --group \
+# # "perf-consumer-2" \
+# # --print-metrics \
+# # --consumer.config \
+# # /tmp/client.config \
+# # --topic \
+# # perf-test-1 \
+# # --timeout \
+# # "100000000"
+
+# # Required connection configs for Kafka producer, consumer, and admin
+# bootstrap.servers=pkc-41wq6.eu-west-2.aws.confluent.cloud:9092
+# sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='xx' password='xx';
+
+# security.protocol=SASL_SSL
+
+# sasl.mechanism=PLAIN
+# # Required for correctness in Apache Kafka clients prior to 2.6
+# client.dns.lookup=use_all_dns_ips
+
+# # Best practice for higher availability in Apache Kafka clients prior to 3.0
+# session.timeout.ms=45000
+
+# # Best practice for Kafka producer to prevent data loss
+# acks=all
+# record-size=256000
+# batch.size=10000000
+# linger.ms=0
+
+# sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='x' password='xx';
+# bootstrap.servers=lkc-3ry932-pr1dq1.eu-west-2.aws.glb.confluent.cloud:9092
+
+# - kafka-producer-perf-test \
+# --num-records 70000 --throughput 200 --record-size 256000 \
 # --print-metrics \
-# --consumer.config \
-# /tmp/client.config \
+# --producer.config /tmp/client.config \
 # --topic \
-# perf-test-1 \
-# --timeout \
-# "100000000"
+# perf-test-1
