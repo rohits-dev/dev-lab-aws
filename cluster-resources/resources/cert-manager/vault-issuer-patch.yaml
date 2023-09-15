@@ -1,0 +1,12 @@
+    #############################################################################
+    #############################################################################
+    ######### Managed by Terraform, not safe to change ##########################
+    #############################################################################
+    #############################################################################
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: vault-issuer
+spec:
+  vault:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lSQVBSRSsrUXNJSklSUGtwU3lMeWJhZ3d3RFFZSktvWklodmNOQVFFTEJRQXcKTGpFV01CUUdBMVVFQ2hNTlRYa2dURzlqWVd3c0lFbHVZekVVTUJJR0ExVUVBeE1MY205b2FYUXViRzlqWVd3dwpIaGNOTWpNd09URTFNVEV6TkRRMVdoY05NalF3T1RFME1URXpORFExV2pBdU1SWXdGQVlEVlFRS0V3MU5lU0JNCmIyTmhiQ3dnU1c1ak1SUXdFZ1lEVlFRREV3dHliMmhwZEM1c2IyTmhiRENDQVNJd0RRWUpLb1pJaHZjTkFRRUIKQlFBRGdnRVBBRENDQVFvQ2dnRUJBSjhHblBGUnovRzhJOGlzWU1TN1ZyZTAvU0JQcHYrcjIvTnUzNk5ocVpmYQpUU0dsVWpma0xDNWlibkVycFpJa01KSlBDVjNEbWJCcU5iQ2ZWUHpIeFFPRkVqMHdQS005bG1rU3VCYmpiWFpoCkZiZVhwdklOWnkzMEpnOEJvanVtZ0ZES0ZQVzlnQW9wWHp2dzN2Q0psU2pkamt0VmdJS0VtQXFDdjNIbllNTkMKUkZRVDZJdGhWZVVCeEpNcGordC9CSVJkQk4vN081NzZhR2c5UTBsbnZSSGhBNGY4VzJtemlPaTZnZzAvU3cvcwpXdzZWajZtWlVDZlM0dTZUSm8zR3dNTnBudzlZYWI0SUp1aVpkbjhjcXdGMzc1Qzdhd1hTUDE4Y0crZld0UWc1CnRxUlpFckphR1ZkcW9zc2s4bExhSTdpQnBnS0E0eGJJeThTSGRCVEJ5T3NDQXdFQUFhTkNNRUF3RGdZRFZSMFAKQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3SFFZRFZSME9CQllFRkpPNmJHN1ZsdHduSWtONwpjWWFWbkdRSUZOeDdNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUFwdGZDNDlEYWczVWtmQ01PNDBnbWMzcWxJCktEZm56d3FNMDBybFVhMTNSMUxSNE15aExnaWNRaFJrQ0E0anhZaVBIdFd5RXc0c2FZaFpGeFdqZDhoeWd3bkQKZ3UreW00UHRMc1lSejlseWxsR2NPaFdLQ2ZtS0M5N29NUXhjTDJwUU13OGs5NXFld3RGK0dkdjdPaDlRR1dyKwpGaVFtdGMvRk16clpVakRBYkZ6Z2RyRmdRS1ptMXQrc2VNSUVMcW9lcElwbXF3ZThnYXQzU1RyczFNU1EzM0krCmgwVndVQUVuc0YwRUdPUWhxcFhTZ2grVjQ4Q0hnM1lJUUJjWE96aDEwRzdRVnMwNHpHN05UaUYvSTV6eVZ5MkcKY2dwZkFFT3VobHFMRXFEVk1CMTh1OHZ4NVgxMG9kcE1mVExzNmN5a01wWjRZdEg1aTFyeEkrZkhYeHduCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
