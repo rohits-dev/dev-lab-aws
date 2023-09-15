@@ -202,10 +202,10 @@ resource "aws_eks_addon" "aws_ebs_csi_driver" {
   service_account_role_arn = module.ebs_csi_iam_eks_role.iam_role_arn
 }
 
-data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_name
+# data "aws_eks_cluster" "cluster" {
+#   name = module.eks.cluster_name
 
-}
+# }
 
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_name
