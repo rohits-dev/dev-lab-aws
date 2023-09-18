@@ -5,6 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 0m3s
+  wait: true
   path: ./cluster-resources/resources/
   prune: true
   sourceRef:

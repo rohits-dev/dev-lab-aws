@@ -4,6 +4,8 @@ metadata:
   name: operators
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: operators-level-1
   interval: 0m10s
   path: ./cluster-resources/operators/
   prune: true
