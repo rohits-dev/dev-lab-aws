@@ -6,6 +6,7 @@ metadata:
 spec:
   dependsOn:
     - name: operators-level-1
+  wait: true
   interval: 0m10s
   path: ./cluster-resources/operators/
   prune: true
