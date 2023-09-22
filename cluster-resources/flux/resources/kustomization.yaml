@@ -1,6 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+    - operators-level-0-kustomization.yaml
     - operators-level-1-kustomization.yaml
+    - operators-kustomization.yaml
+    - resources-operator-level-1-kustomization.yaml
+    - resources-kustomization.yaml
     - gp3-sc.yaml
     - gp2-sc.yaml

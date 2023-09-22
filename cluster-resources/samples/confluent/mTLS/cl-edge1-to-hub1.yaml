@@ -1,0 +1,30 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: ClusterLink
+metadata:
+  name: clusterlink-edge1-to-hub1
+  namespace: hub1
+spec:
+  destinationKafkaCluster:
+    bootstrapEndpoint: kafka.hub1.svc.cluster.local:9071
+    clusterID: 7d764fbb-d42e-49ab-a9w
+    kafkaRestClassRef:
+      name: kafka-rest
+      namespace: hub1
+    authentication:
+      type: mtls
+    tls:
+      enabled: true
+      secretRef: tls-kafka
+  sourceKafkaCluster:
+    bootstrapEndpoint: kafka.edge1.svc.cluster.local:9071
+    clusterID: a5ca2cd1-7179-4a2a-bdw
+    authentication:
+      type: mtls
+    tls:
+      enabled: true
+      secretRef: tls-kafka
+    # kafkaRestClassRef:
+    #   name: kafka-rest
+    #   namespace: edge1
+  mirrorTopics:
+    - name: beats
