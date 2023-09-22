@@ -18,6 +18,7 @@ data "aws_iam_policy_document" "aws_lb" {
       "ec2:DescribeVpcPeeringConnections",
       "ec2:DescribeVpcs",
       "ec2:GetCoipPoolUsage",
+      "elasticloadbalancing:AddTags",
       "elasticloadbalancing:DescribeListenerCertificates",
       "elasticloadbalancing:DescribeListeners",
       "elasticloadbalancing:DescribeLoadBalancerAttributes",
