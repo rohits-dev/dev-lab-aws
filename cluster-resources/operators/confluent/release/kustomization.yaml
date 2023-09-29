@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
   - confluent-operator-release.yaml
   - tls-cfk.yaml
+  - connect.yaml
 # patchesStrategicMerge:
 # - confluent-operator-release-patch.yaml
