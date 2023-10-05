@@ -2,23 +2,22 @@ apiVersion: platform.confluent.io/v1beta1
 kind: KRaftController
 metadata:
   name: kraft
-  namespace: confluent
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
   replicas: 3
   oneReplicaPerNode: true
   podTemplate:
-    topologySpreadConstraints:
-      - labelSelector:
-          matchLabels:
-            confluent-platform: "true"
-        maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
+    # topologySpreadConstraints:
+    #   - labelSelector:
+    #       matchLabels:
+    #         confluent-platform: "true"
+    #     maxSkew: 1
+    #     topologyKey: topology.kubernetes.io/zone
+    #     whenUnsatisfiable: DoNotSchedule
   image:
-    application: docker.io/confluentinc/cp-server:7.4.0
-    init: confluentinc/confluent-init-container:2.6.0
+    application: docker.io/confluentinc/cp-server:7.4.1
+    init: confluentinc/confluent-init-container:2.6.1
   dataVolumeCapacity: 10Gi
   configOverrides:
     # jvm:
@@ -44,45 +43,45 @@ apiVersion: platform.confluent.io/v1beta1
 kind: Kafka
 metadata:
   name: kafka
-  namespace: confluent
+
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
   replicas: 3
   oneReplicaPerNode: true
   podTemplate:
-    affinity:
-      podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                    - kafka
-                    - controlcenter
-                    - perf-test-consumer
-                    - perf-test-producer
-            topologyKey: kubernetes.io/hostname
+    # affinity:
+    #   podAntiAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       - labelSelector:
+    #           matchExpressions:
+    #             - key: app
+    #               operator: In
+    #               values:
+    #                 - kafka
+    #                 - controlcenter
+    #                 - perf-test-consumer
+    #                 - perf-test-producer
+    #         topologyKey: kubernetes.io/hostname
     resources:
       requests:
-        memory: "25Gi"
+        memory: "8Gi"
         cpu: "1000m"
-      limits:
-        memory: "30Gi"
-        cpu: "4000m"
+      # limits:
+      #   memory: "30Gi"
+      #   cpu: "4000m"
     serviceAccountName: kafka
-    topologySpreadConstraints:
-      - labelSelector:
-          matchLabels:
-            confluent-platform: "true"
-        maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
+    # topologySpreadConstraints:
+    #   - labelSelector:
+    #       matchLabels:
+    #         confluent-platform: "true"
+    #     maxSkew: 1
+    #     topologyKey: topology.kubernetes.io/zone
+    #     whenUnsatisfiable: DoNotSchedule
 
   image:
-    application: confluentinc/cp-server:7.4.0
-    init: confluentinc/confluent-init-container:2.6.0
+    application: confluentinc/cp-server:7.4.1
+    init: confluentinc/confluent-init-container:2.6.1
   dataVolumeCapacity: 100Gi
   configOverrides:
     # jvm:
@@ -151,37 +150,71 @@ spec:
   #     type: mtls
   #   tls:
   #     enabled: true
-# # ---
-# # apiVersion: platform.confluent.io/v1beta1
-# # kind: Connect
-# # metadata:
-# #   name: connect
-# #   namespace: confluent
-# # spec:
-# #   replicas: 2
-# #   image:
-# #     application: confluentinc/cp-server-connect:7.4.0
-# #     init: confluentinc/confluent-init-container:2.6.0
-# #   tls:
-# #     secretRef: tls-connect
-# #   externalAccess:
-# #     type: loadBalancer
-# #     loadBalancer:
-# #       domain: mydomain.example
-# #       prefix: connect
-# #   dependencies:
-# #     kafka:
-# #       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
-# #       authentication:
-# #         type: mtls
-# #       tls:
-# #         enabled: true
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Connect
+metadata:
+  name: connect
+
+spec:
+  replicas: 1
+  image:
+    application: confluentinc/cp-server-connect:7.4.1
+    init: confluentinc/confluent-init-container:2.6.1
+  tls:
+    secretRef: tls-connect
+  build:
+    type: onDemand
+    onDemand:
+      plugins:
+        locationType: confluentHub
+        confluentHub:
+          - name: kafka-connect-elasticsearch
+            owner: confluentinc
+            version: 14.0.10
+  # externalAccess:
+  #   type: loadBalancer
+  #   loadBalancer:
+  #     domain: mydomain.example
+  #     prefix: connect
+  podTemplate:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+    envVars:
+      # The  Confluent Replicator Monitoring Extension allows for detailed metrics from Replicator tasks to be
+      # collected using an exposed REST API.
+      # You'll need to update the version string in replicate-test-extension-<version>.jar based on what
+      # CP version you are using
+      # - name: CLASSPATH
+      #   value: /usr/share/java/kafka-connect-replicator/replicator-rest-extension-7.4.0.jar
+  configOverrides:
+    # When the Connect distributed cluster hosting Replicator has a REST endpoint with SSL encryption
+    # enabled, you must configure security properties for the SSL keystore and truststore used by the
+    # Replicator monitoring extension to communicate with other Connect nodes in the cluster.
+    # `/mnt/sslcerts/truststore.jks` is the truststore location when auto-genarated certs are used.
+    # jvm:
+    #   - -Djavax.net.ssl.trustStore=/mnt/sslcerts/truststore.jks
+    #   - -Djavax.net.ssl.trustStorePassword=mystorepassword
+    server:
+      # To activate the monitoring extension, configure this property
+      # - rest.extension.classes=io.confluent.connect.replicator.monitoring.ReplicatorMonitoringExtension,io.confluent.connect.security.ConnectSecurityExtension
+      # This specifies that Replicator is the Connector configured
+      # - connector.class=io.confluent.connect.replicator.ReplicatorSourceConnector
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+      authentication:
+        type: mtls
+      tls:
+        enabled: true
 # # ---
 # # apiVersion: platform.confluent.io/v1beta1
 # # kind: SchemaRegistry
 # # metadata:
 # #   name: schemaregistry
-# #   namespace: confluent
+# #
 # # spec:
 # #   replicas: 1
 # #   image:
@@ -196,7 +229,7 @@ spec:
 # #       prefix: sr
 # #   dependencies:
 # #     kafka:
-# #       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+# #       bootstrapEndpoint: kafka.edge1.svc.cluster.local:9071
 # #       authentication:
 # #         type: mtls
 # #       tls:
@@ -206,7 +239,7 @@ spec:
 # # kind: KsqlDB
 # # metadata:
 # #   name: ksqldb
-# #   namespace: confluent
+# #
 # # spec:
 # #   replicas: 2
 # #   image:
@@ -222,7 +255,7 @@ spec:
 # #     secretRef: tls-ksqldb
 # #   dependencies:
 # #     kafka:
-# #       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+# #       bootstrapEndpoint: kafka.edge1.svc.cluster.local:9071
 # #       authentication:
 # #         type: mtls
 # #       tls:
@@ -232,35 +265,34 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ControlCenter
 metadata:
   name: controlcenter
-  namespace: confluent
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
   replicas: 1
   podTemplate:
-    topologySpreadConstraints:
-      - labelSelector:
-          matchLabels:
-            confluent-platform: "true"
-        maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
+    # topologySpreadConstraints:
+    #   - labelSelector:
+    #       matchLabels:
+    #         confluent-platform: "true"
+    #     maxSkew: 1
+    #     topologyKey: topology.kubernetes.io/zone
+    #     whenUnsatisfiable: DoNotSchedule
     probe:
       liveness:
         periodSeconds: 10
         failureThreshold: 5
         timeoutSeconds: 500
   image:
-    application: confluentinc/cp-enterprise-control-center:7.4.0
-    init: confluentinc/confluent-init-container:2.6.0
+    application: confluentinc/cp-enterprise-control-center:7.4.1
+    init: confluentinc/confluent-init-container:2.6.1
   dataVolumeCapacity: 10Gi
   externalAccess:
     type: loadBalancer
     loadBalancer:
       domain: rohit.local
-      prefix: controlcenter
+      prefix: edge1
       annotations:
-        service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+        # service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   # configOverrides:
   #   server:
   #     - confluent.controlcenter.mode.enable=management
@@ -273,18 +305,18 @@ spec:
         type: mtls
       tls:
         enabled: true
-#     connect:
-#       - name: connect
-#         url:  https://connect.confluent.svc.cluster.local:8083
-#         tls:
-#           enabled: true
+    connect:
+      - name: connect
+        url: https://connect.confluent.svc.cluster.local:8083
+        tls:
+          enabled: true
 #     ksqldb:
 #       - name: ksqldb
-#         url:  https://ksqldb.confluent.svc.cluster.local:8088
+#         url:  https://ksqldb.edge1.svc.cluster.local:8088
 #         tls:
 #           enabled: true
 #     schemaRegistry:
-#       url: https://schemaregistry.confluent.svc.cluster.local:8081
+#       url: https://schemaregistry.edge1.svc.cluster.local:8081
 #       tls:
 #         enabled: true
 # ---
@@ -296,7 +328,7 @@ spec:
 #     release: prometheus-operator
 #     monitoring-platform: prometheus
 #   name: confluent
-#   namespace: confluent
+#
 
 # spec:
 #   endpoints:
@@ -313,7 +345,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kafka
-  namespace: confluent
+
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::492737776546:role/rohit-confluent"
     eks.amazonaws.com/sts-regional-endpoints: "true"
@@ -348,8 +380,22 @@ metadata:
 # subjects:
 #   - kind: ServiceAccount
 #     name: kafka
-#     namespace: confluent
+#
 # roleRef:
 #   kind: ClusterRole
 #   name: kafka-role
 #   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: default
+spec:
+  kafkaClusterRef:
+    name: kafka
+  kafkaRest:
+    endpoint: http://kafka.confluent.svc.cluster.local:8090
+    # authentication:
+    #   type: mtls
+    tls:
+      secretRef: tls-kafka

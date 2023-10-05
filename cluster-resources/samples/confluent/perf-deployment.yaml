@@ -1,19 +1,22 @@
-# apiVersion: platform.confluent.io/v1beta1
-# kind: KafkaTopic
-# metadata:
-#   name: perf-test-1
-#   namespace: confluent
-# spec:
-#   replicas: 3
-#   partitionCount: 24
-#   configs:
-#     # cleanup.policy: compact
-#     min.insync.replicas: "2"
-#     retention.bytes: "-1"
-#     retention.ms: "-1"
-#     confluent.tier.enable: "true"
-#     confluent.tier.local.hotset.bytes: "30000000"
-#     max.message.bytes: "5000000"
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: perf-test-1
+  namespace: confluent
+spec:
+  replicas: 3
+  partitionCount: 24
+  kafkaRestClassRef:
+    name: default
+    namespace: confluent
+  configs:
+    # cleanup.policy: compact
+    min.insync.replicas: "2"
+    retention.bytes: "-1"
+    retention.ms: "-1"
+    confluent.tier.enable: "true"
+    confluent.tier.local.hotset.bytes: "30000000"
+    max.message.bytes: "5000000"
 ---
 apiVersion: v1
 kind: Secret
@@ -43,16 +46,10 @@ spec:
     encoding: PKCS1
     size: 2048
   usages:
-    - server auth
     - client auth
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
-    - kafka.rohit.local
-    - kafka.confluent.svc.cluster.local
-    - kafka-2.kafka.confluent.svc.cluster.local
-    - kafka-1.kafka.confluent.svc.cluster.local
-    - kafka-0.kafka.confluent.svc.cluster.local
-    - "*.kafka.rohit.local"
+    - perf
   issuerRef:
     name: ca-issuer # vault-issuer
     # We can reference ClusterIssuers by changing the kind here.
@@ -67,7 +64,36 @@ spec:
       passwordSecretRef:
         name: jkspass
         key: jksPassword
-
+---
+# apiVersion: platform.confluent.io/v1beta1
+# kind: ConfluentRolebinding
+# metadata:
+#   name: perf-1
+#   namespace: confluent
+# spec:
+#   principal:
+#     name: perf
+#     type: user
+#   resourcePatterns:
+#     - name: "*"
+#       patternType: LITERAL
+#       resourceType: Topic
+#   role: ResourceOwner
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: perf-2
+  namespace: confluent
+spec:
+  principal:
+    name: perf
+    type: user
+  resourcePatterns:
+    - name: "*"
+      patternType: LITERAL
+      resourceType: Group
+  role: ResourceOwner
 ---
 apiVersion: v1
 kind: Secret
@@ -94,7 +120,6 @@ stringData:
     acks=all
     batch.size=2000000
     linger.ms=0
-
 ---
 apiVersion: v1
 kind: Service
@@ -142,15 +167,15 @@ spec:
     spec:
       containers:
         - name: perf-producer
-          image: confluentinc/cp-server:7.3.3
+          image: confluentinc/cp-server:7.5.0
           command:
             - kafka-producer-perf-test
             - --throughput
-            - "1"
-            - --record-size
-            - "2000"
-            # - --payload-file
-            # - /mnt/payload/payload.json
+            - "1000"
+            # - --record-size
+            # - "2000"
+            - --payload-file
+            - /mnt/payload/payload.json
             - --num-records
             - "10000000000000"
             #- --print-metrics
@@ -187,7 +212,7 @@ metadata:
   name: perf-consumer
   namespace: confluent
 spec:
-  replicas: 0
+  replicas: 1
   serviceName: perf-consumer
   selector:
     matchLabels:
@@ -201,7 +226,7 @@ spec:
     spec:
       containers:
         - name: perf-consumer
-          image: confluentinc/cp-server:7.3.3
+          image: confluentinc/cp-server:7.5.0
           command:
             - kafka-consumer-perf-test
             - --bootstrap-server

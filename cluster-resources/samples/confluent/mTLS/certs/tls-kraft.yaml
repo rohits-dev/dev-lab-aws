@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: tls-kraft
-  namespace: confluent
+
 spec:
   # Secret names are always required.
   secretName: tls-kraft
@@ -42,6 +42,12 @@ spec:
     - kraft-1.kraft.confluent.svc.cluster.local
     - kraft-0.kraft.confluent.svc.cluster.local
     - kraft
+    - kraft.edge1.svc.cluster.local
+    - kraft.hub1.svc.cluster.local
+    - kraft.hub2.svc.cluster.local
+    - "*.kraft.edge1.svc.cluster.local"
+    - "*.kraft.hub1.svc.cluster.local"
+    - "*.kraft.hub2.svc.cluster.local"
 
     # - www.example.com
   # uris:

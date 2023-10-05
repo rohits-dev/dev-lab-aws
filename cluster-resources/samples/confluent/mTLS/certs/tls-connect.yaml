@@ -1,11 +1,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: tls-c3
+  name: tls-connect
 
 spec:
   # Secret names are always required.
-  secretName: tls-c3
+  secretName: tls-connect
 
   # secretTemplate is optional. If set, these annotations and labels will be
   # copied to the Secret named example-com-tls. These labels and annotations will
@@ -37,13 +37,18 @@ spec:
     - client auth
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
-    - controlcenter.rohit.local
+    - connect.rohit.local
+    - connect.confluent.svc.cluster.local
     - edge1.rohit.local
-    - controlcenter.edge1.svc.cluster.local
-    - hub1.rohit.local
-    - controlcenter.hub1.svc.cluster.local
-    - hub2.rohit.local
-    - controlcenter.hub2.svc.cluster.local
+    - connect.edge1.svc.cluster.local
+    - connect.hub1.svc.cluster.local
+    - connect.hub2.svc.cluster.local
+    - "*.connect.confluent.svc.cluster.local"
+    - "*.connect.rohit.local"
+    - "*.connect.edg1.svc.cluster.local"
+    - "*.connect.hub1.svc.cluster.local"
+    - "*.connect.hub2.svc.cluster.local"
+    - connect
 
     # - www.example.com
   # uris:

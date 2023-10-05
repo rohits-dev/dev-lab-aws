@@ -1,0 +1,90 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: keda-operator-rohit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: keda-operator
+    namespace: keda
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keda-kafka-secrets
+  namespace: confluent
+stringData:
+  tls: enable
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: keda-trigger-auth-kafka-credential
+  namespace: confluent
+spec:
+  secretTargetRef:
+    - parameter: tls
+      name: keda-kafka-secrets
+      key: tls
+    - parameter: ca
+      name: tls-kafka
+      key: ca.crt
+    - parameter: cert
+      name: tls-kafka
+      key: tls.crt
+    - parameter: key
+      name: tls-kafka
+      key: tls.key
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: kafka-scaledobject
+  namespace: confluent
+spec:
+  scaleTargetRef:
+    name: perf-consumer
+    kind: StatefulSet
+  pollingInterval: 30
+  cooldownPeriod: 10
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: kafka.confluent.svc.cluster.local:9071
+        consumerGroup: perf-consumer-2 # Make sure that this consumer group name is the same one as the one that is consuming topics
+        topic: perf-test-1
+        # Optional
+        lagThreshold: "5000"
+        offsetResetPolicy: latest
+      authenticationRef:
+        name: keda-trigger-auth-kafka-credential
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: kafka-scaledobject-2
+  namespace: confluent
+spec:
+  scaleTargetRef:
+    name: connect
+    kind: Connect
+    apiVersion: platform.confluent.io/v1beta1
+  pollingInterval: 30
+  cooldownPeriod: 10
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: kafka.confluent.svc.cluster.local:9071
+        consumerGroup: connect-es # Make sure that this consumer group name is the same one as the one that is consuming topics
+        #topic: perf-test-1
+        # Optional
+        lagThreshold: "10000"
+        offsetResetPolicy: earliest
+      authenticationRef:
+        name: keda-trigger-auth-kafka-credential
