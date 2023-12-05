@@ -88,3 +88,28 @@ spec:
         offsetResetPolicy: earliest
       authenticationRef:
         name: keda-trigger-auth-kafka-credential
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: kafka-scaledobject-3
+  namespace: confluent
+spec:
+  scaleTargetRef:
+    name: es
+    kind: Connector
+    apiVersion: platform.confluent.io/v1beta1
+  pollingInterval: 30
+  cooldownPeriod: 10
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: kafka.confluent.svc.cluster.local:9071
+        consumerGroup: connect-es # Make sure that this consumer group name is the same one as the one that is consuming topics
+        #topic: perf-test-1
+        # Optional
+        lagThreshold: "100"
+        offsetResetPolicy: earliest
+      authenticationRef:
+        name: keda-trigger-auth-kafka-credential
