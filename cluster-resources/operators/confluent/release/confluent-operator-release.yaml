@@ -18,6 +18,7 @@ spec:
   values:
     namespaced: false
     kRaftEnabled: true
+    debug: true
     webhooks:
       enabled: true
       port: 8443
