@@ -21,6 +21,8 @@ spec:
   timeout: 5m0s
   values:
     controller:
+      extraArgs:
+        enable-ssl-passthrough: "true"
       service:
         externalTrafficPolicy: "Local"
         annotations:
