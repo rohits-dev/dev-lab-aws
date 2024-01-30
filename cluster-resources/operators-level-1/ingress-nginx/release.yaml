@@ -21,6 +21,11 @@ spec:
   timeout: 5m0s
   values:
     tcp:
+      "3887": "confluent/zk-east-0-internal:3888"
+      "3888": "confluent/zk-east-1-internal:3888"
+      "3889": "confluent/zk-east-2-internal:3888"
+      "3898": "confluent/zk-west-0-internal:3888"
+      "3899": "confluent/zk-west-1-internal:3888"
       "2887": "confluent/zk-east-0-internal:2888"
       "2888": "confluent/zk-east-1-internal:2888"
       "2889": "confluent/zk-east-2-internal:2888"
