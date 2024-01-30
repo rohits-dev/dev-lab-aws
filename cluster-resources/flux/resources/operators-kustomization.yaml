@@ -7,7 +7,7 @@ spec:
   dependsOn:
     - name: operators-level-1
   wait: true
-  interval: 0m10s
+  interval: 5m0s
   path: ./cluster-resources/operators/
   prune: true
   sourceRef:

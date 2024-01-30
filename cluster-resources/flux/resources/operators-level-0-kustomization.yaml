@@ -4,7 +4,7 @@ metadata:
   name: operators-level-0
   namespace: flux-system
 spec:
-  interval: 0m3s
+  interval: 5m0s
   path: ./cluster-resources/operators-level-0/
   prune: true
   sourceRef:
