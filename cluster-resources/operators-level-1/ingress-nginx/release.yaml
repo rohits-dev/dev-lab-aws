@@ -31,10 +31,16 @@ spec:
       "2889": "confluent/zk-east-2-internal:2888"
       "2898": "confluent/zk-west-0-internal:2888"
       "2899": "confluent/zk-west-1-internal:2888"
-    controller:
-      extraArgs:
-        enable-ssl-passthrough: "true"
-      service:
+
+      "2181": "confluent/zk-east-0-internal:2181"
+      "2182": "confluent/zk-east-1-internal:2181"
+      "2183": "confluent/zk-east-2-internal:2181"
+      "2184": "confluent/zk-west-0-internal:2181"
+      "2185": "confluent/zk-west-1-internal:2181"
+    contro5ler:
+      extr5Args:
+        en5ble-ssl-passthrough: "true"
+      serv5ce:
         externalTrafficPolicy: "Local"
         annotations:
           service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
