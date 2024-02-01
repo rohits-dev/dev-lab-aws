@@ -38,7 +38,7 @@ spec:
       "2184": "confluent/zk-west-0-internal:2181"
       "2185": "confluent/zk-west-1-internal:2181"
     controller:
-      kind: "daemonset"
+      kind: "DaemonSet"
       extraArgs:
         enable-ssl-passthrough: "true"
       service:
