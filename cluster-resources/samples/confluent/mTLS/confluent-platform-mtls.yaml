@@ -19,8 +19,8 @@ spec:
         topologyKey: topology.kubernetes.io/zone
         whenUnsatisfiable: DoNotSchedule
   image:
-    application: confluentinc/cp-zookeeper:7.3.3
-    init: confluentinc/confluent-init-container:2.5.2
+    application: confluentinc/cp-zookeeper:7.5.0
+    init: confluentinc/confluent-init-container:2.7.0
   dataVolumeCapacity: 10Gi
   logVolumeCapacity: 10Gi
   authentication:
@@ -56,23 +56,23 @@ spec:
             topologyKey: kubernetes.io/hostname
     resources:
       requests:
-        memory: "25Gi"
+        memory: "16Gi"
         cpu: "1000m"
       limits:
-        memory: "30Gi"
+        memory: "16Gi"
         cpu: "4000m"
     serviceAccountName: kafka
     topologySpreadConstraints:
       - labelSelector:
           matchLabels:
-            confluent-platform: "true"
+            app: kafka
         maxSkew: 1
         topologyKey: topology.kubernetes.io/zone
         whenUnsatisfiable: DoNotSchedule
 
   image:
-    application: confluentinc/cp-server:7.3.3
-    init: confluentinc/confluent-init-container:2.5.2
+    application: confluentinc/cp-server:7.5.0
+    init: confluentinc/confluent-init-container:2.7.0
   dataVolumeCapacity: 100Gi
   configOverrides:
     # jvm:
@@ -87,6 +87,7 @@ spec:
       - confluent.tier.backend=S3
       - confluent.tier.s3.bucket=rohit-confluent
       - confluent.tier.s3.region=eu-west-2
+      - confluent.consumer.lag.emitter.enabled=true
       # - confluent.tier.s3.ssl.truststore.location=/usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts
       # - confluent.tier.s3.ssl.truststore.password=changeit
       # - confluent.tier.s3.ssl.truststore.type=JKS
@@ -113,15 +114,26 @@ spec:
           - RULE:^CN=([a-zA-Z0-9]*).*$/$1/
       tls:
         enabled: true
-        # Will use the certificates in the parent secretRef tls-kafka
+
       externalAccess:
-        type: loadBalancer
-        loadBalancer:
-          domain: kafka.rohit.local
-          brokerPrefix: b
-          bootstrapPrefix: kafka
-          annotations:
-            service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+        type: staticForPortBasedRouting
+        staticForPortBasedRouting:
+          host: 127.0.0.1 # Provide the host name in the format of myoperator2.<Kubernetes domain>
+          portOffset: 9094
+        # type: staticForHostBasedRouting
+        # staticForHostBasedRouting:
+        #   domain: rohit.local
+        #   brokerPrefix: kafka
+        #   port: 9092
+        # Will use the certificates in the parent secretRef tls-kafka
+      # externalAccess:
+      #   type: loadBalancer
+      #   loadBalancer:
+      #     domain: kafka.rohit.local
+      #     brokerPrefix: b
+      #     bootstrapPrefix: kafka
+      #     annotations:
+      #       service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   authorization:
     type: simple
     superUsers:
@@ -147,8 +159,8 @@ metadata:
 spec:
   replicas: 2
   image:
-    application: confluentinc/cp-server-connect:7.3.3
-    init: confluentinc/confluent-init-container:2.5.2
+    application: confluentinc/cp-server-connect:7.5.0
+    init: confluentinc/confluent-init-container:2.7.0
   tls:
     secretRef: tls-connect
   build:
@@ -176,8 +188,8 @@ spec:
 # spec:
 #   replicas: 1
 #   image:
-#     application: confluentinc/cp-schema-registry:7.3.3
-#     init: confluentinc/confluent-init-container:2.5.2
+#     application: confluentinc/cp-schema-registry:7.5.0
+#     init: confluentinc/confluent-init-container:2.7.0
 #   tls:
 #     secretRef: tls-schemaregistry
 #   externalAccess:
@@ -201,8 +213,8 @@ spec:
 # spec:
 #   replicas: 2
 #   image:
-#     application: confluentinc/cp-ksqldb-server:7.3.3
-#     init: confluentinc/confluent-init-container:2.5.2
+#     application: confluentinc/cp-ksqldb-server:7.5.0
+#     init: confluentinc/confluent-init-container:2.7.0
 #   dataVolumeCapacity: 10Gi
 #   externalAccess:
 #     type: loadBalancer
@@ -242,16 +254,16 @@ spec:
         failureThreshold: 5
         timeoutSeconds: 500
   image:
-    application: confluentinc/cp-enterprise-control-center:7.3.3
-    init: confluentinc/confluent-init-container:2.5.2
+    application: confluentinc/cp-enterprise-control-center:7.5.0
+    init: confluentinc/confluent-init-container:2.7.0
   dataVolumeCapacity: 10Gi
-  externalAccess:
-    type: loadBalancer
-    loadBalancer:
-      domain: rohit.local
-      prefix: controlcenter
-      annotations:
-        service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+  # externalAccess:
+  #   type: loadBalancer
+  #   staticForHostBasedRouting:
+  #     domain: rohit.local
+  #     prefix: c3
+  #     annotations:
+  #       service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   # configOverrides:
   #   server:
   #     - confluent.controlcenter.mode.enable=management
@@ -338,8 +350,23 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: kafka
+    namespace: confluent
 
 roleRef:
   kind: ClusterRole
   name: kafka-role
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: default
+spec:
+  kafkaClusterRef:
+    name: kafka
+  kafkaRest:
+    endpoint: http://kafka.confluent.svc.cluster.local:8090
+    # authentication:
+    #   type: mtls
+    tls:
+      secretRef: tls-kafka

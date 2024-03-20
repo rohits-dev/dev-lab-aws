@@ -12,11 +12,11 @@ spec:
   configs:
     # cleanup.policy: compact
     min.insync.replicas: "2"
-    retention.bytes: "-1"
+    retention.bytes: "30000000000"
     retention.ms: "-1"
-    confluent.tier.enable: "true"
-    confluent.tier.local.hotset.bytes: "30000000"
-    max.message.bytes: "5000000"
+    # confluent.tier.enable: "true"
+    # confluent.tier.local.hotset.bytes: "30000000"
+    max.message.bytes: "2000000"
 ---
 apiVersion: v1
 kind: Secret
@@ -103,7 +103,7 @@ metadata:
 type: Opaque
 stringData:
   client.config: |
-    bootstrap.servers=kafka.confluent.svc.cluster.local:9071
+    bootstrap.servers=b0.rohit.local:443,b1.rohit.local:443,b2.rohit.local:443
     security.protocol=SSL
     # bootstrap.servers=lkc-j3kz7w-pd0l1k.eu-west-2.aws.glb.confluent.cloud:9092
     # sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='xx' password='xx';
@@ -116,9 +116,8 @@ stringData:
     ssl.keystore.password=mystorepassword
     ssl.truststore.location=/mnt/ssl/truststore.p12
     ssl.truststore.password=mystorepassword
-    record-size=1500
     acks=all
-    batch.size=2000000
+    batch.size=1000000
     linger.ms=0
 ---
 apiVersion: v1
@@ -171,23 +170,26 @@ spec:
           command:
             - kafka-producer-perf-test
             - --throughput
-            - "1000"
-            # - --record-size
-            # - "2000"
-            - --payload-file
-            - /mnt/payload/payload.json
+            - "-1"
+            - --record-size
+            - "2000"
+            # - --payload-file
+            # - /mnt/payload/payload.json
             - --num-records
             - "10000000000000"
-            #- --print-metrics
+            - --print-metrics
             - --producer.config
             - /mnt/config/client.config
             - --topic
             - perf-test-1
             #- --print-metrics
-          # resources:
-          #   limits:
-          # #     memory: "256Mi"
-          # #     cpu: "1m"
+          resources:
+            requests::
+              memory: "2048Mi"
+              cpu: "1m"
+            # limits:
+            #   memory: "256Mi"
+            #   cpu: "1m"
           volumeMounts:
             - name: kafka-ssl
               mountPath: "/mnt/ssl"
@@ -212,7 +214,7 @@ metadata:
   name: perf-consumer
   namespace: confluent
 spec:
-  replicas: 1
+  replicas: 24
   serviceName: perf-consumer
   selector:
     matchLabels:

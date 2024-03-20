@@ -40,7 +40,8 @@ resource "aws_iam_policy" "confluent" {
           "s3:PutObject",
           "s3:GetObject",
           "s3:DeleteObject",
-          "s3:GetBucketLocation"
+          "s3:GetBucketLocation",
+          "s3:*"
         ],
         "Resource" : ["${aws_s3_bucket.confluent_tier_storage.arn}/*", aws_s3_bucket.confluent_tier_storage.arn]
       }

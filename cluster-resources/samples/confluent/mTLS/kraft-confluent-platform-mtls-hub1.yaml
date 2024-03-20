@@ -46,13 +46,9 @@ metadata:
 
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
-#    platform.confluent.io/block-reconcile: "true"
 spec:
   replicas: 3
   oneReplicaPerNode: true
-  # rackAssignment:
-  #   nodeLabels:
-  #     - topology.kubernetes.io/zone
   podTemplate:
     # affinity:
     #   podAntiAffinity:
@@ -69,13 +65,12 @@ spec:
     #         topologyKey: kubernetes.io/hostname
     resources:
       requests:
-        memory: "8Gi"
+        memory: "6Gi"
         cpu: "1000m"
       # limits:
       #   memory: "30Gi"
       #   cpu: "4000m"
     serviceAccountName: kafka
-
     # topologySpreadConstraints:
     #   - labelSelector:
     #       matchLabels:
@@ -87,7 +82,7 @@ spec:
   image:
     application: confluentinc/cp-server:7.4.1
     init: confluentinc/confluent-init-container:2.6.1
-  dataVolumeCapacity: 50Gi
+  dataVolumeCapacity: 100Gi
   configOverrides:
     # jvm:
     #   - -Djavax.net.ssl.trustStore=/usr/lib/jvm/jre/lib/security/cacerts
@@ -129,19 +124,14 @@ spec:
       tls:
         enabled: true
         # Will use the certificates in the parent secretRef tls-kafka
-      externalAccess:
-        type: staticForHostBasedRouting
-        staticForHostBasedRouting:
-          domain: rohit.local ## Domain
-          brokerPrefix: b ## Bootstrap prefix
-          port: 443
-        # type: loadBalancer
-        # loadBalancer:
-        #   domain: kafka.rohit.local
-        #   brokerPrefix: b
-        #   bootstrapPrefix: kafka
-        #   annotations:
-        #     service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+      # externalAccess:
+      #   type: loadBalancer
+      #   loadBalancer:
+      #     domain: kafka.rohit.local
+      #     brokerPrefix: b
+      #     bootstrapPrefix: kafka
+      #     annotations:
+      #       service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   authorization:
     type: simple
     superUsers:
@@ -161,64 +151,55 @@ spec:
   #   tls:
   #     enabled: true
 ---
-apiVersion: platform.confluent.io/v1beta1
-kind: Connect
-metadata:
-  name: connect
+# apiVersion: platform.confluent.io/v1beta1
+# kind: Connect
+# metadata:
+#   name: connect
 
-spec:
-  replicas: 1
-  image:
-    application: confluentinc/cp-server-connect:7.4.1
-    init: confluentinc/confluent-init-container:2.6.1
-  tls:
-    secretRef: tls-connect
-  build:
-    type: onDemand
-    onDemand:
-      plugins:
-        locationType: confluentHub
-        confluentHub:
-          - name: kafka-connect-elasticsearch
-            owner: confluentinc
-            version: 14.0.10
-  # externalAccess:
-  #   type: loadBalancer
-  #   loadBalancer:
-  #     domain: mydomain.example
-  #     prefix: connect
-  podTemplate:
-    resources:
-      requests:
-        cpu: 1
-        memory: 2Gi
-    envVars:
-      # The  Confluent Replicator Monitoring Extension allows for detailed metrics from Replicator tasks to be
-      # collected using an exposed REST API.
-      # You'll need to update the version string in replicate-test-extension-<version>.jar based on what
-      # CP version you are using
-      # - name: CLASSPATH
-      #   value: /usr/share/java/kafka-connect-replicator/replicator-rest-extension-7.4.0.jar
-  configOverrides:
-    # When the Connect distributed cluster hosting Replicator has a REST endpoint with SSL encryption
-    # enabled, you must configure security properties for the SSL keystore and truststore used by the
-    # Replicator monitoring extension to communicate with other Connect nodes in the cluster.
-    # `/mnt/sslcerts/truststore.jks` is the truststore location when auto-genarated certs are used.
-    # jvm:
-    #   - -Djavax.net.ssl.trustStore=/mnt/sslcerts/truststore.jks
-    #   - -Djavax.net.ssl.trustStorePassword=mystorepassword
-    server:
-      # To activate the monitoring extension, configure this property
-      # - rest.extension.classes=io.confluent.connect.replicator.monitoring.ReplicatorMonitoringExtension,io.confluent.connect.security.ConnectSecurityExtension
-      # This specifies that Replicator is the Connector configured
-      # - connector.class=io.confluent.connect.replicator.ReplicatorSourceConnector
-  dependencies:
-    kafka:
-      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
-      authentication:
-        type: mtls
-      tls:
-        enabled: true
+# spec:
+#   replicas: 1
+#   image:
+#     application: confluentinc/cp-enterprise-replicator:7.4.1
+#     init: confluentinc/confluent-init-container:2.6.1
+#   tls:
+#     secretRef: tls-connect
+#   # externalAccess:
+#   #   type: loadBalancer
+#   #   loadBalancer:
+#   #     domain: mydomain.example
+#   #     prefix: connect
+#   podTemplate:
+#     resources:
+#       requests:
+#         cpu: 1
+#         memory: 2Gi
+#     envVars:
+#       # The  Confluent Replicator Monitoring Extension allows for detailed metrics from Replicator tasks to be
+#       # collected using an exposed REST API.
+#       # You'll need to update the version string in replicate-test-extension-<version>.jar based on what
+#       # CP version you are using
+#       - name: CLASSPATH
+#         value: /usr/share/java/kafka-connect-replicator/replicator-rest-extension-7.4.0.jar
+#   configOverrides:
+#     # When the Connect distributed cluster hosting Replicator has a REST endpoint with SSL encryption
+#     # enabled, you must configure security properties for the SSL keystore and truststore used by the
+#     # Replicator monitoring extension to communicate with other Connect nodes in the cluster.
+#     # `/mnt/sslcerts/truststore.jks` is the truststore location when auto-genarated certs are used.
+#     jvm:
+#       - -Djavax.net.ssl.trustStore=/mnt/sslcerts/truststore.jks
+#       - -Djavax.net.ssl.trustStorePassword=mystorepassword
+#     server:
+#       # To activate the monitoring extension, configure this property
+#       - rest.extension.classes=io.confluent.connect.replicator.monitoring.ReplicatorMonitoringExtension,io.confluent.connect.security.ConnectSecurityExtension
+#       # This specifies that Replicator is the Connector configured
+#       - connector.class=io.confluent.connect.replicator.ReplicatorSourceConnector
+#   dependencies:
+#     kafka:
+#       bootstrapEndpoint: kafka.hub1.svc.cluster.local:9071
+#       authentication:
+#         type: mtls
+#       tls:
+#         enabled: true
 # # ---
 # # apiVersion: platform.confluent.io/v1beta1
 # # kind: SchemaRegistry
@@ -239,7 +220,7 @@ spec:
 # #       prefix: sr
 # #   dependencies:
 # #     kafka:
-# #       bootstrapEndpoint: kafka.edge1.svc.cluster.local:9071
+# #       bootstrapEndpoint: kafka.hub1.svc.cluster.local:9071
 # #       authentication:
 # #         type: mtls
 # #       tls:
@@ -265,7 +246,7 @@ spec:
 # #     secretRef: tls-ksqldb
 # #   dependencies:
 # #     kafka:
-# #       bootstrapEndpoint: kafka.edge1.svc.cluster.local:9071
+# #       bootstrapEndpoint: kafka.hub1.svc.cluster.local:9071
 # #       authentication:
 # #         type: mtls
 # #       tls:
@@ -275,6 +256,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ControlCenter
 metadata:
   name: controlcenter
+
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
@@ -296,13 +278,13 @@ spec:
     application: confluentinc/cp-enterprise-control-center:7.4.1
     init: confluentinc/confluent-init-container:2.6.1
   dataVolumeCapacity: 10Gi
-  # externalAccess:
-  #   type: loadBalancer
-  #   loadBalancer:
-  #     domain: rohit.local
-  #     prefix: edge1
-  #     annotations:
-  # service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+  externalAccess:
+    type: loadBalancer
+    loadBalancer:
+      domain: rohit.local
+      prefix: hub1
+      annotations:
+        # service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   # configOverrides:
   #   server:
   #     - confluent.controlcenter.mode.enable=management
@@ -310,46 +292,45 @@ spec:
     secretRef: tls-c3
   dependencies:
     kafka:
-      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+      bootstrapEndpoint: kafka.hub1.svc.cluster.local:9071
       authentication:
         type: mtls
       tls:
         enabled: true
-    connect:
-      - name: connect
-        url: https://connect.confluent.svc.cluster.local:8083
-        tls:
-          enabled: true
+    # connect:
+    #   - name: connect
+    #     url: https://connect.hub1.svc.cluster.local:8083
+    #     tls:
+    #       enabled: true
 #     ksqldb:
 #       - name: ksqldb
-#         url:  https://ksqldb.edge1.svc.cluster.local:8088
+#         url:  https://ksqldb.hub1.svc.cluster.local:8088
 #         tls:
 #           enabled: true
 #     schemaRegistry:
-#       url: https://schemaregistry.edge1.svc.cluster.local:8081
+#       url: https://schemaregistry.hub1.svc.cluster.local:8081
 #       tls:
 #         enabled: true
-# ---
-# apiVersion: monitoring.coreos.com/v1
-# kind: ServiceMonitor
-# metadata:
-#   annotations:
-#   labels:
-#     release: prometheus-operator
-#     monitoring-platform: prometheus
-#   name: confluent
-#
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations:
+  labels:
+    release: prometheus-operator
+    monitoring-platform: prometheus
+  name: confluent
 
-# spec:
-#   endpoints:
-#     - path: /
-#       port: prometheus
-#   namespaceSelector:
-#     matchNames:
-#       - confluent
-#   selector:
-#     matchLabels:
-#       confluent-platform: "true"
+spec:
+  endpoints:
+    - path: /
+      port: prometheus
+  namespaceSelector:
+    matchNames:
+      - confluent
+  selector:
+    matchLabels:
+      confluent-platform: "true"
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -390,8 +371,7 @@ metadata:
 # subjects:
 #   - kind: ServiceAccount
 #     name: kafka
-#     namespace: confluent
-
+#
 # roleRef:
 #   kind: ClusterRole
 #   name: kafka-role
@@ -400,12 +380,12 @@ metadata:
 apiVersion: platform.confluent.io/v1beta1
 kind: KafkaRestClass
 metadata:
-  name: default
+  name: kafka-rest
 spec:
   kafkaClusterRef:
     name: kafka
   kafkaRest:
-    endpoint: http://kafka.confluent.svc.cluster.local:8090
+    endpoint: http://kafka.hub1.svc.cluster.local:8090
     # authentication:
     #   type: mtls
     tls:

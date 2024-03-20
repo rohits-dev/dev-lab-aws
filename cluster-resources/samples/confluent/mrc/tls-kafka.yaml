@@ -37,28 +37,15 @@ spec:
     - client auth
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
-    - 127.0.0.1
-    - kafka.rohit.local
-    - kafka.confluent.svc.cluster.local
-    - kafka-2.kafka.confluent.svc.cluster.local
-    - kafka-1.kafka.confluent.svc.cluster.local
-    - kafka-0.kafka.confluent.svc.cluster.local
-    - "*.kafka.rohit.local"
-    - "*.rohit.local"
-    - kafka.edge1.svc.cluster.local
-    - kafka.hub1.svc.cluster.local
-    - kafka.hub2.svc.cluster.local
-    - "*.kafka.edge1.svc.cluster.local"
-    - "*.kafka.hub1.svc.cluster.local"
-    - "*.kafka.hub2.svc.cluster.local"
-    - kafka
-    - kraft.confluent.svc.cluster.local
-    - kraft-2.kraft.confluent.svc.cluster.local
-    - kraft-1.kraft.confluent.svc.cluster.local
-    - kraft-0.kraft.confluent.svc.cluster.local
-    - kraft
+    # east
+    - kafka-east.rohit.local
+    - "*.kafka-east.rohit.local"
+    - "*.kafka-east.confluent.svc.cluster.local"
+    # west
+    - kafka-west.rohit.local
+    - "*.kafka-west.rohit.local"
+    - "*.kafka-west.confluent.svc.cluster.local"
 
-    # - www.example.com
   # uris:
   #   - spiffe://cluster.local/ns/sandbox/sa/example
   # ipAddresses:

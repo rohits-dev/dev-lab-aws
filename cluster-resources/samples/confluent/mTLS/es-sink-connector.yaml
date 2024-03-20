@@ -22,7 +22,7 @@ metadata:
   namespace: confluent
 spec:
   class: "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector"
-  taskMax: 24
+  taskMax: 1
 
   configs:
     error.tolerance: "all"
@@ -37,7 +37,7 @@ spec:
     # flush.synchronously: "true"
     connection.url: https://quickstart-es-http.elastic-system:9200
     connection.username: "elastic"
-    connection.password: "xx"
+    connection.password: "yt7y618487ebStKug8LwW97s"
     elastic.security.protocol: SSL
     elastic.https.ssl.truststore.location: /mnt/sslcerts/truststore.p12
     elastic.https.ssl.truststore.password: "mystorepassword"

@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cfk-monitor
+  # Change this to the namespace the Prometheus instance is running in
+  namespace: confluent
+  labels:
+    monitoring-platform: prometheus
+spec:
+  podTargetLabels:
+    - app
+    - confluent_platform
+  selector:
+    matchLabels:
+      app: confluent-for-kubernetes
+  namespaceSelector:
+    matchNames:
+      - confluent
+    # any: true
+  endpoints:
+    - port: http-metric
+      interval: 15s

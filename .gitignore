@@ -1,6 +1,7 @@
 # temporary files
 local/*
 cfk-chart-export
+cp-jars
 vault-secret.json
 /.idea/
 

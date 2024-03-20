@@ -13,20 +13,6 @@ stringData:
   basic.txt: |
     username=kafka
     password=kafka
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: c3-mds
-type: Opaque
-stringData:
-  bearer.txt: |
-    username=c3
-    password=c3
-  basic.txt: |
-    username=c3
-    password=c3
 ---
 apiVersion: v1
 kind: Secret
@@ -42,36 +28,50 @@ stringData:
     password=connect
 ---
 apiVersion: platform.confluent.io/v1beta1
-kind: Zookeeper
+kind: KRaftController
 metadata:
-  name: zookeeper
-  namespace: confluent
+  name: kraft
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
   replicas: 3
   oneReplicaPerNode: true
-  podTemplate:
-    # serviceAccountName: zookeeper
-    topologySpreadConstraints:
-      - labelSelector:
-          matchLabels:
-            app: zookeeper
-        maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
-
   image:
-    application: confluentinc/cp-zookeeper:7.5.0
+    application: docker.io/confluentinc/cp-server:7.5.0
     init: confluentinc/confluent-init-container:2.7.0
   dataVolumeCapacity: 10Gi
-  logVolumeCapacity: 10Gi
-  authentication:
-    type: mtls
-    principalMappingRules:
-      - RULE:^CN=([a-zA-Z0-9]*).*$/$1/
+  configOverrides:
+    log4j:
+      - log4j.rootLogger=INFO, stdout
+      # - log4j.logger.kafka.authorizer.logger=TRACE, stdout
+    server:
+      - confluent.security.event.logger.enable=false
+      - confluent.metadata.server.kraft.controller.enabled=true
+      - confluent.metadata.bootstrap.servers=kafka.confluent.svc.cluster.local:9071
+      - confluent.metadata.basic.auth.user.info=kafka:kafka
+      - confluent.metadata.bootstrap.server.urls=https://kafka.confluent.svc.cluster.local:8090
+      - confluent.metadata.http.auth.credentials.provider=BASIC
+      - confluent.metadata.security.protocol=SSL
+      - confluent.metadata.ssl.truststore.location=/mnt/sslcerts/truststore.p12
+      - confluent.metadata.ssl.truststore.password=${file:/mnt/sslcerts/jksPassword.txt:jksPassword}
+      - confluent.metadata.ssl.keystore.location=/mnt/sslcerts/keystore.p12
+      - confluent.metadata.ssl.keystore.password=${file:/mnt/sslcerts/jksPassword.txt:jksPassword}
+  listeners:
+    controller:
+      authentication:
+        type: mtls
+        principalMappingRules:
+          - RULE:^CN=([a-zA-Z0-9]*).*$/$1/
+      tls:
+        enabled: true
+        secretRef: tls-kraft
+  authorization:
+    type: rbac
+    superUsers:
+      - User:kafka
+      - User:kraft
   tls:
-    secretRef: tls-zookeeper
+    secretRef: tls-kraft
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: Kafka
@@ -103,14 +103,10 @@ spec:
     init: confluentinc/confluent-init-container:2.7.0
   dataVolumeCapacity: 300Gi
   configOverrides:
-    jvm:
-      # - -Xmx4G
-      # - -Xms4G
     log4j:
       #- log4j.logger.io.confluent.security.auth.provider.ldap=TRACE
-      - log4j.logger.org.apache.kafka.metadata.migration=TRACE
-    server: #This config override is required for CP 7.0 update to use AclAuthorizer instead of SimpleAclAuthorizer
-      # - authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+      # - log4j.logger.kafka.authorizer.logger=TRACE, stdout
+    server:
       - ldap.java.naming.referral=follow
       - ldap.search.mode=USERS
       - ldap.user.memberof.attribute=memberOf
@@ -139,29 +135,18 @@ spec:
       tls:
         enabled: true
         # Will use the certificates in the parent secretRef tls-kafka
-      externalAccess:
-        type: loadBalancer
-        loadBalancer:
-          domain: kafka.rohit.local
-          brokerPrefix: b
-          bootstrapPrefix: kafka
-          annotations:
-            service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   authorization:
     type: rbac
     superUsers:
       - User:kafka
+      - User:kraft
+
   services:
     mds:
       tls:
         enabled: true
       tokenKeyPair:
         secretRef: mds-token-keypair
-      # externalAccess:
-      #   type: loadBalancer
-      #   loadBalancer:
-      #     domain: rohit.local
-      #     prefix: mds
       provider:
         type: ldap
         ldap:
@@ -171,13 +156,6 @@ spec:
             simple:
               secretRef: ldap-creds
           configurations:
-            # groupNameAttribute: cn
-            # groupObjectClass: group
-            # groupMemberAttribute: member
-            # groupMemberAttributePattern: CN=(.*),.*
-            # groupSearchBase: "OU=Groups,OU=ad,DC=ad,DC=rohit,DC=local"
-            # userNameAttribute: cn
-            # userObjectClass: organizationalPerson
             userSearchBase: OU=Users,DC=cluster,DC=local
             userObjectClass: inetOrgPerson
             userNameAttribute: cn
@@ -190,12 +168,14 @@ spec:
         type: bearer
         bearer:
           secretRef: ldap-creds
-    zookeeper:
-      endpoint: zookeeper.confluent.svc.cluster.local:2182
-      authentication:
-        type: mtls
-      tls:
-        enabled: true
+    kRaftController:
+      controllerListener:
+        tls:
+          enabled: true
+        authentication:
+          type: mtls
+      clusterRef:
+        name: kraft
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: Connect
@@ -203,19 +183,14 @@ metadata:
   name: connect
   namespace: confluent
 spec:
-  replicas: 2
+  replicas: 1
+  authorization:
+    type: rbac
   image:
     application: confluentinc/cp-server-connect:7.5.0
     init: confluentinc/confluent-init-container:2.7.0
   tls:
     secretRef: tls-connect
-  authorization:
-    type: rbac
-  externalAccess:
-    type: loadBalancer
-    loadBalancer:
-      domain: mydomain.example
-      prefix: connect
   dependencies:
     kafka:
       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
@@ -233,57 +208,7 @@ spec:
           secretRef: connect-mds
       tls:
         enabled: true
-# ---
-# apiVersion: platform.confluent.io/v1beta1
-# kind: SchemaRegistry
-# metadata:
-#   name: schemaregistry
-#   namespace: confluent
-# spec:
-#   replicas: 1
-#   image:
-#     application: confluentinc/cp-schema-registry:7.2.2
-#     init: confluentinc/confluent-init-container:2.4.1
-#   tls:
-#     secretRef: tls-schemaregistry
-#   externalAccess:
-#     type: loadBalancer
-#     loadBalancer:
-#       domain: mydomain.example
-#       prefix: sr
-#   dependencies:
-#     kafka:
-#       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
-#       authentication:
-#         type: mtls
-#       tls:
-#         enabled: true
-# ---
-# apiVersion: platform.confluent.io/v1beta1
-# kind: KsqlDB
-# metadata:
-#   name: ksqldb
-#   namespace: confluent
-# spec:
-#   replicas: 2
-#   image:
-#     application: confluentinc/cp-ksqldb-server:7.2.2
-#     init: confluentinc/confluent-init-container:2.4.1
-#   dataVolumeCapacity: 10Gi
-#   externalAccess:
-#     type: loadBalancer
-#     loadBalancer:
-#       domain: mydomain.example
-#       prefix: ksql
-#   tls:
-#     secretRef: tls-ksqldb
-#   dependencies:
-#     kafka:
-#       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
-#       authentication:
-#         type: mtls
-#       tls:
-#         enabled: true
+
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: ControlCenter
@@ -303,6 +228,9 @@ spec:
   image:
     application: confluentinc/cp-enterprise-control-center:7.5.0
     init: confluentinc/confluent-init-container:2.7.0
+  configOverrides:
+    server:
+      - confluent.controlcenter.schema.registry.enable=false
   dataVolumeCapacity: 10Gi
   authorization:
     type: rbac
@@ -313,7 +241,6 @@ spec:
       prefix: controlcenter
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-internal: "true"
-
   tls:
     secretRef: tls-c3
   dependencies:
@@ -330,7 +257,7 @@ spec:
       authentication:
         type: bearer
         bearer:
-          secretRef: c3-mds
+          secretRef: ldap-creds
       tls:
         enabled: true
     connect:
@@ -338,15 +265,6 @@ spec:
         url: https://connect.confluent.svc.cluster.local:8083
         tls:
           enabled: true
-#     ksqldb:
-#       - name: ksqldb
-#         url:  https://ksqldb.confluent.svc.cluster.local:8088
-#         tls:
-#           enabled: true
-#     schemaRegistry:
-#       url: https://schemaregistry.confluent.svc.cluster.local:8081
-#       tls:
-#         enabled: true
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: KafkaRestClass
@@ -359,27 +277,7 @@ spec:
       type: bearer
       bearer:
         secretRef: ldap-creds
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  annotations:
-  labels:
-    release: prometheus-operator
-    monitoring-platform: prometheus
-  name: confluent
-  namespace: confluent
 
-spec:
-  endpoints:
-    - path: /
-      port: prometheus
-  namespaceSelector:
-    matchNames:
-      - confluent
-  selector:
-    matchLabels:
-      confluent-platform: "true"
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -416,4 +314,3 @@ roleRef:
   kind: ClusterRole
   name: kafka-role
   apiGroup: rbac.authorization.k8s.io
-#kafka-2 is mds

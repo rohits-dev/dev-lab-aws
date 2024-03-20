@@ -1,6 +1,16 @@
 apiVersion: v1
 kind: Secret
 metadata:
+  name: oidc-creds
+type: Opaque
+stringData:
+  oidcClientSecret.txt: |
+    clientId=clientId
+    clientSecret=<<clientSecret>>
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: ldap-creds
 type: Opaque
 stringData:
@@ -62,8 +72,8 @@ spec:
         whenUnsatisfiable: DoNotSchedule
 
   image:
-    application: confluentinc/cp-zookeeper:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-zookeeper:7.5.1
+    init: confluentinc/confluent-init-container:2.7.1
   dataVolumeCapacity: 10Gi
   logVolumeCapacity: 10Gi
   authentication:
@@ -81,9 +91,23 @@ metadata:
   labels:
     confluent-operator.webhooks.platform.confluent.io/disable: "true"
 spec:
+  mountedVolumes:
+    volumes:
+      - name: custom-authz
+        configMap:
+          name: custom-authz
+    volumeMounts:
+      - name: custom-authz
+        mountPath: /usr/share/java/custom-auth
+
   replicas: 3
   oneReplicaPerNode: true
   podTemplate:
+    envVars:
+      - name: CLASSPATH
+        value: /usr/share/java/cp-base-new/:/usr/share/java/custom-auth/CustomConfluentAuthorizer-1.0-SNAPSHOT.jar
+      - name: CUB_CLASSPATH
+        value: /usr/share/java/cp-base-new/*:/usr/share/java/custom-auth/CustomConfluentAuthorizer-1.0-SNAPSHOT.jar
     resources:
       requests:
         memory: 6G
@@ -99,8 +123,8 @@ spec:
         whenUnsatisfiable: DoNotSchedule
 
   image:
-    application: confluentinc/cp-server:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-server:7.5.1
+    init: confluentinc/confluent-init-container:2.7.1
   dataVolumeCapacity: 300Gi
   configOverrides:
     jvm:
@@ -108,7 +132,7 @@ spec:
       # - -Xms4G
     log4j:
       #- log4j.logger.io.confluent.security.auth.provider.ldap=TRACE
-      - log4j.logger.org.apache.kafka.metadata.migration=TRACE
+      # - log4j.logger.org.apache.kafka.metadata.migration=TRACE
     server: #This config override is required for CP 7.0 update to use AclAuthorizer instead of SimpleAclAuthorizer
       # - authorizer.class.name=kafka.security.authorizer.AclAuthorizer
       - ldap.java.naming.referral=follow
@@ -120,6 +144,25 @@ spec:
       - confluent.tier.backend=S3
       - confluent.tier.s3.bucket=rohit-confluent
       - confluent.tier.s3.region=eu-west-2
+      - authorizer.class.name=com.booking.kafka.CustomConfluentAuthorizer
+
+      # - confluent.metadata.server.sso.mode=oidc
+      # - confluent.metadata.server.openapi.enable=true
+      # - confluent.oidc.idp.groups.claim.name=groups
+      # - confluent.oidc.idp.sub.claim.name=sub
+      # - confluent.oidc.idp.groups.claim.scope=groups
+      # - confluent.oidc.idp.refresh.token.enabled=true
+      # - confluent.oidc.session.token.expiry.ms=900000
+      # - confluent.oidc.session.max.timeout.ms=21600000
+      # - listener.name.token.principal.builder.class=io.confluent.kafka.security.authenticator.OAuthKafkaPrincipalBuilder
+      # - listener.name.internal.principal.builder.class=io.confluent.kafka.security.authenticator.OAuthKafkaPrincipalBuilder
+      # - confluent.oidc.idp.jwks.endpoint.uri=https://dev-69475914.okta.com/oauth2//ausdnv6w6kTTPc3Kz5d7/v1/keys
+      # - confluent.oidc.idp.authorize.base.endpoint.uri=https://dev-69475914.okta.com/oauth2/ausdnv6w6kTTPc3Kz5d7/v1/authorize
+      # - confluent.oidc.idp.client.id=<<client_id>>
+      # - confluent.oidc.idp.client.secret=<<client_secret>>
+      # - confluent.oidc.idp.token.base.endpoint.uri=https://dev-69475914.okta.com/oauth2/ausdnv6w6kTTPc3Kz5d7/v1/token
+      # - confluent.oidc.idp.issuer=https://dev-69475914.okta.com/oauth2/ausdnv6w6kTTPc3Kz5d7
+
   tls:
     secretRef: tls-kafka
   listeners:
@@ -139,14 +182,14 @@ spec:
       tls:
         enabled: true
         # Will use the certificates in the parent secretRef tls-kafka
-      externalAccess:
-        type: loadBalancer
-        loadBalancer:
-          domain: kafka.rohit.local
-          brokerPrefix: b
-          bootstrapPrefix: kafka
-          annotations:
-            service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+      # externalAccess:
+      #   type: loadBalancer
+      #   loadBalancer:
+      #     domain: kafka.rohit.local
+      #     brokerPrefix: b
+      #     bootstrapPrefix: kafka
+      #     annotations:
+      #       service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   authorization:
     type: rbac
     superUsers:
@@ -164,6 +207,15 @@ spec:
       #     prefix: mds
       provider:
         type: ldap
+        oidc:
+          clientCredentials:
+            secretRef: oidc-creds
+          configurations:
+            issuer: https://dev-69475914.okta.com/oauth2/ausds6vdxv4hlAKUG5d7
+            jwksEndpointUri: https://dev-69475914.okta.com/oauth2/ausds6vdxv4hlAKUG5d7/v1/keys
+            authorizeBaseEndpointUri: https://dev-69475914.okta.com/oauth2/ausds6vdxv4hlAKUG5d7/v1/authorize
+            tokenBaseEndpointUri: https://dev-69475914.okta.com/oauth2/ausds6vdxv4hlAKUG5d7/v1/token
+            refreshToken: true
         ldap:
           address: ldap://openldap:389
           authentication:
@@ -197,42 +249,42 @@ spec:
       tls:
         enabled: true
 ---
-apiVersion: platform.confluent.io/v1beta1
-kind: Connect
-metadata:
-  name: connect
-  namespace: confluent
-spec:
-  replicas: 2
-  image:
-    application: confluentinc/cp-server-connect:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
-  tls:
-    secretRef: tls-connect
-  authorization:
-    type: rbac
-  externalAccess:
-    type: loadBalancer
-    loadBalancer:
-      domain: mydomain.example
-      prefix: connect
-  dependencies:
-    kafka:
-      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
-      authentication:
-        type: mtls
-      tls:
-        enabled: true
-    mds:
-      endpoint: https://kafka.confluent.svc.cluster.local:8090
-      tokenKeyPair:
-        secretRef: mds-token-keypair
-      authentication:
-        type: bearer
-        bearer:
-          secretRef: connect-mds
-      tls:
-        enabled: true
+# apiVersion: platform.confluent.io/v1beta1
+# kind: Connect
+# metadata:
+#   name: connect
+#   namespace: confluent
+# spec:
+#   replicas: 2
+#   image:
+#     application: confluentinc/cp-server-connect:7.5.1
+#     init: confluentinc/confluent-init-container:2.7.1
+#   tls:
+#     secretRef: tls-connect
+#   authorization:
+#     type: rbac
+#   externalAccess:
+#     type: loadBalancer
+#     loadBalancer:
+#       domain: mydomain.example
+#       prefix: connect
+#   dependencies:
+#     kafka:
+#       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+#       authentication:
+#         type: mtls
+#       tls:
+#         enabled: true
+#     mds:
+#       endpoint: https://kafka.confluent.svc.cluster.local:8090
+#       tokenKeyPair:
+#         secretRef: mds-token-keypair
+#       authentication:
+#         type: bearer
+#         bearer:
+#           secretRef: connect-mds
+#       tls:
+#         enabled: true
 # ---
 # apiVersion: platform.confluent.io/v1beta1
 # kind: SchemaRegistry
@@ -301,18 +353,18 @@ spec:
         failureThreshold: 5
         timeoutSeconds: 500
   image:
-    application: confluentinc/cp-enterprise-control-center:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-enterprise-control-center:7.5.1
+    init: confluentinc/confluent-init-container:2.7.1
   dataVolumeCapacity: 10Gi
   authorization:
     type: rbac
-  externalAccess:
-    type: loadBalancer
-    loadBalancer:
-      domain: rohit.local
-      prefix: controlcenter
-      annotations:
-        service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+  # externalAccess:
+  #   type: loadBalancer
+  #   loadBalancer:
+  #     domain: rohit.local
+  #     prefix: controlcenter
+  #     annotations:
+  #       service.beta.kubernetes.io/aws-load-balancer-internal: "true"
 
   tls:
     secretRef: tls-c3
@@ -327,6 +379,7 @@ spec:
       endpoint: https://kafka.confluent.svc.cluster.local:8090
       tokenKeyPair:
         secretRef: mds-token-keypair
+      ssoProtocol: oidc
       authentication:
         type: bearer
         bearer:
@@ -347,6 +400,45 @@ spec:
 #       url: https://schemaregistry.confluent.svc.cluster.local:8081
 #       tls:
 #         enabled: true
+---
+# rolebinding `testadmin-rb` allows `testadmin` to see kafkaCluster
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: kafka-rb
+  namespace: confluent
+spec:
+  principal:
+    type: user
+    name: kafka
+  role: ClusterAdmin
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: kafka-cp-projecta-admin-rb
+  namespace: confluent
+spec:
+  principal:
+    type: group
+    name: com.booking.data_storage.kafka.cp.kc1.project.A__own
+  resourcePatterns:
+    - name: projectA #its case sensitive
+      patternType: PREFIXED
+      resourceType: Topic
+  role: ResourceOwner
+
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: group-rb
+  namespace: confluent
+spec:
+  principal:
+    type: group
+    name: cp-booking
+  role: ClusterAdmin
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: KafkaRestClass
@@ -416,4 +508,74 @@ roleRef:
   kind: ClusterRole
   name: kafka-role
   apiGroup: rbac.authorization.k8s.io
-#kafka-2 is mds
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-with-sni
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - kafka.rohit.local
+        - b0.kafka.rohit.local
+        - b1.kafka.rohit.local
+        - b2.kafka.rohit.local
+        - c3.rohit.local
+  rules:
+    - host: kafka.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka
+                port:
+                  number: 9092
+    - host: b0.kafka.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka-0-internal
+                port:
+                  number: 9092
+    - host: b1.kafka.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka-1-internal
+                port:
+                  number: 9092
+    - host: b2.kafka.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka-2-internal
+                port:
+                  number: 9092
+    - host: c3.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: controlcenter-0-internal
+                port:
+                  number: 9021

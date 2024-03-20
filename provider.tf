@@ -22,6 +22,10 @@ terraform {
       source  = "hashicorp/tls"
       version = "3.1.0"
     }
+    okta = {
+      source  = "okta/okta"
+      version = "~> 4.6.3"
+    }
 
   }
 }
@@ -44,6 +48,17 @@ provider "flux" {}
 
 provider "kubectl" {
 
+}
+
+
+
+provider "okta" {
+  org_name       = var.OKTA_ORG_ID
+  base_url       = "okta.com"
+  client_id      = var.OKTA_CLIENT_ID
+  private_key_id = var.OKTA_PRIVATE_KEY_ID
+  private_key    = var.OKTA_PRIVATE_KEY
+  scopes         = ["okta.apps.manage"]
 }
 
 data "aws_eks_cluster_auth" "cluster_auth" {

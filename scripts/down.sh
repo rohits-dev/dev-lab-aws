@@ -14,7 +14,8 @@ if [[ $has_fluxcd == "true" ]];  then
 
     eks_cluster_name=$(terraform output -json | jq -r '.eks_cluster_name.value | values')
     aws_region=$(terraform output -json | jq -r '.aws_region.value | values')
-    aws eks update-kubeconfig --region $aws_region --name $eks_cluster_name
+    aws eks update-kubeconfig --region $aws_region --name $eks_cluster_name --alias $eks_cluster_name
+
 
     echo "stage 2 - delete all confluent resources"
     ./scripts/cleanup-kafka.sh
