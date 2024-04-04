@@ -9,3 +9,4 @@ provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 parameters:
   type: gp3
+  csi.storage.k8s.io/fstype: xfs
