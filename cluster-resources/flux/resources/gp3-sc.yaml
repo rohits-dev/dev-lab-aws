@@ -10,3 +10,16 @@ volumeBindingMode: WaitForFirstConsumer
 parameters:
   type: gp3
   csi.storage.k8s.io/fstype: xfs
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: gp3-ext
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+allowVolumeExpansion: true
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3
+  # csi.storage.k8s.io/fstype: xfs

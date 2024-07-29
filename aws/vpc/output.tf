@@ -21,3 +21,7 @@ output "public_subnets" {
 output "vpc_id" {
   value = local.vpc_id
 }
+
+output "allow_all_sg" {
+  value = aws_security_group.allow_tls.id
+}

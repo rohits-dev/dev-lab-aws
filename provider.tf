@@ -20,7 +20,7 @@ terraform {
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "3.1.0"
+      version = "4.0.0"
     }
     okta = {
       source  = "okta/okta"
@@ -35,6 +35,7 @@ provider "aws" {
   default_tags {
     tags = {
       environment       = "DEV"
+      divvy_owner       = var.OWNER_EMAIL
       owner_name        = var.GITHUB_OWNER
       owner_email       = var.OWNER_EMAIL
       owner_github_repo = "https://github.com/${var.GITHUB_OWNER}"
@@ -44,7 +45,26 @@ provider "aws" {
   }
 }
 
-provider "flux" {}
+provider "flux" {
+  kubernetes = {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    # token                  = data.aws_eks_cluster_auth.cluster_auth.token
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", local.cluster_name]
+      command     = "aws"
+    }
+  }
+  git = {
+    url = "https://github.com/${var.GITHUB_OWNER}/${var.REPOSITORY_NAME}.git"
+    http = {
+      username = "git" # This can be any string when using a personal access token
+      password = var.GITHUB_TOKEN
+    }
+    branch = var.BRANCH
+  }
+}
 
 provider "kubectl" {
 

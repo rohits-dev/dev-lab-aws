@@ -1,23 +1,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: tls-c3
+  name: tls-kafka
 
 spec:
   # Secret names are always required.
-  secretName: tls-c3
-
-  # secretTemplate is optional. If set, these annotations and labels will be
-  # copied to the Secret named example-com-tls. These labels and annotations will
-  # be re-reconciled if the Certificate's secretTemplate changes. secretTemplate
-  # is also enforced, so relevant label and annotation changes on the Secret by a
-  # third party will be overwriten by cert-manager to match the secretTemplate.
-  # secretTemplate:
-  #   annotations:
-  #     my-secret-annotation-1: "foo"
-  #     my-secret-annotation-2: "bar"
-  #   labels:
-  #     my-secret-label: foo
+  secretName: tls-kafka
 
   duration: 8760h # 90d
   renewBefore: 48h # 15d
@@ -30,23 +18,31 @@ spec:
   isCA: false
   privateKey:
     algorithm: RSA
-    encoding: PKCS1
+    encoding: PKCS8
     size: 2048
   usages:
     - server auth
     - client auth
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
-    - controlcenter.rohit.local
-    - controlcenter2.rohit.local
-    - edge1.rohit.local
-    - controlcenter.edge1.svc.cluster.local
-    - hub1.rohit.local
-    - controlcenter.hub1.svc.cluster.local
-    - hub2.rohit.local
-    - controlcenter.hub2.svc.cluster.local
+    - kafka-eu.confluent.svc.cluster.local
+    - "*.kafka-eu.confluent.svc.cluster.local"
+    - kafka-cn.confluent.svc.cluster.local
+    - "*.kafka-cn.confluent.svc.cluster.local"
+    - kafka-cn
+    - kafka-eu
 
-    # - www.example.com
+    - kraft-eu.confluent.svc.cluster.local
+    - "*.kraft-eu.confluent.svc.cluster.local"
+    - kraft-cn.confluent.svc.cluster.local
+    - "*.kraft-cn.confluent.svc.cluster.local"
+    - kraft-cn
+    - kraft-eu
+
+    - c3-eu.confluent.svc.cluster.local
+    - c3-cn.confluent.svc.cluster.local
+    - c3.eu.rohit.local
+    - c3.cn.rohit.local
   # uris:
   #   - spiffe://cluster.local/ns/sandbox/sa/example
   # ipAddresses:

@@ -19,7 +19,7 @@ spec:
         topologyKey: topology.kubernetes.io/zone
         whenUnsatisfiable: DoNotSchedule
   image:
-    application: confluentinc/cp-zookeeper:7.5.0
+    application: confluentinc/cp-zookeeper:7.3.1
     init: confluentinc/confluent-init-container:2.7.0
   dataVolumeCapacity: 10Gi
   logVolumeCapacity: 10Gi
@@ -71,7 +71,7 @@ spec:
         whenUnsatisfiable: DoNotSchedule
 
   image:
-    application: confluentinc/cp-server:7.5.0
+    application: confluentinc/cp-server:7.3.1
     init: confluentinc/confluent-init-container:2.7.0
   dataVolumeCapacity: 100Gi
   configOverrides:
@@ -151,34 +151,34 @@ spec:
   #   tls:
   #     enabled: true
 ---
-apiVersion: platform.confluent.io/v1beta1
-kind: Connect
-metadata:
-  name: connect
+# apiVersion: platform.confluent.io/v1beta1
+# kind: Connect
+# metadata:
+#   name: connect
 
-spec:
-  replicas: 2
-  image:
-    application: confluentinc/cp-server-connect:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
-  tls:
-    secretRef: tls-connect
-  build:
-    type: onDemand
-    onDemand:
-      plugins:
-        locationType: confluentHub
-        confluentHub:
-          - name: kafka-connect-elasticsearch
-            owner: confluentinc
-            version: 14.0.6
-  dependencies:
-    kafka:
-      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
-      authentication:
-        type: mtls
-      tls:
-        enabled: true
+# spec:
+#   replicas: 2
+#   image:
+#     application: confluentinc/cp-server-connect:7.3.1
+#     init: confluentinc/confluent-init-container:2.7.0
+#   tls:
+#     secretRef: tls-connect
+#   build:
+#     type: onDemand
+#     onDemand:
+#       plugins:
+#         locationType: confluentHub
+#         confluentHub:
+#           - name: kafka-connect-elasticsearch
+#             owner: confluentinc
+#             version: 14.0.6
+#   dependencies:
+#     kafka:
+#       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+#       authentication:
+#         type: mtls
+#       tls:
+#         enabled: true
 # ---
 # apiVersion: platform.confluent.io/v1beta1
 # kind: SchemaRegistry
@@ -262,8 +262,8 @@ spec:
   #   staticForHostBasedRouting:
   #     domain: rohit.local
   #     prefix: c3
-  #     annotations:
-  #       service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+  # annotations:
+  #   service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   # configOverrides:
   #   server:
   #     - confluent.controlcenter.mode.enable=management

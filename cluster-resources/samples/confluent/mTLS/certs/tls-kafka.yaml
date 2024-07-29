@@ -30,7 +30,7 @@ spec:
   isCA: false
   privateKey:
     algorithm: RSA
-    encoding: PKCS1
+    encoding: PKCS8
     size: 2048
   usages:
     - server auth
@@ -43,6 +43,11 @@ spec:
     - kafka-2.kafka.confluent.svc.cluster.local
     - kafka-1.kafka.confluent.svc.cluster.local
     - kafka-0.kafka.confluent.svc.cluster.local
+
+    - kafka2.confluent.svc.cluster.local
+    - kafka2-2.kafka2.confluent.svc.cluster.local
+    - kafka2-1.kafka2.confluent.svc.cluster.local
+    - kafka2-0.kafka2.confluent.svc.cluster.local
     - "*.kafka.rohit.local"
     - "*.rohit.local"
     - kafka.edge1.svc.cluster.local
@@ -58,6 +63,12 @@ spec:
     - kraft-0.kraft.confluent.svc.cluster.local
     - kraft
 
+    - kraft2
+    - kafka2
+    - kraft2.confluent.svc.cluster.local
+    - kraft2-2.kraft2.confluent.svc.cluster.local
+    - kraft2-1.kraft2.confluent.svc.cluster.local
+    - kraft2-0.kraft2.confluent.svc.cluster.local
     # - www.example.com
   # uris:
   #   - spiffe://cluster.local/ns/sandbox/sa/example

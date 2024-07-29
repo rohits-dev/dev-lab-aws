@@ -41,6 +41,12 @@ spec:
     - kraft-2.kraft.confluent.svc.cluster.local
     - kraft-1.kraft.confluent.svc.cluster.local
     - kraft-0.kraft.confluent.svc.cluster.local
+
+    - kraft2.confluent.svc.cluster.local
+    - kraft2-2.kraft2.confluent.svc.cluster.local
+    - kraft2-1.kraft2.confluent.svc.cluster.local
+    - kraft2-0.kraft2.confluent.svc.cluster.local
+
     - kraft
     - kraft.edge1.svc.cluster.local
     - kraft.hub1.svc.cluster.local

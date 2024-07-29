@@ -24,8 +24,8 @@ spec:
   replicas: 3
   dataVolumeCapacity: 10G
   image:
-    application: docker.io/confluentinc/cp-server:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: docker.io/confluentinc/cp-server:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: Kafka
@@ -37,8 +37,8 @@ metadata:
 spec:
   replicas: 3
   image:
-    application: confluentinc/cp-server:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-server:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
   dataVolumeCapacity: 10Gi
   metricReporter:
     enabled: true
@@ -58,8 +58,8 @@ spec:
     server:
       - exactly.once.source.support=ENABLED
   image:
-    application: confluentinc/cp-server-connect:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-server-connect:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
   dependencies:
     kafka:
       bootstrapEndpoint: kafka:9071
@@ -74,8 +74,8 @@ metadata:
 spec:
   replicas: 1
   image:
-    application: confluentinc/cp-ksqldb-server:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-ksqldb-server:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
   dataVolumeCapacity: 10Gi
 ---
 apiVersion: platform.confluent.io/v1beta1
@@ -88,8 +88,8 @@ metadata:
 spec:
   replicas: 1
   image:
-    application: confluentinc/cp-enterprise-control-center:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-enterprise-control-center:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
   dataVolumeCapacity: 10Gi
   dependencies:
     schemaRegistry:
@@ -109,8 +109,8 @@ metadata:
 spec:
   replicas: 3
   image:
-    application: confluentinc/cp-schema-registry:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-schema-registry:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: KafkaRestProxy
@@ -120,8 +120,8 @@ metadata:
 spec:
   replicas: 1
   image:
-    application: confluentinc/cp-kafka-rest:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
+    application: confluentinc/cp-kafka-rest:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
   dependencies:
     schemaRegistry:
       url: http://schemaregistry.confluent.svc.cluster.local:8081

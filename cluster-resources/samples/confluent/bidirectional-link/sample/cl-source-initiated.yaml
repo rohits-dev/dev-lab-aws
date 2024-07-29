@@ -1,0 +1,68 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: kafka-cn
+spec:
+  kafkaClusterRef:
+    name: kafka
+  kafkaRest:
+    endpoint: http://kafka-cn.confluent.svc.cluster.local:8090
+
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ClusterLink
+metadata:
+  name: clusterlink-eu-cn-on-eu
+  namespace: confluent
+  annotations:
+    platform.confluent.io/http-timeout-in-seconds: "300"
+spec:
+  configs:
+    request.timeout.ms: "60000"
+    connections.max.idle.ms: "620000"
+    cluster.link.retry.timeout.ms: "200000"
+  name: eu-cn-link
+  destinationKafkaCluster:
+    bootstrapEndpoint: kafka-cn.confluent.svc.cluster.local:9071
+    clusterID: fd3767f3-1773-40a1-b2Q
+    kafkaRestClassRef:
+      name: kafka-cn
+      namespace: confluent
+  sourceKafkaCluster:
+    bootstrapEndpoint: kafka-eu.confluent.svc.cluster.local:9071
+    clusterID: srf_vbJYQX-k7JO4HTGy7g
+    kafkaRestClassRef:
+      name: kafka-eu
+      namespace: confluent
+  sourceInitiatedLink:
+    linkMode: Source
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ClusterLink
+metadata:
+  name: clusterlink-eu-cn-on-cn
+  namespace: confluent
+  annotations:
+    platform.confluent.io/http-timeout-in-seconds: "300"
+spec:
+  configs:
+    request.timeout.ms: "60000"
+    connections.max.idle.ms: "620000"
+    cluster.link.retry.timeout.ms: "200000"
+  name: eu-cn-link
+  sourceKafkaCluster:
+    bootstrapEndpoint: kafka-eu.confluent.svc.cluster.local:9071
+    clusterID: srf_vbJYQX-k7JO4HTGy7g
+    kafkaRestClassRef:
+      name: kafka-eu
+      namespace: confluent
+  destinationKafkaCluster:
+    bootstrapEndpoint: kafka-cn.confluent.svc.cluster.local:9071
+    clusterID: fd3767f3-1773-40a1-b2Q
+    kafkaRestClassRef:
+      name: kafka-cn
+      namespace: confluent
+  sourceInitiatedLink:
+    linkMode: Destination
+  mirrorTopics:
+    - name: eu-perf-test
