@@ -38,7 +38,3 @@ kafka-mirrors --bootstrap-server kafka-eu:9071 --link bidirectional-link --mirro
 
 
 ```
-<!-- 
-{"timestamp":"2024-04-25 16:40:04,492","level":"WARN","thread":"kafka-admin-client-thread | cluster-link-eu-cn-link-local-source-conn-admin-5","class":"kafka.utils.Logging","message":"[ClusterLinkOutboundConnectionManager-eu-cn-link-broker-5] Failed to create persistent reverse connectionorg.apache.kafka.common.errors.InvalidRequestException: Incorrect source broker id, expected 3, requested 5
-"}
-{"timestamp":"2024-04-25 16:40:04,492","level":"WARN","thread":"kafka-admin-client-thread | cluster-link-eu-cn-link-local-source-conn-admin-5","class":"kafka.utils.Logging","message":"[ClusterLinkOutboundConnectionManager-eu-cn-link-broker-5] Connection reversal request to local broker failed forrequestId=-1org.apache.kafka.common.errors.InvalidRequestException: Incorrect source broker id, expected 3, requested 5 -->
