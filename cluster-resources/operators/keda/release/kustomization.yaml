@@ -3,5 +3,4 @@ kind: Kustomization
 
 resources:
   - keda-release.yaml
-# patchesStrategicMerge:
-# - confluent-operator-release-patch.yaml
+
