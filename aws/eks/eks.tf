@@ -45,10 +45,10 @@ data "aws_subnets" "private_subnet_c" {
 }
 
 module "eks" {
-  source                          = "terraform-aws-modules/eks/aws"
-  version                         = "~> 19.0"
+  source = "terraform-aws-modules/eks/aws"
+  # version                         = "~> 20.0"
   cluster_name                    = var.cluster_name
-  cluster_version                 = "1.27"
+  cluster_version                 = "1.30"
   subnet_ids                      = var.private_subnets
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = var.add_eks_public_access
@@ -58,11 +58,11 @@ module "eks" {
 
   cluster_addons = {
     coredns = {
-      resolve_conflicts = "OVERWRITE"
+      resolve_conflicts_on_create = "OVERWRITE"
     }
     kube-proxy = {}
     vpc-cni = {
-      resolve_conflicts = "OVERWRITE"
+      resolve_conflicts_on_create = "OVERWRITE"
     }
   }
   # Extend node-to-node security group rules
@@ -170,12 +170,8 @@ module "eks" {
       }
     }
   }
+  access_entries = var.aws_eks_access_entries
 
-  # aws-auth configmap
-  manage_aws_auth_configmap = true
-
-  aws_auth_roles = var.aws_auth_roles
-  aws_auth_users = var.aws_auth_users
 }
 
 module "ebs_csi_iam_eks_role" {
@@ -197,7 +193,7 @@ resource "aws_eks_addon" "aws_ebs_csi_driver" {
   ]
   cluster_name  = var.cluster_name
   addon_name    = "aws-ebs-csi-driver"
-  addon_version = "v1.16.0-eksbuild.1"
+  addon_version = "v1.33.0-eksbuild.1"
   # Remove the deprecated "resolve_conflicts" attribute
   # resolve_conflicts        = "OVERWRITE"
   service_account_role_arn = module.ebs_csi_iam_eks_role.iam_role_arn

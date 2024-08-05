@@ -17,8 +17,8 @@ terraform apply --target='module.eks.module.eks.aws_eks_cluster.this[0]' -var="A
 echo "stage 3 - Adding Services onto EKS"
 terraform apply -var="ADD_EKS_PUBLIC_ACCESS=true" -var="ADD_FLUXCD=true" --auto-approve
 
-echo "stage 4 - Making EKS private for security reason, use VPN to access it"
-terraform apply -var="ADD_EKS_PUBLIC_ACCESS=false" -var="ADD_FLUXCD=true" --auto-approve
+# echo "stage 4 - Making EKS private for security reason, use VPN to access it"
+# terraform apply -var="ADD_EKS_PUBLIC_ACCESS=false" -var="ADD_FLUXCD=true" --auto-approve
 
 echo "Successfully completed !"
 

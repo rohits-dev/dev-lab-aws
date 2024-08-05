@@ -50,16 +50,11 @@ variable "ADD_FLUXCD" {
   description = "Should add fluxcd to new EKS?"
 }
 
-variable "AWS_AUTH_ROLES" {
-  description = "List of role maps to add to the aws-auth configmap"
-  type        = list(any)
-  default     = []
-}
+variable "AWS_EKS_ACCESS_ENTRIES" {
+  description = "Access entries to grant access to EKS cluster"
+  type        = any
+  default     = {}
 
-variable "AWS_AUTH_USERS" {
-  description = "List of users maps to add to the aws-auth configmap"
-  type        = list(any)
-  default     = []
 }
 
 # existing vpc
