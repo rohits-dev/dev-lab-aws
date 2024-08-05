@@ -2,18 +2,12 @@ variable "resource_prefix" {
   nullable = false
 }
 
-variable "aws_auth_roles" {
-  description = "List of role maps to add to the aws-auth configmap"
-  type        = list(any)
-  default     = []
-}
+variable "aws_eks_access_entries" {
+  description = "Access entries to grant access to EKS cluster"
+  type        = any
+  default     = {}
 
-variable "aws_auth_users" {
-  description = "List of users maps to add to the aws-auth configmap"
-  type        = list(any)
-  default     = []
 }
-
 variable "vpc_id" {
   type        = string
   default     = null

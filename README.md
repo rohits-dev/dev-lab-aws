@@ -48,13 +48,21 @@ BRANCH                = "a-branch" # change the branch
 AWS_REGION      = "<your-desired-region>"
 RESOURCE_PREFIX = "<your-name-or-any-prefix-you-prefer>"
 
-AWS_AUTH_ROLES = [
-    {
-      rolearn  = "arn:aws:iam::66666666666:role/role1" # change role name here
-      username = "role1"
-      groups   = ["system:masters"]
-    },
-  ]
+AWS_EKS_ACCESS_ENTRIES = {
+  access_role = {
+    type          = "STANDARD"
+    principal_arn = "<principal_arn>"
+
+    policy_associations = {
+      admin = {
+        policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+        access_scope = {
+          type = "cluster"
+        }
+      }
+    }
+  }
+}
 
 # If you want to use an existing vpc, set the vpc id. Also make sure the region is set same as vpc region. 
 VPC_ID = "vpc-xxx"

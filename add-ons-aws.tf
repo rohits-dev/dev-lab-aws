@@ -12,8 +12,6 @@ module "eks" {
   source                                = "./aws/eks"
   resource_prefix                       = var.RESOURCE_PREFIX
   vpc_id                                = module.vpc.vpc_id
-  aws_auth_roles                        = var.AWS_AUTH_ROLES
-  aws_auth_users                        = var.AWS_AUTH_USERS
   aws_region                            = var.AWS_REGION
   private_subnets_name_filter           = var.PRIVATE_SUBNETS_NAME_FILTER
   add_eks_public_access                 = var.ADD_EKS_PUBLIC_ACCESS
@@ -22,6 +20,7 @@ module "eks" {
   cluster_name                          = local.cluster_name
   private_subnets                       = module.vpc.private_subnets
   vpc_cidr_block                        = module.vpc.vpc_cidr_block
+  aws_eks_admin_principles              = var.AWS_EKS_ADMIN_PRINCIPLES
 }
 
 module "vpn" {
