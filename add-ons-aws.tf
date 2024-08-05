@@ -20,7 +20,7 @@ module "eks" {
   cluster_name                          = local.cluster_name
   private_subnets                       = module.vpc.private_subnets
   vpc_cidr_block                        = module.vpc.vpc_cidr_block
-  aws_eks_admin_principles              = var.AWS_EKS_ADMIN_PRINCIPLES
+  aws_eks_access_entries                = var.AWS_EKS_ACCESS_ENTRIES
 }
 
 module "vpn" {
