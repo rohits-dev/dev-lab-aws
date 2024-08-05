@@ -5,7 +5,6 @@ resource "tls_private_key" "cert_mgr_int_certificate" {
 }
 
 resource "tls_cert_request" "cert_mgr_int_certificate" {
-  key_algorithm   = "RSA"
   private_key_pem = tls_private_key.cert_mgr_int_certificate.private_key_pem
 
   subject {
@@ -16,7 +15,6 @@ resource "tls_cert_request" "cert_mgr_int_certificate" {
 }
 resource "tls_locally_signed_cert" "cert_mgr_int_certificate" {
   cert_request_pem      = tls_cert_request.cert_mgr_int_certificate.cert_request_pem
-  ca_key_algorithm      = "RSA"
   ca_private_key_pem    = var.root_ca_key
   ca_cert_pem           = var.root_ca_crt
   validity_period_hours = 1

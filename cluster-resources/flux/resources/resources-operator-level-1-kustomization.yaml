@@ -4,7 +4,7 @@ metadata:
   name: resources-operator-level-1
   namespace: flux-system
 spec:
-  interval: 0m3s
+  interval: 5m0s
   dependsOn:
     - name: operators-level-1
   wait: true

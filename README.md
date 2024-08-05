@@ -96,7 +96,7 @@ If you didn't run post_run.sh then you can manually setup.
 ```bash
 export EKS_NAME=$(terraform output -json | jq -r '.eks_cluster_name.value | values')
 export AWS_REGION=$(terraform output -json | jq -r '.aws_region.value | values')
-aws eks update-kubeconfig --region $AWS_REGION --name $EKS_NAME
+aws eks update-kubeconfig --region $AWS_REGION --name $EKS_NAME --alias $EKS_NAME
 ```
 
 ### (alternatively) get vault token

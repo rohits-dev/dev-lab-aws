@@ -1,0 +1,22 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: io-failure
+  namespace: confluent
+spec:
+  action: mistake
+  mode: all
+  selector:
+    labelSelectors:
+      statefulset.kubernetes.io/pod-name: kafka-0
+  volumePath: /mnt/data/data0
+  path: /mnt/data/data0/logs/perf-test-1-0/00000000000000000000.log
+  mistake:
+    filling: random
+    maxOccurrences: 10
+    maxLength: 4
+  methods:
+    - READ
+    - WRITE
+  percent: 5
+  duration: "600s"

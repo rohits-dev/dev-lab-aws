@@ -1,0 +1,80 @@
+# apiVersion: platform.confluent.io/v1beta1
+# kind: ClusterLink
+# metadata:
+#   name: clusterlink-china-to-eu-destination #created on EU side
+#   namespace: confluent
+#   annotations:
+#     platform.confluent.io/http-timeout-in-seconds: "300"
+# spec:
+#   configs:
+#     request.timeout.ms: "60000" # Important to note: keep this large as this is the timeout for cluster link client to wait for the response. Considering the response is going to come from china.
+#     connections.max.idle.ms: "620000" #Close idle connections after the number of milliseconds specified by this config.
+#     cluster.link.retry.timeout.ms: "200000"
+#     # reconnect.backoff.ms and reconnect.backoff.max.ms - These options determine how soon the cluster link retries after a connection failure. These are 50ms and 10s by default for cluster links.
+#     # socket.connection.setup.timeout.ms and socket.connection.setup.timeout.max.ms - These options determine how long the cluster link waits for a connection attempt to succeed before breaking and retrying after a “reconnect backoff”. These are 10s and 30s, respectively, by default.
+#   name: source-initiated-link
+#   destinationKafkaCluster:
+#     bootstrapEndpoint: kafka-eu.confluent.svc.cluster.local:9071
+#     clusterID: f093b363-bb75-4652-8aw
+#     kafkaRestClassRef:
+#       name: kafka-eu
+#       namespace: confluent
+#     authentication:
+#       type: mtls
+#     tls:
+#       enabled: true
+#       secretRef: tls-kafka
+#   sourceKafkaCluster:
+#     bootstrapEndpoint: kafka-cn.confluent.svc.cluster.local:9071
+#     clusterID: 759cd883-70f3-4e4b-9aw
+#     kafkaRestClassRef:
+#       name: kafka-cn
+#       namespace: confluent
+#     authentication:
+#       type: mtls
+#     tls:
+#       enabled: true
+#       secretRef: tls-kafka
+#   sourceInitiatedLink:
+#     linkMode: Destination
+#   mirrorTopics:
+#     - name: c1-perf-test # This is the topic that is mirrored from source to destination, always configure on the destination link
+# ---
+# apiVersion: platform.confluent.io/v1beta1
+# kind: ClusterLink
+# metadata:
+#   name: clusterlink-china-to-eu-source #created on cn side as source initiated link
+#   namespace: confluent
+#   annotations:
+#     platform.confluent.io/http-timeout-in-seconds: "300"
+# spec:
+#   configs:
+#     request.timeout.ms: "60000"
+#     connections.max.idle.ms: "620000"
+#     cluster.link.retry.timeout.ms: "200000"
+#   name: source-initiated-link
+#   destinationKafkaCluster:
+#     bootstrapEndpoint: kafka-eu.confluent.svc.cluster.local:9071
+#     clusterID: f093b363-bb75-4652-8aw
+#     kafkaRestClassRef:
+#       name: kafka-eu
+#       namespace: confluent
+#     authentication:
+#       type: mtls
+#     tls:
+#       enabled: true
+#       secretRef: tls-kafka
+#   sourceKafkaCluster:
+#     bootstrapEndpoint: kafka-cn.confluent.svc.cluster.local:9071
+#     clusterID: 759cd883-70f3-4e4b-9aw
+#     kafkaRestClassRef:
+#       name: kafka-cn
+#       namespace: confluent
+#     authentication:
+#       type: mtls
+#     tls:
+#       enabled: true
+#       secretRef: tls-kafka # must be in PKCS8 format
+#   sourceInitiatedLink:
+#     linkMode: Source
+#     # mirrorTopics: cannot be set on source link

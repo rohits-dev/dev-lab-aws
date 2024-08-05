@@ -103,7 +103,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     zone_a = {
-      min_size     = 0
+      min_size     = 1
       max_size     = 6
       desired_size = 1
       credit_specification = {
@@ -125,7 +125,7 @@ module "eks" {
     zone_b = {
       min_size     = 0
       max_size     = 6
-      desired_size = 1
+      desired_size = 0
       credit_specification = {
         cpu_credits = "standard"
       }
@@ -145,7 +145,7 @@ module "eks" {
     zone_c = {
       min_size     = 0
       max_size     = 6
-      desired_size = 1
+      desired_size = 0
       credit_specification = {
         cpu_credits = "standard"
       }
@@ -195,10 +195,11 @@ resource "aws_eks_addon" "aws_ebs_csi_driver" {
   depends_on = [
     module.eks
   ]
-  cluster_name             = var.cluster_name
-  addon_name               = "aws-ebs-csi-driver"
-  addon_version            = "v1.16.0-eksbuild.1"
-  resolve_conflicts        = "OVERWRITE"
+  cluster_name  = var.cluster_name
+  addon_name    = "aws-ebs-csi-driver"
+  addon_version = "v1.16.0-eksbuild.1"
+  # Remove the deprecated "resolve_conflicts" attribute
+  # resolve_conflicts        = "OVERWRITE"
   service_account_role_arn = module.ebs_csi_iam_eks_role.iam_role_arn
 }
 

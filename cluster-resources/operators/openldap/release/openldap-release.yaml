@@ -20,8 +20,8 @@ spec:
       ldapDomain: dc=cluster,dc=local
     replicaCount: 2
     logLevel: info
-    users: kafka
-    userPasswords: kafka
+    users: kafka,connect,c3
+    userPasswords: kafka,connect,c3
     replication:
       enabled: false
     persistence:

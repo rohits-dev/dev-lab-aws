@@ -1,0 +1,69 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-with-sni
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - zk-0.zk-east.rohit.local
+        - zk-1.zk-east.rohit.local
+        - zk-2.zk-east.rohit.local
+        - zk-0.zk-west.rohit.local
+        - zk-1.zk-west.rohit.local
+  rules:
+    - host: zk-0.zk-east.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: zk-east-0-internal
+                port:
+                  number: 2181
+    - host: zk-1.zk-east.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: zk-east-1-internal
+                port:
+                  number: 2181
+    - host: zk-2.zk-east.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: zk-east-2-internal
+                port:
+                  number: 2181
+    - host: zk-0.zk-west.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: zk-west-0-internal
+                port:
+                  number: 2181
+    - host: zk-1.zk-west.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: zk-west-1-internal
+                port:
+                  number: 2181

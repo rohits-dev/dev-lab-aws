@@ -1,0 +1,69 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-with-sni
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - kafka.rohit.local
+        - b0.rohit.local
+        - b1.rohit.local
+        - b2.rohit.local
+        - c3.rohit.local
+  rules:
+    - host: kafka.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka
+                port:
+                  number: 9071
+    - host: b0.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka-0-internal
+                port:
+                  number: 9071
+    - host: b1.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka-1-internal
+                port:
+                  number: 9071
+    - host: b2.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka-2-internal
+                port:
+                  number: 9071
+    - host: c3.rohit.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: controlcenter-0-internal
+                port:
+                  number: 9021

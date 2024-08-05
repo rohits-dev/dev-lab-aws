@@ -1,0 +1,171 @@
+# apiVersion: platform.confluent.io/v1beta1
+# kind: ClusterLink
+# metadata:
+#   name: clusterlink-1-to-2
+#   namespace: confluent
+#   annotations:
+#     platform.confluent.io/http-timeout-in-seconds: "300"
+# spec:
+#   configs:
+#     request.timeout.ms: "60000"
+#     connections.max.idle.ms: "620000"
+#     cluster.link.retry.timeout.ms: "200000"
+#     connection.mode: INBOUND
+#     local.listener.name: INTERNAL
+#   name: bidirectional-link
+#   destinationKafkaCluster:
+#     bootstrapEndpoint: kafka2.confluent.svc.cluster.local:9071
+#     clusterID: f093b363-bb75-4652-8aw
+#     kafkaRestClassRef:
+#       name: default2
+#       namespace: confluent
+#     authentication:
+#       type: mtls
+#     tls:
+#       enabled: true
+#       secretRef: tls-kafka
+#   sourceKafkaCluster:
+#     bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+#     clusterID: 759cd883-70f3-4e4b-9aw
+#     kafkaRestClassRef:
+#       name: default
+#       namespace: confluent
+#     authentication:
+#       type: mtls
+#     tls:
+#       enabled: true
+#       secretRef: tls-kafka
+#   sourceInitiatedLink:
+#     linkMode: Bidirectional
+
+#   mirrorTopics:
+#     - name: c1-perf-test
+# ---
+# apiVersion: platform.confluent.io/v1beta1
+# kind: ClusterLink
+# metadata:
+#   name: clusterlink-2-to-1
+#   namespace: confluent
+#   annotations:
+#     platform.confluent.io/http-timeout-in-seconds: "300"
+# spec:
+#   configs:
+#     request.timeout.ms: "60000"
+#     connections.max.idle.ms: "620000"
+#     cluster.link.retry.timeout.ms: "200000"
+#     connection.mode: OUTBOUND
+#     remote.link.connection.mode: INBOUND
+#     # local.listener.name: internal
+#   name: bidirectional-link
+#   sourceKafkaCluster:
+#     bootstrapEndpoint: kafka2.confluent.svc.cluster.local:9071
+#     clusterID: f093b363-bb75-4652-8aw
+#     kafkaRestClassRef:
+#       name: default2
+#       namespace: confluent
+#     authentication:
+#       type: mtls
+#     tls:
+#       enabled: true
+#       secretRef: tls-kafka
+#   destinationKafkaCluster:
+#     bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+#     clusterID: 759cd883-70f3-4e4b-9aw
+#     kafkaRestClassRef:
+#       name: default
+#       namespace: confluent
+#     authentication:
+#       type: mtls
+#     tls:
+#       enabled: true
+#       secretRef: tls-kafka
+#   sourceInitiatedLink:
+#     linkMode: Bidirectional
+#   mirrorTopics:
+#     - name: c2-perf-test
+
+# cat > /tmp/cl.config
+
+# link.mode=BIDIRECTIONAL
+# connection.mode=INBOUND
+# local.listener.name=REPLICATION
+# bootstrap.servers=kafka-0.kafka.confluent.svc.cluster.local:9072
+# security.protocol=SSL
+# ssl.key.password=mystorepassword
+# ssl.keystore.location=/mnt/sslcerts/keystore.p12
+# ssl.keystore.password=mystorepassword
+# ssl.truststore.location=/mnt/sslcerts/truststore.p12
+# ssl.truststore.password=mystorepassword
+
+# local.bootstrap.servers=kafka-0.kafka.confluent.svc.cluster.local:9072
+# local.ssl.key.password=mystorepassword
+# local.ssl.keystore.location=/mnt/sslcerts/keystore.p12
+# local.ssl.keystore.password=mystorepassword
+# local.ssl.truststore.location=/mnt/sslcerts/truststore.p12
+# local.ssl.truststore.password=mystorepassword
+
+# cat > /tmp/client.config
+
+# bootstrap.servers=kafka2-0.kafka2.confluent.svc.cluster.local:9072
+# security.protocol=SSL
+# ssl.key.password=mystorepassword
+# ssl.keystore.location=/mnt/sslcerts/keystore.p12
+# ssl.keystore.password=mystorepassword
+# ssl.truststore.location=/mnt/sslcerts/truststore.p12
+# ssl.truststore.password=mystorepassword
+
+# kafka-cluster-links --bootstrap-server kafka2-0.kafka2.confluent.svc.cluster.local:9072 \
+# --command-config /tmp/client.config --link bidirectional-link --create \
+# --config-file /tmp/cl.config  --cluster-id 759cd883-70f3-4e4b-9aw
+
+# cat > /tmp/cl.config
+
+# connection.mode=OUTBOUND
+# remote.link.connection.mode=INBOUND
+# link.mode=BIDIRECTIONAL
+# local.listener.name=REPLICATION
+# bootstrap.servers=kafka2-0.kafka2.confluent.svc.cluster.local:9072
+# security.protocol=SSL
+# ssl.key.password=mystorepassword
+# ssl.keystore.location=/mnt/sslcerts/keystore.p12
+# ssl.keystore.password=mystorepassword
+# ssl.truststore.location=/mnt/sslcerts/truststore.p12
+# ssl.truststore.password=mystorepassword
+
+# local.bootstrap.servers=kafka2-0.kafka2.confluent.svc.cluster.local:9072
+# local.ssl.key.password=mystorepassword
+# local.ssl.keystore.location=/mnt/sslcerts/keystore.p12
+# local.ssl.keystore.password=mystorepassword
+# local.ssl.truststore.location=/mnt/sslcerts/truststore.p12
+# local.ssl.truststore.password=mystorepassword
+
+# cat > /tmp/client.config
+
+# bootstrap.servers=kafka-0.kafka.confluent.svc.cluster.local:9072
+# security.protocol=SSL
+# ssl.key.password=mystorepassword
+# ssl.keystore.location=/mnt/sslcerts/keystore.p12
+# ssl.keystore.password=mystorepassword
+# ssl.truststore.location=/mnt/sslcerts/truststore.p12
+# ssl.truststore.password=mystorepassword
+
+# kafka-cluster-links --bootstrap-server kafka-0.kafka.confluent.svc.cluster.local:9072 \
+# --command-config /tmp/client.config --create --link bidirectional-link \
+# --config-file /tmp/cl.config  --cluster-id f093b363-bb75-4652-8aw
+
+# kafka2-0 kafka2 [ERROR] 2024-04-11 13:24:46,878 [kafka-admin-client-thread | cluster-link-client-admin-bidirectional-link-bidirectional-0] org.apache.kafka.clients.NetworkClient initiateReverseConnect - [AdminClient clientId=cluster-link-client-admin-bidirectional-link-bidirectional-0] Error initiating reverse connection to node localhost:0 (id: -1 rack: null)
+# kafka2-0 kafka2 org.apache.kafka.common.errors.NetworkException: Request cannot be forwarded to remote link coordinator because persistent connection is not yet available
+
+# log4j.rootLogger=DEBUG, stderr
+
+# log4j.appender.stderr=org.apache.log4j.ConsoleAppender
+# log4j.appender.stderr.layout=org.apache.log4j.PatternLayout
+# log4j.appender.stderr.layout.ConversionPattern=[%d] %p %m (%c)%n
+# log4j.appender.stderr.Target=System.err
+
+# curl --header "Content-Type: application/json" \
+#   --request POST \
+#   --data '{"source_topic_name": "tiered-test", "mirror_topic_name": "eutiered-test"}' \
+#   -u c3:ce-secret \
+#   --insecure \
+#   https://localhost:8090/kafka/v3/clusters/f7cf5de9-0bbb-4e88-82w/links/bidirectional-link/mirrors

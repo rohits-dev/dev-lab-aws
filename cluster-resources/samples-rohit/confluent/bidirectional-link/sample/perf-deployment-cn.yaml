@@ -1,0 +1,129 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: cn-perf-test
+  namespace: confluent
+spec:
+  replicas: 1
+  partitionCount: 24
+  kafkaRestClassRef:
+    name: kafka-cn
+    namespace: confluent
+  configs:
+    # cleanup.policy: compact
+    min.insync.replicas: "1"
+    retention.bytes: "300000000"
+    # retention.ms: "-1"
+    # confluent.tier.enable: "true"
+    # confluent.tier.local.hotset.bytes: "30000000"
+    max.message.bytes: "2000000"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: perf-config-cn
+  namespace: confluent
+type: Opaque
+stringData:
+  client.config: |
+    bootstrap.servers=kafka-cn:9071
+    # security.protocol=SSL
+    # client.dns.lookup=use_all_dns_ips
+    # ssl.key.password=mystorepassword
+    # ssl.keystore.location=/mnt/ssl/keystore.p12
+    # ssl.keystore.password=mystorepassword
+    # ssl.truststore.location=/mnt/ssl/truststore.p12
+    # ssl.truststore.password=mystorepassword
+    acks=all
+    batch.size=1000000
+    linger.ms=0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: perf-producer-cn
+  labels:
+    app: perf-test-producer-cn
+spec:
+  ports:
+    - port: 80
+      name: web
+  clusterIP: None
+  selector:
+    app: perf-test-producer-cn
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payload
+  namespace: confluent
+
+data:
+  payload.json: |-
+    {"a":["rohitroroht"]}
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: perf-producer-cn
+  namespace: confluent
+spec:
+  replicas: 1
+  serviceName: perf-producer-cn
+  selector:
+    matchLabels:
+      app: perf-test-producer-cn
+      group: perf-cn
+  template:
+    metadata:
+      labels:
+        app: perf-test-producer-cn
+        group: perf-cn
+    spec:
+      containers:
+        - name: perf-producer
+          image: confluentinc/cp-server:7.6.0
+          command:
+            # - sleep
+            # - "600000000"
+            - kafka-producer-perf-test
+            - --throughput
+            - "2"
+            - --record-size
+            - "2000"
+            # - --payload-file
+            # - /mnt/payload/payload.json
+            - --num-records
+            - "10000000000000"
+            - --print-metrics
+            - --producer.config
+            - /mnt/config/client.config
+            - --topic
+            - cn-perf-test
+            - --print-metrics
+          resources:
+            requests:
+              memory: "2048Mi"
+              cpu: "1m"
+            # limits:
+            #   memory: "256Mi"
+            #   cpu: "1m"
+          volumeMounts:
+            # - name: kafka-ssl
+            #   mountPath: "/mnt/ssl"
+            - name: kafka-config
+              mountPath: "/mnt/config"
+            - name: payload
+              mountPath: "/mnt/payload"
+      volumes:
+        # - name: kafka-ssl
+        #   secret:
+        #     secretName: kafka-cn-pkcs12
+        - name: kafka-config
+          secret:
+            secretName: perf-config-cn
+        - name: payload
+          configMap:
+            name: payload

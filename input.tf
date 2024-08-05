@@ -93,3 +93,30 @@ variable "ARM_OR_AMD" {
   description = "To test with ARM instances set it to ARM"
 
 }
+
+
+variable "ADD_OKTA" {
+  type        = bool
+  default     = false
+  description = "Should add OKTA apps?"
+}
+
+variable "OKTA_ORG_ID" {
+  type        = string
+  description = "Organization id for OKTA account or you could use name e.g. dev-69475914"
+
+}
+
+variable "OKTA_PRIVATE_KEY" {
+  type        = string
+  description = "OKTA private key"
+}
+
+variable "OKTA_PRIVATE_KEY_ID" {
+  type        = string
+  description = "OkTA private key id"
+}
+variable "OKTA_CLIENT_ID" {
+  type        = string
+  description = "OkTA client id"
+}

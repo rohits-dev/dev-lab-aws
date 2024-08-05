@@ -24,9 +24,21 @@ output "vpc_id" {
   value       = module.vpc.vpc_id
 }
 
+output "allow_all_sg" {
+  description = "allow all traffic sg id"
+  value       = module.vpc.allow_all_sg
+}
+
 output "private_subnet_ids" {
   description = "subnet ids"
   value       = module.vpc.private_subnets
+}
+output "public_subnet_ids" {
+  description = "subnet ids"
+  value       = module.vpc.public_subnets
+}
+output "route_53_zone_id" {
+  value = module.vpc.route_53_zone_id
 }
 
 output "eks_has_public_access" {

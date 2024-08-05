@@ -9,7 +9,6 @@ resource "local_file" "root_ca_key" {
 }
 
 resource "tls_self_signed_cert" "root_ca" {
-  key_algorithm   = "RSA"
   private_key_pem = tls_private_key.root_ca.private_key_pem
 
   subject {
