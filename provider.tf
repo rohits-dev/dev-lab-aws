@@ -43,6 +43,9 @@ provider "aws" {
       ManagedBy         = "Terraform"
     }
   }
+  ignore_tags {
+    keys = ["divvy_last_modified_by", "divvy_owner"]
+  }
 }
 
 provider "flux" {
