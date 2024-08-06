@@ -51,8 +51,6 @@ resource "kubernetes_service_account" "vault_issuer" {
 data "template_file" "vault_issuer_patch" {
   template = file("${path.module}/k8s_patches/vault-issuer-patch.yaml")
   vars = {
-    resource_prefix               = var.resource_prefix
-    service_account_default_token = kubernetes_service_account.vault_issuer.default_secret_name
     ca_base64                     = base64encode(var.root_ca_crt)
   }
 }
