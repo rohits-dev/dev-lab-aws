@@ -147,7 +147,7 @@ If destroy stuck deleting  flux-system ns then edit a few resources and remove t
 ```bash
 k edit gitrepositories flux-system -nflux-system
 k edit kustomizations flux-system -nflux-system
-k edit kustomizations resources -nflux-system
+k edit kustomizations resources-operator-level-0 -nflux-system
 ```
 
 If for some reason, teardown doesn't work or you loose the state. You can use the aws resource groups to find all resources by the tags `owner_email` or `owner_github_repo`
