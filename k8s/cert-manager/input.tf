@@ -54,3 +54,9 @@ variable "target_path" {
   default     = "./"
   description = "flux sync target path"
 }
+
+variable "target_path_vault_issuer" {
+  type        = string
+  default     = "./"
+  description = "vault issuer sync target path"
+}

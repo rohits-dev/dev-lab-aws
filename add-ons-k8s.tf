@@ -102,6 +102,7 @@ module "certmanager" {
   repository_name = var.REPOSITORY_NAME
   branch          = var.BRANCH
   target_path     = local.target_path_level_0
+  target_path_vault_issuer= local.resources_level_1
 }
 
 module "confluent" {
