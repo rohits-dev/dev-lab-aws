@@ -60,7 +60,7 @@ module "external_dns" {
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = local.target_path_level_1
+  target_path           = local.target_path_level_0
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
   route_53_zone_id      = module.vpc.route_53_zone_id
@@ -82,7 +82,7 @@ module "vault" {
   github_owner          = var.GITHUB_OWNER
   repository_name       = var.REPOSITORY_NAME
   branch                = var.BRANCH
-  target_path           = local.target_path
+  target_path           = local.target_path_level_2
   eks_oidc_provider     = module.eks.oidc_provider
   eks_oidc_provider_arn = module.eks.oidc_provider_arn
 }
@@ -101,7 +101,7 @@ module "certmanager" {
   github_owner    = var.GITHUB_OWNER
   repository_name = var.REPOSITORY_NAME
   branch          = var.BRANCH
-  target_path     = local.target_path_level_1
+  target_path     = local.target_path_level_0
 }
 
 module "confluent" {
@@ -136,7 +136,7 @@ module "prometheus" {
   github_owner    = var.GITHUB_OWNER
   repository_name = var.REPOSITORY_NAME
   branch          = var.BRANCH
-  target_path     = local.target_path
+  target_path     = local.target_path_level_2
 }
 
 

@@ -6,9 +6,9 @@ metadata:
 spec:
   interval: 5m0s
   dependsOn:
-    - name: operators
+    - name: operators-level-0
   wait: true
-  path: ./cluster-resources/resources/
+  path: ./cluster-resources/resources-operator-level-0/
   prune: true
   sourceRef:
     kind: GitRepository
