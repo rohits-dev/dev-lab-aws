@@ -1,7 +1,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: operators
+  name: operators-level-2
   namespace: flux-system
 spec:
   dependsOn:
