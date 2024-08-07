@@ -132,7 +132,7 @@ data:
     export MOUNT_ACCESSOR=$(vault auth list -tls-skip-verify -format=json | jq -r '."kubernetes/".accessor')
 
     vault write -tls-skip-verify pki_int/roles/templated-local \
-        allowed_domains="*.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.svc.cluster.local, *.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.*.local" \
+        allowed_domains="*.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.svc.cluster.local, *.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.*.local, *" \
         allowed_domains_template=true \
         allow_subdomains=true \
         allow_bare_domains=true \
@@ -197,7 +197,7 @@ data:
       crl_distribution_points="$VAULT_ADDR/v1/pki-external/v1/ica2/v1/crl"
 
     vault write -tls-skip-verify pki-external/v1/ica2/v1/roles/templated-local \
-            allowed_domains="*.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.svc.cluster.local, *.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.*.local" \
+            allowed_domains="*.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.svc.cluster.local, *.{{identity.entity.aliases.$MOUNT_ACCESSOR.metadata.service_account_namespace}}.*.local,*" \
             allowed_domains_template=true \
             allow_subdomains=true \
             allow_bare_domains=true \

@@ -1,6 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
 resources:
-  - vault-issuer.yaml
+  - ca-issuer.yaml
+  - ca-int-issuer.yaml
 patchesStrategicMerge:
-  - vault-issuer-patch.yaml

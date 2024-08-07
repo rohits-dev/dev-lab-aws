@@ -1,14 +1,14 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: operators
+  name: resources-operator-level-0
   namespace: flux-system
 spec:
-  dependsOn:
-    - name: operators-level-1
-  wait: true
   interval: 5m0s
-  path: ./cluster-resources/operators/
+  dependsOn:
+    - name: operators-level-0
+  wait: true
+  path: ./cluster-resources/resources-operator-level-0/
   prune: true
   sourceRef:
     kind: GitRepository
