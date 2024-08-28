@@ -12,6 +12,7 @@ module "fluxcd" {
   resource_prefix       = var.RESOURCE_PREFIX
   providers = {
     kubernetes = kubernetes
+    helm = helm
   }
 }
 
