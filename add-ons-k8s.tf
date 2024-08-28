@@ -7,6 +7,8 @@ module "fluxcd" {
   repository_visibility = "private"
   branch                = var.BRANCH
   target_path           = local.flux_target_path
+  git_ssh_private_key   = var.GIT_SSH_PRIVATE_KEY
+  git_ssh_public_key    =  var.GIT_SSH_PUBLIC_KEY
   resource_prefix       = var.RESOURCE_PREFIX
   providers = {
     kubernetes = kubernetes

@@ -17,6 +17,19 @@ variable "GITHUB_TOKEN" {
   description = "github token"
   nullable    = false
 }
+
+variable "GIT_SSH_PUBLIC_KEY" {
+  type        = string
+  description = "github ssh public key"
+  nullable = false
+}
+
+variable "GIT_SSH_PRIVATE_KEY" {
+  type        = string
+  description = "github ssh public key"
+  nullable = false
+}
+
 variable "GITHUB_OWNER" {
   type        = string
   description = "github owner"
