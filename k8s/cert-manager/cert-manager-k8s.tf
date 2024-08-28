@@ -48,17 +48,14 @@ resource "kubernetes_service_account" "vault_issuer" {
   }
 }
 
-data "template_file" "vault_issuer_patch" {
-  template = file("${path.module}/k8s_patches/vault-issuer-patch.yaml")
-  vars = {
+
+resource "kubernetes_config_map" "vault-issuer-vars" {
+  metadata {
+    name = "vault-issuer-vars"
+    namespace = "flux-system"
+  }
+
+  data = {
     ca_base64                     = base64encode(var.root_ca_crt)
   }
-}
-
-resource "github_repository_file" "vault_issuer_patch" {
-  repository          = var.repository_name
-  file                = "${var.target_path_vault_issuer}cert-manager/vault-issuer-patch.yaml"
-  content             = "${local.file_header_not_safe}${data.template_file.vault_issuer_patch.rendered}"
-  branch              = var.branch
-  overwrite_on_create = true
 }

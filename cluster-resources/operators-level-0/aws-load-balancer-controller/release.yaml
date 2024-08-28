@@ -20,7 +20,14 @@ spec:
   interval: 5m0s
   timeout: 5m0s
   values:
-    clusterName: rohit-eks-1
     serviceAccount:
       create: false
       name: aws-load-balancer-controller
+    clusterName: "${eks_cluster_name}"
+    ingressClassParams:
+      spec:
+        tags:
+          - key: owner_name
+            value: "${owner_name}"
+          - key: owner_email
+            value: "${owner_email}"

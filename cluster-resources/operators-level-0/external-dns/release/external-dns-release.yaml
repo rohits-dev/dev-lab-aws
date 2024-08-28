@@ -19,5 +19,11 @@ spec:
     provider: aws
 
     policy: sync
+   
+    domainFilters:
+      - "${resource_prefix}.local"
+
     serviceAccount:
       name: external-dns
+      annotations:
+        eks.amazonaws.com/role-arn: "${external_dns_iam_role_arn}"

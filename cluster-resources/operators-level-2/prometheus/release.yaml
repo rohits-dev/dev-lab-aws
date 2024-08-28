@@ -23,6 +23,7 @@ spec:
     commonLabels:
       monitoring-platform: prometheus
 
+
     ## Hosts is a valid FQDN
     prometheus:
       ingress:
@@ -31,15 +32,15 @@ spec:
         ingressClassName: nginx
         annotations:
           cert-manager.io/cluster-issuer: ca-issuer
-          external-dns.alpha.kubernetes.io/hostname: prometheus.rohit.local
+          external-dns.alpha.kubernetes.io/hostname: "prometheus.${resource_prefix}.local"
           alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/target-type: ip
         hosts:
-          - prometheus.rohit.local
+          - "prometheus.${resource_prefix}.local"
         tls:
           - secretName: prometheus-cert
             hosts:
-              - prometheus.rohit.local
+              - "prometheus.${resource_prefix}.local"
         pathType: Prefix
       prometheusSpec:
         retention: 30d
@@ -110,14 +111,15 @@ spec:
         ingressClassName: nginx
         annotations:
           cert-manager.io/cluster-issuer: ca-issuer
-          external-dns.alpha.kubernetes.io/hostname: grafana.rohit.local
+          external-dns.alpha.kubernetes.io/hostname: "grafana.${resource_prefix}.local"
+          alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/target-type: ip
         hosts:
-          - grafana.rohit.local
+          - "grafana.${resource_prefix}.local"
         tls:
           - secretName: grafana-cert
             hosts:
-              - grafana.rohit.local
+              - "grafana.${resource_prefix}.local"
 
     nameOverride: "prometheus-operator"
 

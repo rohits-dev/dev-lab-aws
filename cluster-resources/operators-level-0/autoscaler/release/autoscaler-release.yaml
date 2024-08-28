@@ -25,6 +25,8 @@ spec:
       # rbac.clusterScoped -- if set to false will only provision RBAC to alter resources in the current namespace. Most useful for Cluster-API
       clusterScoped: true
       serviceAccount:
+        annotations:
+          eks.amazonaws.com/role-arn: "${autoscaler_iam_role_arn}"
         # rbac.serviceAccount.annotations -- Additional Service Account annotations.
 
         # rbac.serviceAccount.create -- If `true` and `rbac.create` is also true, a Service Account will be created.
@@ -35,3 +37,7 @@ spec:
         automountServiceAccountToken: true
     #leader-elect: false
     sslCertPath: /etc/ssl/certs/ca-bundle.crt
+    autoDiscovery:
+      clusterName: "${resource_prefix}-eks-1"
+    awsRegion: "${aws_region}"
+      

@@ -13,3 +13,9 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: resource-prefix
+      - kind: ConfigMap
+        name: vault-vars

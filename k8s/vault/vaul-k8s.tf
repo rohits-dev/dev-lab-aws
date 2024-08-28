@@ -1,35 +1,17 @@
-data "template_file" "vault_patch" {
-  template = file("${path.module}/k8s_patches/vault-release-patch.yaml")
-  vars = {
-    vault_auto_unseal_kms_id = aws_kms_key.vault.key_id
-    vault_role_arn           = aws_iam_role.vault.arn
-    resource_prefix          = var.resource_prefix
-    aws_region               = var.aws_region
+
+resource "kubernetes_config_map" "vault-vars" {
+  depends_on = [ flux_bootstrap_git.this ]
+  metadata {
+    name = "vault-vars"
+    namespace = "flux-system"
   }
-}
 
-data "template_file" "vault_init_job_patch" {
-  template = file("${path.module}/k8s_patches/vault-init-job-patch.yaml")
-  vars = {
-    s3_bucket  = local.vault_s3_bucket_name
-    aws_region = var.aws_region
+  data = {
+    vault_s3_bucket           = local.vault_s3_bucket_name
+    vault_auto_unseal_kms_id  = aws_kms_key.vault.key_id
+    vault_role_arn            = aws_iam_role.vault.arn
+    aws_region                = var.aws_region
   }
-}
-
-resource "github_repository_file" "vault_patch" {
-  repository          = var.repository_name
-  file                = "${var.target_path}vault/release/vault-release-patch.yaml"
-  content             = "${local.file_header_not_safe}${data.template_file.vault_patch.rendered}"
-  branch              = var.branch
-  overwrite_on_create = true
-}
-
-resource "github_repository_file" "vault_init_job_patch" {
-  repository          = var.repository_name
-  file                = "${var.target_path}vault/release/vault-init-job-patch.yaml"
-  content             = "${local.file_header_not_safe}${data.template_file.vault_init_job_patch.rendered}"
-  branch              = var.branch
-  overwrite_on_create = true
 }
 
 resource "kubernetes_namespace" "vault" {

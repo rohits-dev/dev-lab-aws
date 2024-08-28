@@ -20,6 +20,7 @@ metadata:
   # namespace: confluent
 spec:
   vault:
+    caBundle: "${ca_base64}"
     server: https://vault-0.vault-internal.vault.svc.cluster.local:8200
     path: pki-external/v1/ica2/v1/sign/templated-local
     auth:

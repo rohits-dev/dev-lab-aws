@@ -17,3 +17,5 @@ spec:
     substituteFrom:
       - kind: ConfigMap
         name: resource-prefix
+      - kind: ConfigMap
+        name: vault-issuer-vars

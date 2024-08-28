@@ -15,3 +15,14 @@ spec:
       kind: Deployment
       name: aws-load-balancer-controller
       namespace: kube-system
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: resource-prefix
+      - kind: ConfigMap
+        name: autoscaler-vars
+      - kind: ConfigMap
+        name: lb-controller-vars
+      - kind: ConfigMap
+        name: external-dns-vars
+        
