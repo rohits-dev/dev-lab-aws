@@ -14,5 +14,5 @@ spec:
       version: "3.*"
   interval: 5m0s
   timeout: 5m0s
-  releaseName: kyverno-polcies
+  releaseName: kyverno-policies
   values:
