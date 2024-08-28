@@ -77,6 +77,11 @@ resource "helm_release" "flux2_sync" {
     name  = "gitRepository.spec.interval"
     value = "1m"
   }
+  
+  set {
+    name  = "kustomization.spec.path"
+    value = var.target_path
+  }
 
   depends_on = [helm_release.flux2]
 }
