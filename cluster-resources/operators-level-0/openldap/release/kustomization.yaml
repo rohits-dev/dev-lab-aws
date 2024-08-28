@@ -3,5 +3,3 @@ kind: Kustomization
 
 resources:
   - openldap-release.yaml
-# patchesStrategicMerge:
-# - confluent-operator-release-patch.yaml

@@ -4,5 +4,3 @@ kind: Kustomization
 resources:
   - helmchart-repo.yaml
   - release.yaml
-patchesStrategicMerge:
-  - release-patch.yaml

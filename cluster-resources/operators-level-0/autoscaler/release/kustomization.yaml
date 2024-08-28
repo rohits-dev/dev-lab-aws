@@ -3,5 +3,4 @@ kind: Kustomization
 
 resources:
   - autoscaler-release.yaml
-patchesStrategicMerge:
-  - autoscaler-release-patch.yaml
+

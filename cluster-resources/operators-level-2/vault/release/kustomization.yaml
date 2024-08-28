@@ -4,6 +4,3 @@ kind: Kustomization
 resources:
   - vault-release.yaml
   - vault-init-job.yaml
-patchesStrategicMerge:
-  - vault-release-patch.yaml
-  - vault-init-job-patch.yaml

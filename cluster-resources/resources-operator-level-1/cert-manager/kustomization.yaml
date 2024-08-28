@@ -3,5 +3,4 @@ kind: Kustomization
 resources:
   - vault-issuer.yaml
   - var-test.yaml
-patchesStrategicMerge:
-  - vault-issuer-patch.yaml
+

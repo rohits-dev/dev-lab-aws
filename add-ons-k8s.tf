@@ -34,6 +34,10 @@ module "autoscaler" {
 module "aws_load_balancer_controller" {
   source = "./k8s/aws-load-balancer-controller"
   count  = var.ADD_FLUXCD ? 1 : 0
+  depends_on = [
+    module.eks,
+    module.fluxcd,
+  module.vpn]
   providers = {
     kubernetes = kubernetes
   }
