@@ -14,8 +14,4 @@ resource "kubernetes_config_map" "resource-prefix" {
   data = {
     prefix = var.resource_prefix
   }
-
-  binary_data = {
-    "my_payload.bin" = "${filebase64("${path.module}/my_payload.bin")}"
-  }
 }
