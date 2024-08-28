@@ -5,8 +5,3 @@ resources:
   - var-test.yaml
 patchesStrategicMerge:
   - vault-issuer-patch.yaml
-spec:
-  postBuild:
-    substituteFrom:
-      - kind: ConfigMap
-        name: resource-prefix
