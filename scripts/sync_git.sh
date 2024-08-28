@@ -6,7 +6,7 @@ flux reconcile kustomization operators-level-0
 
 flux reconcile kustomization operators-level-1
 
-flux reconcile kustomization operators-level-1
+flux reconcile kustomization operators-level-2
 
 flux reconcile kustomization resources-operator-level-0
 
