@@ -44,3 +44,11 @@ variable "resource_prefix" {
   #   error_message = "The RESOURCE_PREFIX is required field."
   # }
 }
+
+variable "git_ssh_public_key" {
+  description = "Public key to access git repo over ssh"
+}
+
+variable "git_ssh_private_key" {
+  description = "Private key to access git repo over ssh"
+}
