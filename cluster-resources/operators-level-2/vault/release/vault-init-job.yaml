@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: vault-init-openssl-ca-conf
   namespace: vault
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
 data:
   extfile.cnf: |-
     basicConstraints=CA:TRUE
@@ -13,6 +15,8 @@ kind: ConfigMap
 metadata:
   name: vault-init-script
   namespace: vault
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
 data:
   entrypoint.sh: |-
     #!/bin/bash
