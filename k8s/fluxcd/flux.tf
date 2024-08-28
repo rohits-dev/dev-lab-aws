@@ -12,6 +12,6 @@ resource "kubernetes_config_map" "resource-prefix" {
   }
 
   data = {
-    prefix = var.resource_prefix
+    resource_prefix = var.resource_prefix
   }
 }
