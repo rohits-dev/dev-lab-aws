@@ -1,6 +1,5 @@
 
 resource "kubernetes_config_map" "vault-vars" {
-  depends_on = [ flux_bootstrap_git.this ]
   metadata {
     name = "vault-vars"
     namespace = "flux-system"
