@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: resource-prefix-replaced
+  namespace: confluent
+data:
+  prefix: "${prefix}"
